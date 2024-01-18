@@ -37,5 +37,7 @@ out/
 .vscode/
 
 ### setting files ###
-application.yml
-docker-compose.yml
+/db/
+.env
+/src/main/resources/security/application-key.yml
+/src/main/resources/security/application-database.yml
