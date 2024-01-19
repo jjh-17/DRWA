@@ -3,10 +3,10 @@ version: '3'
 services:
   mysql:
     image: mysql
-    container_name: local-db
+    container_name: mysql
     restart: always
     ports:
-      - "13306:3306"
+      - ${PORT_INFO}
     environment:
       - MYSQL_DATABASE=${DATABASE_NAME}
       - MYSQL_USER=${USER_NAME}
