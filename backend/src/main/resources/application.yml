@@ -2,11 +2,11 @@ spring:
   config:
     import:
       - security/application-database.yml
-      - security/application-key.yml
+#      - security/application-key.yml
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
