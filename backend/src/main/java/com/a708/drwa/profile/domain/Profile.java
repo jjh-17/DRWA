@@ -13,20 +13,20 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Profile {
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rank_id")
     private Rank rank;
 
     private String nickname;
-    private String point;
-    private String mvpCount;
+    private int point;
+    private int mvpCount;
 
     /**
      * TODO
@@ -35,7 +35,7 @@ public class Profile {
      */
 
     @Builder
-    private Profile(Member member, String nickname, String point, String mvpCount, Rank rank) {
+    private Profile(Member member, String nickname, int point, int mvpCount, Rank rank) {
         this.member = member;
         this.nickname = nickname;
         this.point = point;
