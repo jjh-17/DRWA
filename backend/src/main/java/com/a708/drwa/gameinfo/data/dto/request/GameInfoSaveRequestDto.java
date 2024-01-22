@@ -1,4 +1,4 @@
-package com.a708.drwa.gameinfo.domain.data.dto.request;
+package com.a708.drwa.gameinfo.data.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -7,7 +7,7 @@ import lombok.ToString;
 
 @Getter
 @ToString
-public class GameInfoRequestDto {
+public class GameInfoSaveRequestDto {
 
     @NotNull
     @Size(max = 31)

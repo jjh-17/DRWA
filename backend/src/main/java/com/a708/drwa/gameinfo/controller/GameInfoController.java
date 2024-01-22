@@ -1,7 +1,7 @@
 package com.a708.drwa.gameinfo.controller;
 
 import com.a708.drwa.gameinfo.domain.GameInfo;
-import com.a708.drwa.gameinfo.domain.data.dto.request.GameInfoRequestDto;
+import com.a708.drwa.gameinfo.data.dto.request.GameInfoSaveRequestDto;
 import com.a708.drwa.gameinfo.service.GameInfoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public class GameInfoController {
 
     // 게임 정보 저장
     @PostMapping("/create")
-    public ResponseEntity<?> createGameInfo(@RequestBody @Valid GameInfoRequestDto gameInfoRequestDto) {
+    public ResponseEntity<?> createGameInfo(@RequestBody @Valid GameInfoSaveRequestDto gameInfoRequestDto) {
         log.debug("게임 정보 저장 : " + gameInfoRequestDto);
         GameInfo result = gameInfoService.createGameInfo(gameInfoRequestDto);
         if(result==null) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

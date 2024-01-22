@@ -1,7 +1,7 @@
 package com.a708.drwa.gameinfo.service;
 
 import com.a708.drwa.gameinfo.domain.GameInfo;
-import com.a708.drwa.gameinfo.domain.data.dto.request.GameInfoRequestDto;
+import com.a708.drwa.gameinfo.data.dto.request.GameInfoSaveRequestDto;
 import com.a708.drwa.gameinfo.repository.GameInfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ public class GameInfoService {
     private final GameInfoRepository gameInfoRepository;
 
     @Transactional
-    public GameInfo createGameInfo(GameInfoRequestDto gameInfoRequestDto) {
+    public GameInfo createGameInfo(GameInfoSaveRequestDto gameInfoRequestDto) {
         GameInfo gameInfo = GameInfo.builder()
                 .keyword(gameInfoRequestDto.getKeyword())
                 .mvpMemberId(gameInfoRequestDto.getMvpMemberId())
