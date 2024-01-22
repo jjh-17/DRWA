@@ -1,13 +1,17 @@
 package com.a708.drwa.gameinfo.exception;
 
+import com.a708.drwa.global.exception.ErrorCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum GameInfoErrorCode {
+public enum GameInfoErrorCode implements ErrorCode {
 
-    EXAMPLE_ERROR_CODE(400, "GAME_INFO_01", "예시용 에러코드입니다. 상태코드, DOMAIN_##, 메세지 형식으로 만들어주세요.");
+    BAD_REQUEST(400, "Bad Request", "필수 게임 정보 데이터가 누락되었거나 형식과 다른 데이터를 요청하셨습니다."),
+    UNAUTHORIZED(401, "Unauthorized", "사용자 인증 정보를 찾을 수 없습니다."),
+    FORBIDDEN(403, "Forbidden", "해당 요청은 수행할 수 없습니다."),
+    NOT_FOUND(404, "Not Found", "존재하지 않는 게임 정보입니다.");
 
     private final int statusCode;
     private final String errorCode;
