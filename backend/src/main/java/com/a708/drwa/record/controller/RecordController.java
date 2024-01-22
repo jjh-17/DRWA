@@ -1,7 +1,7 @@
 package com.a708.drwa.record.controller;
 
 import com.a708.drwa.record.domain.Record;
-import com.a708.drwa.record.domain.data.dto.request.RecordRequestDto;
+import com.a708.drwa.record.domain.data.dto.request.RecordSaveRequestDto;
 import com.a708.drwa.record.service.RecordService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +19,8 @@ public class RecordController {
 
     private final RecordService recordService;
 
-    //
     @PostMapping("/create")
-    public ResponseEntity<?> createRecord(@RequestBody @Valid RecordRequestDto recordRequestDto) {
+    public ResponseEntity<?> createRecord(@RequestBody @Valid RecordSaveRequestDto recordRequestDto) {
         log.debug("게임 정보 저장 : " + recordRequestDto);
         Record result = recordService.createRecord(recordRequestDto);
         if(result==null) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
