@@ -2,8 +2,13 @@ spring:
   config:
     import:
       - security/application-database.yml
-#      - security/application-key.yml
+      - security/application-key.yml
 
+  # redis cache 사용
+  cache:
+    type: redis
+
+  # JPA 관련 설정
   jpa:
     hibernate:
       ddl-auto: update
@@ -12,6 +17,7 @@ spring:
         format_sql: true
         use_sql_comments: true
         show_sql: true
+
 
 # swagger 설정
 springdoc:
