@@ -1,7 +1,7 @@
 package com.a708.drwa.record.controller;
 
 import com.a708.drwa.record.domain.Record;
-import com.a708.drwa.record.domain.data.dto.request.RecordSaveRequestDto;
+import com.a708.drwa.record.data.dto.request.RecordSaveRequestDto;
 import com.a708.drwa.record.service.RecordService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

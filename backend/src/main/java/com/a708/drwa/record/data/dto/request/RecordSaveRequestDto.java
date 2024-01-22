@@ -1,4 +1,4 @@
-package com.a708.drwa.record.domain.data.dto.request;
+package com.a708.drwa.record.data.dto.request;
 
 import com.a708.drwa.record.domain.Result;
 import com.a708.drwa.record.domain.Team;

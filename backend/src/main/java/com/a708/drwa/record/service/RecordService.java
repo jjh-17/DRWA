@@ -1,7 +1,7 @@
 package com.a708.drwa.record.service;
 
 import com.a708.drwa.record.domain.Record;
-import com.a708.drwa.record.domain.data.dto.request.RecordSaveRequestDto;
+import com.a708.drwa.record.data.dto.request.RecordSaveRequestDto;
 import com.a708.drwa.record.repository.RecordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
