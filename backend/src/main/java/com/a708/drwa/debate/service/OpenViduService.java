@@ -26,10 +26,10 @@ public class OpenViduService {
      */
     public void create(int debateId) {
         Session session = null;
-
         try {
             session = openVidu.createSession();
         } catch (OpenViduJavaClientException | OpenViduHttpException e) {
+            System.out.println(e.getMessage());
             throw new DebateException(DebateErrorCode.OPENVIDU_INTERNAL_ERROR);
         }
 

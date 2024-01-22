@@ -24,7 +24,6 @@ public class DebateService {
         return debateRepository.save(debateCreateRequestDto.toEntity()).getDebateId();
     }
 
-    public void join()
     public Boolean isExistDebate(DebateJoinRequestDto debateJoinRequestDto) {
         // 존재하지 않는 방일 경우
         if(!debateRepository.existsById(debateJoinRequestDto.getDebateId()))
