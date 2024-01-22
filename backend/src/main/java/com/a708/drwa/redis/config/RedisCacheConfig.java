@@ -1,4 +1,4 @@
-package com.a708.drwa.config;
+package com.a708.drwa.redis.config;
 
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
