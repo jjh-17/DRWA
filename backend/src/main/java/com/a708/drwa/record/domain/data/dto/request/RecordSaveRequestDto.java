@@ -5,13 +5,12 @@ import com.a708.drwa.record.domain.Team;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
 @Getter
 @ToString
-public class RecordRequestSaveDto {
+public class RecordSaveRequestDto {
 
     @NotNull
     private int memberId;
@@ -26,15 +25,5 @@ public class RecordRequestSaveDto {
     @Enumerated(EnumType.ORDINAL)
     @NotNull
     private Team team;
-
-    @Builder
-    public RecordRequestSaveDto(int memberId, int gameId, Result result, Team team){
-        this.memberId = memberId;
-        this.gameId = gameId;
-        this.result = result;
-        this.team = team;
-    }
-
-    public 
 
 }
