@@ -27,3 +27,13 @@ services:
     volumes:
       - ${REDIS_VOLUME_PATH}:/data
       - ${REDIS_DEFAULT_CONFIG_PATH}:/usr/local/etc/redis/redis.conf
+
+  openvidu:
+    image: openvidu/openvidu-server-kms
+    container_name: openVidu
+    restart: always
+    ports:
+      - 14443:4443
+    environment:
+      - OPENVIDU_SECRET=1234
+      - openvidu.publicurl=https://localhost:4443
