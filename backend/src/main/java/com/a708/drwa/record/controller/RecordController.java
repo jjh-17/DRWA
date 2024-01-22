@@ -21,10 +21,9 @@ public class RecordController {
 
     @PostMapping("/create")
     public ResponseEntity<?> createRecord(@RequestBody @Valid RecordSaveRequestDto recordRequestDto) {
-        log.debug("게임 정보 저장 : " + recordRequestDto);
-        Record result = recordService.createRecord(recordRequestDto);
-        if(result==null) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>(result, HttpStatus.CREATED);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(recordService.createRecord(recordRequestDto));
     }
 
 }
