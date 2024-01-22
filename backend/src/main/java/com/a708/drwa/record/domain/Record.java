@@ -3,12 +3,10 @@ package com.a708.drwa.record.domain;
 import com.a708.drwa.gameinfo.domain.GameInfo;
 import com.a708.drwa.member.domain.Member;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.Range;
 
 @Entity
 @Getter
@@ -24,7 +22,6 @@ public class Record {
     private Member member;
 
     @Column(name="member_id", nullable = false)
-    @Range(min=0, max=3)
     private int memberId;
 
     @ManyToOne(targetEntity = GameInfo.class, fetch = FetchType.LAZY)
