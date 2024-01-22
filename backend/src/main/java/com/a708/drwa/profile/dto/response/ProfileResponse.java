@@ -1,5 +1,6 @@
 package com.a708.drwa.profile.dto.response;
 
+import com.a708.drwa.rank.enums.RankName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,7 +12,7 @@ public class ProfileResponse {
     private Integer profileId;
     private Integer memberId;
     private String nickname;
-    private String point;
-    private String mvpCount;
-    // 랭크
+    private int point;
+    private int mvpCount;
+    private RankName rankName;
 }
