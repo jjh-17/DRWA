@@ -1,8 +1,10 @@
 package com.a708.drwa.debate.controller;
 
 import com.a708.drwa.debate.data.dto.request.DebateCreateRequestDto;
+import com.a708.drwa.debate.data.dto.request.DebateJoinRequestDto;
 import com.a708.drwa.debate.service.DebateService;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,5 +23,10 @@ public class DebateController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(debateService.create(debateCreateRequestDto));
+    }
+
+    @PostMapping("/join")
+    public ResponseEntity<?> join(@RequestBody DebateJoinRequestDto debateJoinRequestDto) {
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
