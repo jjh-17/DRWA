@@ -1,7 +1,7 @@
 package com.a708.drwa.room.domain;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
-import jakarta.persistence.Id;
 
 @Document(indexName = "room")
 public class Room {
