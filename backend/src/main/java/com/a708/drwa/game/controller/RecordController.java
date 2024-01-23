@@ -1,8 +1,7 @@
-package com.a708.drwa.record.controller;
+package com.a708.drwa.game.controller;
 
-import com.a708.drwa.record.domain.Record;
-import com.a708.drwa.record.data.dto.request.RecordSaveRequestDto;
-import com.a708.drwa.record.service.RecordService;
+import com.a708.drwa.game.data.dto.request.RecordSaveRequestDto;
+import com.a708.drwa.game.service.RecordService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

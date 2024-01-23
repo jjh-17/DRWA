@@ -1,7 +1,7 @@
-package com.a708.drwa.record.data.dto.request;
+package com.a708.drwa.game.data.dto.request;
 
-import com.a708.drwa.record.domain.Result;
-import com.a708.drwa.record.domain.Team;
+import com.a708.drwa.game.domain.Result;
+import com.a708.drwa.game.domain.Team;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;

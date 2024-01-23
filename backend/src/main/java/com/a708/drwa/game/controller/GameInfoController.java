@@ -1,12 +1,10 @@
-package com.a708.drwa.gameinfo.controller;
+package com.a708.drwa.game.controller;
 
-import com.a708.drwa.gameinfo.domain.GameInfo;
-import com.a708.drwa.gameinfo.data.dto.request.GameInfoSaveRequestDto;
-import com.a708.drwa.gameinfo.service.GameInfoService;
+import com.a708.drwa.game.data.dto.request.GameInfoSaveRequestDto;
+import com.a708.drwa.game.service.GameInfoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

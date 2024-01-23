@@ -1,4 +1,4 @@
-package com.a708.drwa.gameinfo.exception;
+package com.a708.drwa.game.exception;
 
 import com.a708.drwa.global.exception.ErrorCode;
 import lombok.Getter;

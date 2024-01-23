@@ -1,8 +1,8 @@
-package com.a708.drwa.record.service;
+package com.a708.drwa.game.service;
 
-import com.a708.drwa.record.domain.Record;
-import com.a708.drwa.record.data.dto.request.RecordSaveRequestDto;
-import com.a708.drwa.record.repository.RecordRepository;
+import com.a708.drwa.game.domain.Record;
+import com.a708.drwa.game.data.dto.request.RecordSaveRequestDto;
+import com.a708.drwa.game.repository.RecordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,6 +1,6 @@
-package com.a708.drwa.record.repository;
+package com.a708.drwa.game.repository;
 
-import com.a708.drwa.record.domain.Record;
+import com.a708.drwa.game.domain.Record;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

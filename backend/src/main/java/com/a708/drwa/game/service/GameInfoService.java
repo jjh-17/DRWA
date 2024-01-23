@@ -1,8 +1,8 @@
-package com.a708.drwa.gameinfo.service;
+package com.a708.drwa.game.service;
 
-import com.a708.drwa.gameinfo.domain.GameInfo;
-import com.a708.drwa.gameinfo.data.dto.request.GameInfoSaveRequestDto;
-import com.a708.drwa.gameinfo.repository.GameInfoRepository;
+import com.a708.drwa.game.domain.GameInfo;
+import com.a708.drwa.game.data.dto.request.GameInfoSaveRequestDto;
+import com.a708.drwa.game.repository.GameInfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

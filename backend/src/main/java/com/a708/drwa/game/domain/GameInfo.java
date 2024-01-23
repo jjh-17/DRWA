@@ -1,4 +1,4 @@
-package com.a708.drwa.gameinfo.domain;
+package com.a708.drwa.game.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;

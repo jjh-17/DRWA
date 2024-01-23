@@ -1,6 +1,5 @@
-package com.a708.drwa.record.domain;
+package com.a708.drwa.game.domain;
 
-import com.a708.drwa.gameinfo.domain.GameInfo;
 import com.a708.drwa.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
