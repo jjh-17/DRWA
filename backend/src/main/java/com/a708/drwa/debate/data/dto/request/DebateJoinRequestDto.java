@@ -7,5 +7,6 @@ import lombok.NoArgsConstructor;
 @Getter
 public class DebateJoinRequestDto {
     private int debateId;
+    // TODO: 사용자 정보도 받을 듯?
     // private JWT Token;
 }

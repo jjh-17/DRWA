@@ -1,8 +1,8 @@
 spring:
   config:
     import:
-      - security/application-database.yml
-      - security/application-key.yml
+      - security/application-database.yml # DB 정보
+      - security/application-key.yml      # API key 등등
 
   # redis cache 사용
   cache:
