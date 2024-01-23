@@ -1,8 +1,9 @@
 spring:
   config:
     import:
-      - security/application-database.yml # DB 정보
-      - security/application-key.yml      # API key 등등
+      - security/application-database.yml
+      - security/application-key.yml
+      - security/application-security.yml
 
   # redis cache 사용
   cache:
@@ -17,7 +18,6 @@ spring:
         format_sql: true
         use_sql_comments: true
         show_sql: true
-
 
 # swagger 설정
 springdoc:
