@@ -3,6 +3,7 @@ package com.a708.drwa.member.service.Impl;
 import com.a708.drwa.member.dto.SocialUserInfoResponse;
 import com.a708.drwa.member.service.SocialLoginService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -18,6 +19,7 @@ import java.util.Map;
  * Kakao OAuth2.0 로그인 서비스
  */
 @Service
+@ConfigurationProperties(prefix = "spring.security.oauth2.client.registration.kakao")
 public class KakaoLoginServiceImpl implements SocialLoginService {
 
 //    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
