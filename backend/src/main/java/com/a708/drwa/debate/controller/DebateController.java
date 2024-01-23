@@ -3,12 +3,8 @@ package com.a708.drwa.debate.controller;
 import com.a708.drwa.debate.data.dto.request.DebateCreateRequestDto;
 import com.a708.drwa.debate.data.dto.request.DebateJoinRequestDto;
 import com.a708.drwa.debate.service.DebateService;
-<<<<<<< backend/src/main/java/com/a708/drwa/debate/controller/DebateController.java
 import com.a708.drwa.debate.service.OpenViduService;
-=======
->>>>>>> backend/src/main/java/com/a708/drwa/debate/controller/DebateController.java
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
