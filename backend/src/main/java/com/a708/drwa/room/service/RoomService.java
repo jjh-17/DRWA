@@ -11,7 +11,7 @@ public class RoomService {
 
     @Autowired
     private RoomRepository roomRepository;
-    
+
 
 
     public Room getRoomByTitle(String title){//제목 검색해서 검색어에 해당하는 방 가정오기
