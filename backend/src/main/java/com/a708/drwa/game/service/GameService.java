@@ -17,6 +17,7 @@ public class GameService {
     private final GameInfoRepository gameInfoRepository;
     private final RecordRepository recordRepository;
 
+    // 한번만 실행되어야 한다.
     @Transactional
     public GameInfo createGameInfo(GameInfoCreateRequestDto gameInfoRequestDto) {
         GameInfo gameInfo = GameInfo.builder()
@@ -27,6 +28,7 @@ public class GameService {
         return gameInfoRepository.save(gameInfo);
     }
 
+    // 모든 토론자 및 배심원이 수행한다.
     @Transactional
     public Record createRecord(RecordCreateRequestDto recordRequestDto) {
         Record record = Record.builder()

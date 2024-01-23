@@ -20,14 +20,14 @@ public class Record {
     @JoinColumn(name="member_id", insertable = false, updatable = false)
     private Member member;
 
-    @Column(name="member_id", nullable = false)
+    @Column(name="member_id", updatable = false, nullable = false)
     private int memberId;
 
     @ManyToOne(targetEntity = GameInfo.class, fetch = FetchType.LAZY)
     @JoinColumn(name="game_id", insertable = false, updatable = false)
     private GameInfo gameInfo;
 
-    @Column(name="game_id", nullable = false)
+    @Column(name="game_id", updatable = false, nullable = false)
     private int gameId;
 
     @Enumerated(EnumType.ORDINAL)

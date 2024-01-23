@@ -16,11 +16,11 @@ public class GameInfo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int gameId;
 
-    @Column(name="keyword", nullable = false)
+    @Column(name="keyword", updatable = false, nullable = false)
     @Size(max = 31)
     private String keyword;
 
-    @Column(name = "mvp_member_id", nullable = false)
+    @Column(name = "mvp_member_id", updatable = false, nullable = false)
     private int mvpMemberId;
 
     @Builder
