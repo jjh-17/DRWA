@@ -42,7 +42,7 @@ public class ProfileController {
 
     @GetMapping("/all")
     public ResponseEntity<List<ProfileResponse>> findAllProfiles(){
-        List<ProfileResponse> results = profileService.findAll();
+        List<ProfileResponse> results = profileService.findAllWithDto();
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 

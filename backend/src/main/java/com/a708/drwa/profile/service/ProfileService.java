@@ -70,7 +70,10 @@ public class ProfileService {
                 .build();
     }
 
-    public List<ProfileResponse> findAll(){
+    public List<Profile> findAll(){
+        return profileRepository.findAll();
+    }
+    public List<ProfileResponse> findAllWithDto(){
         return profileRepository.findAll()
                 .stream()
                 .map(p -> ProfileResponse.builder()
