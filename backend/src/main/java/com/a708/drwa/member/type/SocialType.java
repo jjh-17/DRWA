@@ -5,7 +5,7 @@ import java.util.Arrays;
 public enum SocialType {
     GOOGLE,
     KAKAO,
-    NAVER
+    NAVER;
 
     /**
      * 문자열로부터 SocialType을 찾아옴
