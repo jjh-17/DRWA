@@ -120,7 +120,7 @@ class ProfileServiceTest {
         profileService.addProfile(request4);
 
         // when
-        List<ProfileResponse> results = profileService.findAll();
+        List<ProfileResponse> results = profileService.findAllWithDto();
 
         // then
         assertThat(results.size()).isEqualTo(4);
