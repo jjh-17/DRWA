@@ -15,7 +15,12 @@ public class Member {
     // Primary Key
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
+
+
+    public Member(int memberId) {
+        this.id = memberId;
+    }
 
     // 소셜 로그인 사용자 ID
     @Column(unique = true)

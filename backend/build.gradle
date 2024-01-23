@@ -71,6 +71,12 @@ dependencies {
 	// swagger
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 
+	// batch
+	implementation 'org.springframework.boot:spring-boot-starter-batch'
+
+	// batch-test
+	testImplementation 'org.springframework.batch:spring-batch-test'
+
 	// test
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
