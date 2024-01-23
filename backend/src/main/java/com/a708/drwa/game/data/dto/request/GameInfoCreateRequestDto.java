@@ -7,7 +7,7 @@ import lombok.ToString;
 
 @Getter
 @ToString
-public class GameInfoSaveRequestDto {
+public class GameInfoCreateRequestDto {
 
     @NotNull
     @Size(max = 31)

@@ -1,7 +1,7 @@
 package com.a708.drwa.game.service;
 
-import com.a708.drwa.game.data.dto.request.GameInfoSaveRequestDto;
-import com.a708.drwa.game.data.dto.request.RecordSaveRequestDto;
+import com.a708.drwa.game.data.dto.request.GameInfoCreateRequestDto;
+import com.a708.drwa.game.data.dto.request.RecordCreateRequestDto;
 import com.a708.drwa.game.domain.GameInfo;
 import com.a708.drwa.game.domain.Record;
 import com.a708.drwa.game.repository.GameInfoRepository;
@@ -18,7 +18,7 @@ public class GameService {
     private final RecordRepository recordRepository;
 
     @Transactional
-    public GameInfo createGameInfo(GameInfoSaveRequestDto gameInfoRequestDto) {
+    public GameInfo createGameInfo(GameInfoCreateRequestDto gameInfoRequestDto) {
         GameInfo gameInfo = GameInfo.builder()
                 .keyword(gameInfoRequestDto.getKeyword())
                 .mvpMemberId(gameInfoRequestDto.getMvpMemberId())
@@ -27,7 +27,7 @@ public class GameService {
     }
 
     @Transactional
-    public Record createRecord(RecordSaveRequestDto recordRequestDto) {
+    public Record createRecord(RecordCreateRequestDto recordRequestDto) {
         Record record = Record.builder()
                 .memberId(recordRequestDto.getMemberId())
                 .gameId(recordRequestDto.getGameId())

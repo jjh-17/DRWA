@@ -1,7 +1,7 @@
 package com.a708.drwa.game.service;
 
 import com.a708.drwa.game.domain.Record;
-import com.a708.drwa.game.data.dto.request.RecordSaveRequestDto;
+import com.a708.drwa.game.data.dto.request.RecordCreateRequestDto;
 import com.a708.drwa.game.repository.RecordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ public class RecordService {
     private final RecordRepository recordRepository;
 
     @Transactional
-    public Record createRecord(RecordSaveRequestDto recordRequestDto) {
+    public Record createRecord(RecordCreateRequestDto recordRequestDto) {
         Record record = Record.builder()
                 .memberId(recordRequestDto.getMemberId())
                 .gameId(recordRequestDto.getGameId())

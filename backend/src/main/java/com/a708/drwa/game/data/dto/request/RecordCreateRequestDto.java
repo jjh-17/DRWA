@@ -10,7 +10,7 @@ import lombok.ToString;
 
 @Getter
 @ToString
-public class RecordSaveRequestDto {
+public class RecordCreateRequestDto {
 
     @NotNull
     private int memberId;
