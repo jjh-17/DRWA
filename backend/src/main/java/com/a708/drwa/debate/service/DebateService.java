@@ -28,7 +28,7 @@ public class DebateService {
         // 존재하지 않는 방일 경우
         if(!debateRepository.existsById(debateJoinRequestDto.getDebateId()))
             throw new DebateException(DebateErrorCode.NOT_EXIST_DEBATE_ROOM_ERROR);
-
         return true;
+
     }
 }
