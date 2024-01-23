@@ -3,6 +3,9 @@ package com.a708.drwa.member.service;
 import com.a708.drwa.member.domain.Member;
 import com.a708.drwa.member.dto.SocialUserInfoResponse;
 import com.a708.drwa.member.repository.MemberRepository;
+import com.a708.drwa.member.service.Impl.GoogleLoginServiceImpl;
+import com.a708.drwa.member.service.Impl.KakaoLoginServiceImpl;
+import com.a708.drwa.member.service.Impl.NaverLoginServiceImpl;
 import com.a708.drwa.member.type.SocialType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,6 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final GoogleLoginServiceImpl googleLoginService;
+    private final NaverLoginServiceImpl naverLoginService;
+    private final KakaoLoginServiceImpl kakaoLoginService;
 
     /**
      * 소셜 로그인 처리
@@ -38,5 +44,23 @@ public class MemberService {
         Member newMember = Member.createMember(userInfo.getId(), userInfo.getSocialType());
 
         return memberRepository.save(newMember);
+    }
+
+    /**
+     * 소셜 로그인 서비스를 반환한다.
+     * @param socialType : google, naver, kakao
+     * @return : 소셜 로그인 서비스
+     */
+    public SocialLoginService getSocialLoginService(String socialType) {
+        switch (socialType) {
+            case "google":
+                return googleLoginService;
+            case "naver":
+                return naverLoginService;
+            case "kakao":
+                return kakaoLoginService;
+            default: // 지원하지 않는 소셜 로그인 타입
+                return null;
+        }
     }
 }

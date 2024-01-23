@@ -18,9 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class MemberController {
 
-    private final GoogleLoginServiceImpl googleLoginService;
-    private final NaverLoginServiceImpl naverLoginService;
-    private final KakaoLoginServiceImpl kakaoLoginService;
+
     private final MemberService memberService;
 
     /**
@@ -31,7 +29,7 @@ public class MemberController {
     @GetMapping("/authURL/{socialType}")
     public ResponseEntity<SocialAuthURLResponse> getAuthURL(@PathVariable String socialType) {
         // 소셜 로그인 서비스
-        SocialLoginService service = getSocialLoginService(socialType);
+        SocialLoginService service = memberService.getSocialLoginService(socialType);
         // 응답 DTO
         SocialAuthURLResponse resposneDto = new SocialAuthURLResponse();
 
@@ -57,7 +55,7 @@ public class MemberController {
      */
     @GetMapping("/login/{socialType}")
     public ResponseEntity<?> socialLogin(@PathVariable String socialType, @RequestParam String code) {
-        SocialLoginService service = getSocialLoginService(socialType);
+        SocialLoginService service = memberService.getSocialLoginService(socialType);
 
         // 지원하지 않는 소셜 로그인 타입
         if (service == null) {
@@ -76,25 +74,6 @@ public class MemberController {
         Member member = memberService.handleSocialLogin(responseUserInfoDto);
 
         return ResponseEntity.ok(accessToken);
-    }
-
-
-    /**
-     * 소셜 로그인 서비스를 반환한다.
-     * @param socialType : google, naver, kakao
-     * @return : 소셜 로그인 서비스
-     */
-    private SocialLoginService getSocialLoginService(String socialType) {
-        switch (socialType) {
-            case "google":
-                return googleLoginService;
-            case "naver":
-                return naverLoginService;
-            case "kakao":
-                return kakaoLoginService;
-            default: // 지원하지 않는 소셜 로그인 타입
-                return null;
-        }
     }
 
 
