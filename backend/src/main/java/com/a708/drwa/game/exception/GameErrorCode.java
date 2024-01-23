@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum RecordErrorCode implements ErrorCode {
+public enum GameErrorCode implements ErrorCode {
 
     BAD_REQUEST(400, "Bad Request", "필수 게임 정보 데이터가 누락되었거나 형식과 다른 데이터를 요청하셨습니다."),
     UNAUTHORIZED(401, "Unauthorized", "사용자 인증 정보를 찾을 수 없습니다."),
