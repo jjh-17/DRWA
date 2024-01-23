@@ -3,6 +3,7 @@ package com.a708.drwa.member.service.Impl;
 import com.a708.drwa.member.dto.SocialUserInfoResponse;
 import com.a708.drwa.member.service.SocialLoginService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -13,23 +14,25 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Google OAuth2 인증을 위한 서비스
  */
 @Service
+@ConfigurationProperties(prefix = "spring.security.oauth2.client.registration.google")
 public class GoogleLoginServiceImpl implements SocialLoginService {
 
-    @Value("${spring.security.oauth2.client.registration.google.client-id}")
+//    @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String clientId;
 
-    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
+//    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String clientSecret;
 
-    @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
+//    @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
     private String redirectUri;
 
-    @Value("${spring.security.oauth2.client.registration.google.scope}")
+//    @Value("${spring.security.oauth2.client.registration.google.scope}")
     private String scope;
 
     /**

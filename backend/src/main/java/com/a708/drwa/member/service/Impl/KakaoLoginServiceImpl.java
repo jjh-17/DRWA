@@ -20,10 +20,10 @@ import java.util.Map;
 @Service
 public class KakaoLoginServiceImpl implements SocialLoginService {
 
-    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
+//    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String clientId;
 
-    @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
+//    @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
     private String redirectUri;
 
     /**

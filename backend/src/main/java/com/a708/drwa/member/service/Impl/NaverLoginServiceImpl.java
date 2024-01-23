@@ -20,13 +20,13 @@ import java.util.Map;
 @Service
 public class NaverLoginServiceImpl implements SocialLoginService {
 
-    @Value("${spring.security.oauth2.client.registration.naver.client-id}")
+//    @Value("${spring.security.oauth2.client.registration.naver.client-id}")
     private String clientId;
 
-    @Value("${spring.security.oauth2.client.registration.naver.client-secret}")
+//    @Value("${spring.security.oauth2.client.registration.naver.client-secret}")
     private String clientSecret;
 
-    @Value("${spring.security.oauth2.client.registration.naver.redirect-uri}")
+//    @Value("${spring.security.oauth2.client.registration.naver.redirect-uri}")
     private String redirectUri;
 
     /**
