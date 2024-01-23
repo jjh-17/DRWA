@@ -1,18 +1,18 @@
 package com.a708.drwa.member.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.a708.drwa.member.type.SocialType;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
-@Getter
 @Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member {
 
+    // Primary Key
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -20,5 +20,18 @@ public class Member {
 
     public Member(int memberId) {
         this.id = memberId;
+    }
+
+    // 소셜 로그인 사용자 ID
+    @Column(unique = true)
+    private String userId;
+
+    @Column
+    private SocialType socialType;
+
+    @Builder
+    public Member(String userId, SocialType socialType) {
+        this.userId = userId;
+        this.socialType = socialType;
     }
 }

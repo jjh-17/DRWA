@@ -3,9 +3,12 @@ package com.a708.drwa;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.cache.annotation.EnableCaching;
 
 @EnableScheduling
-@SpringBootApplication
+@SpringBootApplication(exclude = SecurityAutoConfiguration.class)
+@EnableCaching
 public class DrwaApplication {
 
 	public static void main(String[] args) {

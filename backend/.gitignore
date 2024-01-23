@@ -41,3 +41,7 @@ out/
 .env
 /src/main/resources/security/application-key.yml
 /src/main/resources/security/application-database.yml
+/src/main/resources/security/application-security.yml
+
+### generated QueryDSL files ###
+/src/main/generated/*

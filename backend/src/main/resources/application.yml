@@ -8,7 +8,13 @@ spring:
     import:
       - security/application-database.yml
       - security/application-key.yml
+      - security/application-security.yml
 
+  # redis cache 사용
+  cache:
+    type: redis
+
+  # JPA 관련 설정
   jpa:
     hibernate:
       ddl-auto: create
