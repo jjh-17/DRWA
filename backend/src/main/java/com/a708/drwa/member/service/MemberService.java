@@ -41,9 +41,12 @@ public class MemberService {
      * @return 등록된 사용자 정보
      */
     private Member registerNewUser(SocialUserInfoResponse userInfo) {
-        Member newMember = Member.createMember(userInfo.getId(), userInfo.getSocialType());
+        Member member = Member.builder()
+                .userId(userInfo.getId())
+                .socialType(userInfo.getSocialType())
+                .build();
 
-        return memberRepository.save(newMember);
+        return memberRepository.save(member);
     }
 
     /**
