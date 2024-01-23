@@ -23,6 +23,7 @@ public class GameService {
                 .keyword(gameInfoRequestDto.getKeyword())
                 .mvpMemberId(gameInfoRequestDto.getMvpMemberId())
                 .build();
+
         return gameInfoRepository.save(gameInfo);
     }
 
