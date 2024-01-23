@@ -17,7 +17,7 @@ public class GameService {
     private final GameInfoRepository gameInfoRepository;
     private final RecordRepository recordRepository;
 
-    // 정산 시점에 몇명이 있든 단 한번만 실행되어야 한다.
+    // 정산 시점에 몇명이 있든 단 한번만 실행되어야 한다.(프론트 단에서 Host만 수행하도록 하면 되나?)
     @Transactional
     public GameInfo createGameInfo(GameInfoCreateRequestDto gameInfoRequestDto) {
         GameInfo gameInfo = GameInfo.builder()
@@ -28,7 +28,7 @@ public class GameService {
         return gameInfoRepository.save(gameInfo);
     }
 
-    // 정산 시점에 모든 토론자와 배심원이 수행한다.
+    // 정산 시점에 모든 토론자와 배심원이 수행한다.햣
     @Transactional
     public Record createRecord(RecordCreateRequestDto recordRequestDto) {
         Record record = Record.builder()
