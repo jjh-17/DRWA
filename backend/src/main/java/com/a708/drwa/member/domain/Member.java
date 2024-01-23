@@ -2,13 +2,14 @@ package com.a708.drwa.member.domain;
 
 import com.a708.drwa.member.type.SocialType;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@Getter
 @Entity
-@Builder
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member {
 
     // Primary Key
@@ -23,18 +24,9 @@ public class Member {
     @Column
     private SocialType socialType;
 
-    public static Member createMember(String userId, SocialType socialType) {
-        return Member.builder()
-                .userId(userId)
-                .socialType(socialType)
-                .build();
-    }
-
-    public void setUserId(String userId) {
+    @Builder
+    public Member(String userId, SocialType socialType) {
         this.userId = userId;
-    }
-
-    public void setSocialType(SocialType socialType) {
         this.socialType = socialType;
     }
 }
