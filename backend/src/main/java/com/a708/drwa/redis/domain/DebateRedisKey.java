@@ -1,11 +1,12 @@
 package com.a708.drwa.redis.domain;
 
 public enum DebateRedisKey {
+    TITLE("title"),
     IS_PRIVATE(":isPrivate"),
     PASSWORD(":password"),
     PLAYER_NUM(":playerNum"),
     TOTAL_NUM(":totalNum"),
-    OPINION_TIME(":opnionTime"),
+    OPINION_TIME(":opinionTime"),
     READY_TIME(":readyTime"),
     QUESTION_TIME(":questionTime"),
     TEAM_A_LIST(":teamAList"),
