@@ -1,7 +1,5 @@
 package com.a708.drwa.game.controller;
 
-import com.a708.drwa.game.data.dto.request.GameInfoCreateRequestDto;
-import com.a708.drwa.game.data.dto.request.RecordCreateRequestDto;
 import com.a708.drwa.game.service.GameService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,19 +17,19 @@ public class GameController {
 
     private final GameService gameService;
 
-    // 게임 정보 저장
-    @PostMapping("/gameinfo/create")
-    public ResponseEntity<?> createGameInfo(@RequestBody @Valid GameInfoCreateRequestDto gameInfoRequestDto) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(gameService.createGameInfo(gameInfoRequestDto));
-    }
-
-    @PostMapping("/record/create")
-    public ResponseEntity<?> createRecord(@RequestBody @Valid RecordCreateRequestDto recordRequestDto) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(gameService.createRecord(recordRequestDto));
-    }
+//    // 게임 정보 저장
+//    @PostMapping("/gameinfo/create")
+//    public ResponseEntity<?> createGameInfo(@RequestBody @Valid GameInfoCreateRequestDto gameInfoRequestDto) {
+//        return ResponseEntity
+//                .status(HttpStatus.CREATED)
+//                .body(gameService.createGameInfo(gameInfoRequestDto));
+//    }
+//
+//    @PostMapping("/record/create")
+//    public ResponseEntity<?> createRecord(@RequestBody @Valid RecordCreateRequestDto recordRequestDto) {
+//        return ResponseEntity
+//                .status(HttpStatus.CREATED)
+//                .body(gameService.createRecord(recordRequestDto));
+//    }
 
 }
