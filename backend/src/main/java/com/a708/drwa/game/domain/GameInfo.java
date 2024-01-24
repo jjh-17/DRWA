@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Getter
@@ -20,7 +21,7 @@ public class GameInfo {
     @Size(max = 31)
     private String keyword;
 
-    @Column(name = "mvp_member_id", updatable = false, nullable = false)
+    @Column(name = "mvp_member_id", columnDefinition = "Default null")
     private int mvpMemberId;
 
     @Builder
