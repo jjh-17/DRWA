@@ -43,6 +43,7 @@ services:
     container_name: my-es-container
     environment:
       - discovery.type=single-node
+      - xpack.security.enabled=false
     ports:
       - "9200:9200"
       - "9300:9300"
