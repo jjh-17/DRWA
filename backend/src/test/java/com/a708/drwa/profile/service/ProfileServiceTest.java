@@ -68,7 +68,7 @@ class ProfileServiceTest {
     @Test
     void findProfileByMemberId() {
         // given
-        Member member = new Member();
+        Member member = Member.builder().build();
         Member savedMember = memberRepository.save(member);
 
         AddProfileRequest request = AddProfileRequest.builder()
@@ -91,10 +91,10 @@ class ProfileServiceTest {
     @Test
     void findAll() {
         // given
-        Member member1 = new Member();
-        Member member2 = new Member();
-        Member member3 = new Member();
-        Member member4 = new Member();
+        Member member1 = Member.builder().build();
+        Member member2 = Member.builder().build();
+        Member member3 = Member.builder().build();
+        Member member4 = Member.builder().build();
         List<Member> savedMembers = memberRepository.saveAll(List.of(member1, member2, member3, member4));
 
         AddProfileRequest request1 = AddProfileRequest.builder()
