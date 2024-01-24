@@ -3,18 +3,36 @@ package com.a708.drwa.room.domain;
 import org.springframework.data.elasticsearch.annotations.Document;
 import jakarta.persistence.Id;
 
-@Document(indexName = "room")
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.Setting;
+
+
+
+
+@Document(indexName = "room_index") // Elasticsearch 문서
+@Setting(settingPath = "resources/settings.json") // Elasticsearch 설정
 public class Room {
-
     @Id
-    private String title;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private String id;
 
-    private String keyword;
+    @Field(type = FieldType.Text, analyzer = "korean")
+    private String name;
 
-    private String host;
 
-    //getters and setters
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 }
 
 
