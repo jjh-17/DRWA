@@ -1,18 +1,13 @@
 package com.a708.drwa.game.data.dto.request;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.ToString;
 
+// 게임 정보 생성 요청 DTO
+@Builder
 @Getter
-@ToString
 public class GameInfoCreateRequestDto {
-
-    @NotNull
-    @Size(max = 31)
-    private String keyword;
-
-    @NotNull
-    private int mvpMemberId;
+    // 토론 방 ID
+    private int debateId;
 }
+
