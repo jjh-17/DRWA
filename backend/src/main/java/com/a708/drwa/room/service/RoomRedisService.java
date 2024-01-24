@@ -1,7 +1,7 @@
 package com.a708.drwa.room.service;
 
 import com.a708.drwa.room.domain.Room;
-import com.a708.drwa.room.repository.RoomRepository;
+import com.a708.drwa.room.repository.RoomRedisRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
@@ -10,7 +10,7 @@ import java.util.Optional;
 public class RoomService {
 
     @Autowired
-    private RoomRepository roomRepository;
+    private RoomRedisRepository roomRepository;
 
 
 
