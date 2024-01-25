@@ -1,13 +1,12 @@
 package com.a708.drwa.game.service;
 
-import com.a708.drwa.game.data.dto.response.GameCreateResponseDto;
+import com.a708.drwa.game.data.dto.response.AddRecordResponseDto;
+import com.a708.drwa.game.data.dto.response.AddRecordRedisResponseDto;
 import com.a708.drwa.game.data.dto.response.WinnerTeam;
 import com.a708.drwa.game.domain.GameInfo;
 import com.a708.drwa.game.domain.Record;
 import com.a708.drwa.game.repository.GameInfoRepository;
 import com.a708.drwa.game.repository.RecordRepository;
-import com.a708.drwa.member.domain.Member;
-import com.a708.drwa.redis.domain.DebateRedisKey;
 import com.a708.drwa.redis.util.RedisKeyUtil;
 import com.a708.drwa.redis.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
@@ -26,12 +25,6 @@ public class GameService {
     private final RedisUtil redisUtil;
     private final RedisKeyUtil redisKeyUtil = new RedisKeyUtil();
 
-    // MySql에 게임 정보 저장 서비스
-    @Transactional
-    public void addGameInfo(GameInfo gameInfo) {
-
-    }
-
     // MySql에 전적 저장 서비스
     @Transactional
     public void addRecord(List<Record> records) {
@@ -46,9 +39,9 @@ public class GameService {
 
 
     @Transactional
-    public GameCreateResponseDto createGame(int debateId) {
+    public AddRecordResponseDto createGame(int debateId) {
         // 필요한 데이터 정의
-        final RedisGameResponseDto redisGameResponseDto;
+        final AddRecordRedisResponseDto addRecordRedisResponseDto;
         final int mvpPoint = 50;
         final int winnerPoint = 30;
         int noVoteNum;
@@ -57,17 +50,17 @@ public class GameService {
         WinnerTeam winnerTeam;  // 승리 팀
 
         // Redis 통신
-        redisGameResponseDto = getRedisGameResponseDto(debateId);
+        addRecordRedisResponseDto = getRedisGameResponseDto(debateId);
 
         // 데이터 연산
-        winnerTeam = getWinnerTeam(redisGameResponseDto.getTeamAVoteNum(), redisGameResponseDto.getTeamBVoteNum());
-        noVoteNum = redisGameResponseDto.getJurorList().size() + redisGameResponseDto.getViewerList().size()
-                - redisGameResponseDto.getTeamAVoteNum() - redisGameResponseDto.getTeamBVoteNum();
-        mvpMemberId = getMVP(redisGameResponseDto.getTeamAList(), redisGameResponseDto.getTeamBList());
+        winnerTeam = getWinnerTeam(addRecordRedisResponseDto.getTeamAVoteNum(), addRecordRedisResponseDto.getTeamBVoteNum());
+        noVoteNum = addRecordRedisResponseDto.getJurorList().size() + addRecordRedisResponseDto.getViewerList().size()
+                - addRecordRedisResponseDto.getTeamAVoteNum() - addRecordRedisResponseDto.getTeamBVoteNum();
+        mvpMemberId = getMVP(addRecordRedisResponseDto.getTeamAList(), addRecordRedisResponseDto.getTeamBList());
 
         // MySql에 게임 정보 저장
         gameId = gameInfoRepository.save(GameInfo.builder()
-                        .keyword(redisGameResponseDto.getKeyword())
+                        .keyword(addRecordRedisResponseDto.getKeyword())
                         .mvpMemberId(mvpMemberId)
                 .build()).getGameId();
 
@@ -75,9 +68,9 @@ public class GameService {
         List<Record> records = getInputRecords();
         List<Record> savedRecords = recordRepository.saveAll(records);
 
-        return GameCreateResponseDto.builder()
-                .teamAVoteNum(redisGameResponseDto.getTeamAVoteNum())
-                .teamBVoteNum(redisGameResponseDto.getTeamBVoteNum())
+        return AddRecordResponseDto.builder()
+                .teamAVoteNum(addRecordRedisResponseDto.getTeamAVoteNum())
+                .teamBVoteNum(addRecordRedisResponseDto.getTeamBVoteNum())
                 .noVoteNum(noVoteNum)
                 .mvpMemberId(mvpMemberId)
                 .mvpPoint(mvpPoint)
@@ -87,8 +80,8 @@ public class GameService {
     }
 
     // 레디스와 통신하여 필요한 데이터 받아옴
-    private RedisGameResponseDto getRedisGameResponseDto(int debateId) {
-        return RedisGameResponseDto.builder()
+    private AddRecordRedisResponseDto getRedisGameResponseDto(int debateId) {
+        return AddRecordRedisResponseDto.builder()
                 .build();
     }
 
