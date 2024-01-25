@@ -9,7 +9,6 @@ import java.util.List;
 @Setter
 @JsonSerialize
 public class DebateWaitingMessage {
-    // 페이즈 변경 알려줌
     private String event;
 
     // 대기방
