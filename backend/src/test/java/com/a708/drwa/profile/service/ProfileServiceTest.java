@@ -2,6 +2,7 @@ package com.a708.drwa.profile.service;
 
 import com.a708.drwa.member.domain.Member;
 import com.a708.drwa.member.repository.MemberRepository;
+import com.a708.drwa.member.type.SocialType;
 import com.a708.drwa.profile.domain.Profile;
 import com.a708.drwa.profile.dto.request.AddProfileRequest;
 import com.a708.drwa.profile.dto.response.ProfileResponse;
@@ -28,7 +29,8 @@ class ProfileServiceTest {
     @Autowired
     ProfileRepository profileRepository;
 
-    @Autowired ProfileService profileService;
+    @Autowired
+    ProfileService profileService;
     @Autowired
     MemberRepository memberRepository;
     @Autowired
@@ -42,7 +44,10 @@ class ProfileServiceTest {
     @Test
     void addProfile() {
         // given
-        Member member = new Member();
+        Member member = Member.builder()
+                .userId("test")
+                .socialType(SocialType.GOOGLE)
+                .build();
         Member savedMember = memberRepository.save(member);
 
         AddProfileRequest request = AddProfileRequest.builder()
@@ -52,7 +57,7 @@ class ProfileServiceTest {
 
         // when
         profileService.addProfile(request);
-        Profile profile = profileRepository.findByMemberId(savedMember.getId()).get();
+        Profile profile = profileRepository.findByMemberId(savedMember.getId()).orElse(null);
 
         // then
         assertThat(profile.getNickname()).isEqualTo("testNickname");
@@ -68,7 +73,10 @@ class ProfileServiceTest {
     @Test
     void findProfileByMemberId() {
         // given
-        Member member = new Member();
+        Member member = Member.builder()
+                .userId("test")
+                .socialType(SocialType.GOOGLE)
+                .build();
         Member savedMember = memberRepository.save(member);
 
         AddProfileRequest request = AddProfileRequest.builder()
@@ -91,10 +99,22 @@ class ProfileServiceTest {
     @Test
     void findAll() {
         // given
-        Member member1 = new Member();
-        Member member2 = new Member();
-        Member member3 = new Member();
-        Member member4 = new Member();
+        Member member1 = Member.builder()
+                .userId("test1")
+                .socialType(SocialType.GOOGLE)
+                .build();
+        Member member2 = Member.builder()
+                .userId("test2")
+                .socialType(SocialType.GOOGLE)
+                .build();
+        Member member3 = Member.builder()
+                .userId("test3")
+                .socialType(SocialType.GOOGLE)
+                .build();
+        Member member4 = Member.builder()
+                .userId("test4")
+                .socialType(SocialType.GOOGLE)
+                .build();
         List<Member> savedMembers = memberRepository.saveAll(List.of(member1, member2, member3, member4));
 
         AddProfileRequest request1 = AddProfileRequest.builder()
