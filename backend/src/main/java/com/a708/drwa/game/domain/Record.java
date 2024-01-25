@@ -12,41 +12,35 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Record {
 
+    // PK
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int recordId;
 
+    // FK - member
     @ManyToOne(targetEntity = Member.class, fetch = FetchType.LAZY)
-    @JoinColumn(name="member_id", insertable = false, updatable = false)
+    @JoinColumn(name="member_id")
     private Member member;
 
-    @Column(name="member_id", updatable = false, nullable = false)
-    private int memberId;
-
+    // FK - game_info
     @ManyToOne(targetEntity = GameInfo.class, fetch = FetchType.LAZY)
-    @JoinColumn(name="game_id", insertable = false, updatable = false)
+    @JoinColumn(name="game_id")
     private GameInfo gameInfo;
 
-    @Column(name="game_id", updatable = false, nullable = false)
-    private int gameId;
-
+    // 승패 여부
     @Enumerated(EnumType.ORDINAL)
     @Column(nullable = false, updatable = false, columnDefinition = "TINYINT")
     private Result result;
 
+    // 소속
     @Enumerated(EnumType.ORDINAL)
     @Column(nullable = false, updatable = false, columnDefinition = "TINYINT")
     private Team team;
 
     @Builder
-    public Record(
-            int memberId,
-            int gameId,
-            Result result,
-            Team team
-    ) {
-        this.memberId = memberId;
-        this.gameId = gameId;
+    public Record(Member member, GameInfo gameInfo, Result result, Team team) {
+        this.member = member;
+        this.gameInfo = gameInfo;
         this.result = result;
         this.team = team;
     }
