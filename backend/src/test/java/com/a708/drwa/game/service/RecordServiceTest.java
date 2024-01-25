@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @Transactional
-class GameServiceTest {
+class RecordServiceTest {
 
     @Test
     public void redisSelectTest() {
