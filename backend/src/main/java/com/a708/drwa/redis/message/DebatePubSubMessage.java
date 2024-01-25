@@ -8,7 +8,7 @@ import java.util.List;
 
 @Setter
 @JsonSerialize
-public class DebateRedisMessage {
+public class DebatePubSubMessage {
     // 무슨 이벤트?
     private String event;
 
