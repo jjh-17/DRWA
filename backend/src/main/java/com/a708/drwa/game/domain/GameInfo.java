@@ -34,5 +34,5 @@ public class GameInfo {
         this.keyword = keyword;
         this.mvpMemberId = mvpMemberId;
     }
-    
+
 }
