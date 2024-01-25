@@ -18,14 +18,14 @@ public class GameInfo {
     private int gameId;
 
     // 키워드
-    @Column(name="keyword", updatable = false, nullable = false)
+    @Column(name="keyword", nullable = false)
     @Size(max = 31)
     private String keyword;
 
     // mvp로 선정된 멤버 아이디
     @Column(name = "mvp_member_id", columnDefinition = "default null")
     private int mvpMemberId;
-
+    
     @Builder
     public GameInfo(
             String keyword,
@@ -35,4 +35,13 @@ public class GameInfo {
         this.mvpMemberId = mvpMemberId;
     }
 
+    // 키워드 수정
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
+    }
+
+    // MVP 선정 멤버 ID 수정
+    public void setMvpMemberId(int mvpMemberId) {
+        this.mvpMemberId = mvpMemberId;
+    }
 }
