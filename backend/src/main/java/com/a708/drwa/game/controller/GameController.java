@@ -1,6 +1,6 @@
 package com.a708.drwa.game.controller;
 
-import com.a708.drwa.game.service.GameService;
+import com.a708.drwa.game.service.RedisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/game")
 public class GameController {
 
-    private final GameService gameService;
+    private final RedisService gameService;
 
     // 게임 정보 저장
     @PostMapping("/create")
     public ResponseEntity<?> createGameInfo(@RequestBody int debateId) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(gameService.createGame(debateId));
+                .body(gameService.addRecord(debateId));
     }
 
 }
