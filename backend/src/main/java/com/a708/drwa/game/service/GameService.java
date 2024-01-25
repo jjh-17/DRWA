@@ -6,6 +6,7 @@ import com.a708.drwa.game.domain.GameInfo;
 import com.a708.drwa.game.domain.Record;
 import com.a708.drwa.game.repository.GameInfoRepository;
 import com.a708.drwa.game.repository.RecordRepository;
+import com.a708.drwa.member.domain.Member;
 import com.a708.drwa.redis.domain.DebateRedisKey;
 import com.a708.drwa.redis.util.RedisKeyUtil;
 import com.a708.drwa.redis.util.RedisUtil;
@@ -25,7 +26,25 @@ public class GameService {
     private final RedisUtil redisUtil;
     private final RedisKeyUtil redisKeyUtil = new RedisKeyUtil();
 
-    // 게임 정보, 전적을 저장하는 서비스
+    // MySql에 게임 정보 저장 서비스
+    @Transactional
+    public void addGameInfo(GameInfo gameInfo) {
+
+    }
+
+    // MySql에 전적 저장 서비스
+    @Transactional
+    public void addRecord(List<Record> records) {
+        //
+    }
+
+    // Redis에
+
+    // 전적 정보 저장 서비스
+
+    // 게임 정보의 mvpMemberId 수정 서비스
+
+
     @Transactional
     public GameCreateResponseDto createGame(int debateId) {
         // 필요한 데이터 정의
