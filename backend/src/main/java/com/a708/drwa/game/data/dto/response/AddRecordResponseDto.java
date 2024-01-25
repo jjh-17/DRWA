@@ -8,8 +8,7 @@ import lombok.Getter;
 // 전적 저장 후 클라이언트에게 전달할 데이터
 @Builder
 @Getter
-public class AddRecordRequestDto {
-
+public class AddRecordResponseDto {
     private int teamAVoteNum;       // 팀A 투표 수
     private int teamBVoteNum;       // 팀B 투표 수
     private int noVoteNum;          // 미투표 수
