@@ -1,9 +1,6 @@
 package com.a708.drwa.game.controller;
 
-import com.a708.drwa.game.data.dto.request.GameInfoCreateRequestDto;
-import com.a708.drwa.game.data.dto.request.RecordCreateRequestDto;
 import com.a708.drwa.game.service.GameService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,18 +17,11 @@ public class GameController {
     private final GameService gameService;
 
     // 게임 정보 저장
-    @PostMapping("/gameinfo/create")
-    public ResponseEntity<?> createGameInfo(@RequestBody @Valid GameInfoCreateRequestDto gameInfoRequestDto) {
+    @PostMapping("/create")
+    public ResponseEntity<?> createGameInfo(@RequestBody int debateId) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(gameService.createGameInfo(gameInfoRequestDto));
-    }
-
-    @PostMapping("/record/create")
-    public ResponseEntity<?> createRecord(@RequestBody @Valid RecordCreateRequestDto recordRequestDto) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(gameService.createRecord(recordRequestDto));
+                .body(gameService.createGame(debateId));
     }
 
 }
