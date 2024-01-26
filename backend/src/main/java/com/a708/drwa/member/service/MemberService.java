@@ -8,12 +8,15 @@ import com.a708.drwa.member.service.Impl.KakaoLoginServiceImpl;
 import com.a708.drwa.member.service.Impl.NaverLoginServiceImpl;
 import com.a708.drwa.member.type.SocialType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(readOnly = true)
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MemberService {
     private final MemberRepository memberRepository;
     private final GoogleLoginServiceImpl googleLoginService;

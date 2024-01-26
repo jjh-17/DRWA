@@ -10,12 +10,15 @@ import com.a708.drwa.member.service.MemberService;
 import com.a708.drwa.member.service.SocialLoginService;
 import com.a708.drwa.member.type.SocialType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/member")
 @RequiredArgsConstructor
+@Slf4j
 public class MemberController {
 
 
@@ -68,9 +71,12 @@ public class MemberController {
         // 액세스 토큰으로부터 사용자 정보를 반환한다.
         SocialUserInfoResponse responseUserInfoDto = service.getUserInfo(accessToken);
 
+        log.info("responseUserInfoDto: {}", responseUserInfoDto);
+
         // 소셜로그인 타입 설정
         responseUserInfoDto.setSocialType(SocialType.fromString(socialType));
 
+        // 소셜 로그인 처리
         Member member = memberService.handleSocialLogin(responseUserInfoDto);
 
         return ResponseEntity.ok(accessToken);
