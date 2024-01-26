@@ -53,6 +53,9 @@ dependencies {
 	// JWT
 	implementation 'com.auth0:java-jwt:4.4.0'
 
+	// properties auto complete (configurationProperties)
+	implementation 'org.springframework.boot:spring-boot-configuration-processor'
+
 
 	////////////////// DB ///////////////////
 	// mysql
