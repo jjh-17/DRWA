@@ -7,23 +7,19 @@ import com.a708.drwa.profile.dto.request.AddProfileRequest;
 import com.a708.drwa.profile.dto.response.ProfileResponse;
 import com.a708.drwa.profile.repository.ProfileRepository;
 import com.a708.drwa.rank.enums.RankName;
-import com.a708.drwa.rank.redis.RankMember;
+import com.a708.drwa.ranking.domain.RankingMember;
 import com.a708.drwa.rank.service.RankService;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @org.springframework.context.annotation.Profile("test")
@@ -38,7 +34,7 @@ class ProfileServiceTest {
     @Autowired
     RankService rankService;
     @Autowired
-    RedisTemplate <String, RankMember> rankMemberRedisTemplate;
+    RedisTemplate <String, RankingMember> rankMemberRedisTemplate;
 
     @BeforeEach
     public void initRanks(){
@@ -89,8 +85,8 @@ class ProfileServiceTest {
         profileService.addProfile(request2);
 
         // when
-        Set<RankMember> ranks = rankMemberRedisTemplate.opsForZSet().range("rank", 0, -1);
-        for (RankMember rank : ranks) {
+        Set<RankingMember> ranks = rankMemberRedisTemplate.opsForZSet().range("rank", 0, -1);
+        for (RankingMember rank : ranks) {
             System.out.println(rank.getMemberId() + " " + rank.getPoint());
         }
 

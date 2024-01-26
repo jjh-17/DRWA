@@ -12,15 +12,13 @@ import com.a708.drwa.profile.exception.ProfileErrorCode;
 import com.a708.drwa.profile.repository.ProfileRepository;
 import com.a708.drwa.rank.domain.Rank;
 import com.a708.drwa.rank.enums.RankName;
-import com.a708.drwa.rank.redis.RankMember;
+import com.a708.drwa.ranking.domain.RankingMember;
 import com.a708.drwa.rank.service.RankService;
-import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -33,7 +31,7 @@ public class ProfileService {
     private final ProfileRepository profileRepository;
     private final MemberRepository memberRepository;
     private final RankService rankService;
-    private final RedisTemplate<String, RankMember> rankMemberRedisTemplate;
+    private final RedisTemplate<String, RankingMember> rankMemberRedisTemplate;
     private static final int INIT_POINT = 1000;
     private static final int INIT_MVP_COUNT = 0;
     private static final String REDIS_KEY = "rank";
@@ -54,7 +52,7 @@ public class ProfileService {
                 .rank(INIT_RANK_BRONZE)
                 .build();
 
-        RankMember rankMember = RankMember.builder()
+        RankingMember rankingMember = RankingMember.builder()
                 .memberId(member.getId())
                 .nickname(profile.getNickname())
                 //.title(profile.getTitle())
@@ -62,7 +60,7 @@ public class ProfileService {
                 .point(profile.getPoint())
                 .build();
 
-        rankMemberRedisTemplate.opsForZSet().add(REDIS_KEY, rankMember, profile.getPoint());
+        rankMemberRedisTemplate.opsForZSet().add(REDIS_KEY, rankingMember, -profile.getPoint());
         profileRepository.save(profile);
     }
 
@@ -79,13 +77,13 @@ public class ProfileService {
         Profile profile = profileRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new GlobalException(ProfileErrorCode.PROFILE_NOT_FOUND));
 
-        Set<RankMember> members = rankMemberRedisTemplate.opsForZSet().range(REDIS_KEY, 0, -1);
+        Set<RankingMember> members = rankMemberRedisTemplate.opsForZSet().range(REDIS_KEY, 0, -1);
 
         if(members == null) {
             throw new GlobalException(ProfileErrorCode.PROFILE_NOT_FOUND);
         }
 
-        RankMember memberRankInfo = members
+        RankingMember memberRankInfo = members
                 .stream()
                 .filter(rankMember -> rankMember.getMemberId().equals(memberId))
                 .findAny()
@@ -100,8 +98,8 @@ public class ProfileService {
                 .build();
     }
 
-    public List<RankMember> findAll(){
-        Set<RankMember> members = rankMemberRedisTemplate.opsForZSet().range(REDIS_KEY, 0, -1);
+    public List<RankingMember> findAll(){
+        Set<RankingMember> members = rankMemberRedisTemplate.opsForZSet().range(REDIS_KEY, 0, -1);
         if(members == null){
             return List.of();
         }
@@ -109,18 +107,18 @@ public class ProfileService {
         return members.stream().toList();
     }
     public List<ProfileResponse> findAllWithDto(){
-        Set<RankMember> rankMembers = rankMemberRedisTemplate.opsForZSet().range(REDIS_KEY, 0, -1);
-        if(rankMembers == null){
+        Set<RankingMember> rankingMembers = rankMemberRedisTemplate.opsForZSet().range(REDIS_KEY, 0, -1);
+        if(rankingMembers == null){
             new GlobalException(MemberErrorCode.EXAMPLE_ERROR_CODE);
         }
 
         List<Profile> profiles = profileRepository.findAll();
 
-        for(RankMember rankMember : rankMembers){
+        for(RankingMember rankingMember : rankingMembers){
             Optional<Profile> matchingProfile = profiles.stream()
-                    .filter(p -> p.getMember().getId().equals(rankMember.getMemberId()))
+                    .filter(p -> p.getMember().getId().equals(rankingMember.getMemberId()))
                     .findFirst();
-            matchingProfile.ifPresent(profile -> profile.updatePoint(rankMember.getPoint()));
+            matchingProfile.ifPresent(profile -> profile.updatePoint(rankingMember.getPoint()));
         }
 
         return profiles

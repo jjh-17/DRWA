@@ -1,6 +1,6 @@
 package com.a708.drwa.redis.config;
 
-import com.a708.drwa.rank.redis.RankMember;
+import com.a708.drwa.ranking.domain.RankingMember;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
@@ -45,10 +46,10 @@ public class RedisConfig {
 
 
     @Bean(name = "rankMemberRedisTemplate")
-    public RedisTemplate<String, RankMember> rankMemberRedisTemplate(){
-        RedisTemplate<String, RankMember> rankMemberRedisTemplate = new RedisTemplate<>();
+    public RedisTemplate<String, RankingMember> rankMemberRedisTemplate(){
+        RedisTemplate<String, RankingMember> rankMemberRedisTemplate = new RedisTemplate<>();
         rankMemberRedisTemplate.setConnectionFactory(redisConnectionFactory());
-
+        rankMemberRedisTemplate.setDefaultSerializer(new Jackson2JsonRedisSerializer<>(RankingMember.class));
         return rankMemberRedisTemplate;
     }
 
