@@ -1,6 +1,8 @@
 package com.a708.drwa.profile.batch;
 
 import com.a708.drwa.profile.domain.Profile;
+import com.a708.drwa.profile.repository.ProfileRepository;
+import com.a708.drwa.rank.redis.RankMember;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.StepContribution;
@@ -17,16 +19,22 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class RankTasklet implements Tasklet {
+    private final ProfileRepository profileRepository;
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         log.info("Rank Update Step Start");
 
-        List<Profile> allProfiles = (List<Profile>) contribution
+        List<RankMember> allProfiles = (List<RankMember>) contribution
                 .getStepExecution()
                 .getJobExecution()
                 .getExecutionContext()
                 .get("allProfiles");
         log.info("data={}", allProfiles);
+
+        /**
+         * Save in RDB
+         */
+
 
 
         log.info("Rank Update Step End");
