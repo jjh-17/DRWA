@@ -24,10 +24,10 @@ public class JWTUtil {
     @Value("${jwt.key}")
     private String jwtKey;
 
-    @Value("${jwt.accesstoken.expiration}")
+    @Value("${jwt.accesstoken.expiretime}")
     private Long accessTokenExpireTime;
 
-    @Value("${jwt.refreshtoken.expiration}")
+    @Value("${jwt.refreshtoken.expiretime}")
     private Long refreshTokenExpireTime;
 
     /**
