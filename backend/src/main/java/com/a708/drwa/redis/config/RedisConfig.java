@@ -1,5 +1,6 @@
 package com.a708.drwa.redis.config;
 
+import com.a708.drwa.rank.redis.RankMember;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -41,4 +42,14 @@ public class RedisConfig {
 
         return redisTemplate;
     }
+
+
+    @Bean(name = "rankMemberRedisTemplate")
+    public RedisTemplate<String, RankMember> rankMemberRedisTemplate(){
+        RedisTemplate<String, RankMember> rankMemberRedisTemplate = new RedisTemplate<>();
+        rankMemberRedisTemplate.setConnectionFactory(redisConnectionFactory());
+
+        return rankMemberRedisTemplate;
+    }
+
 }
