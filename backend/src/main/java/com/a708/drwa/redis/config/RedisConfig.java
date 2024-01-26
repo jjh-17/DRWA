@@ -1,5 +1,6 @@
 package com.a708.drwa.redis.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -7,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
@@ -40,5 +42,17 @@ public class RedisConfig {
         redisTemplate.setDefaultSerializer(new StringRedisSerializer());
 
         return redisTemplate;
+    }
+
+    @Bean
+    RedisMessageListenerContainer redisMessageListenerContainer(LettuceConnectionFactory lettuceConnectionFactory) {
+        RedisMessageListenerContainer redisMessageListenerContainer = new RedisMessageListenerContainer();
+        redisMessageListenerContainer.setConnectionFactory(lettuceConnectionFactory);
+        return redisMessageListenerContainer;
+    }
+
+    @Bean
+    ObjectMapper objectMapper() {
+        return new ObjectMapper();
     }
 }
