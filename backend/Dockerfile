@@ -1,7 +1,11 @@
-FROM openjdk:17
+FROM docker
 
-ARG JAR_FILE=drwa-0.0.1-SNAPSHOT.jar
+COPY --from=docker/buildx-bin:latest /buildx /usr/libexec/docker/cli-plugins/docker-buildx
 
-COPY build/libs/*.jar app.jar
+FROM openjdk:17-jdk
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+EXPOSE 443
+
+ADD ./build/libs/carborn-0.0.1-SNAPSHOT.jar app.jar
+
+ENTRYPOINT ["java", "-jar", "/app.jar"]
