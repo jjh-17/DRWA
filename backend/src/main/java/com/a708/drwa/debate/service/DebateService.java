@@ -5,13 +5,11 @@ import com.a708.drwa.debate.data.dto.request.DebateJoinRequestDto;
 import com.a708.drwa.debate.exception.DebateErrorCode;
 import com.a708.drwa.debate.exception.DebateException;
 import com.a708.drwa.debate.repository.DebateRepository;
-import com.a708.drwa.redis.util.RedisUtil;
 import io.openvidu.java.client.OpenVidu;
 import io.openvidu.java.client.OpenViduHttpException;
 import io.openvidu.java.client.OpenViduJavaClientException;
 import io.openvidu.java.client.Session;
 import lombok.RequiredArgsConstructor;
-import org.aspectj.apache.bcel.classfile.Module;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class DebateService {
     private final DebateRepository debateRepository;
-    private final RedisUtil redisUtil;
 
     @Transactional
     public int create(DebateCreateRequestDto debateCreateRequestDto) {
@@ -36,9 +33,6 @@ public class DebateService {
         if(!debateRepository.existsById(debateJoinRequestDto.getDebateId()))
             throw new DebateException(DebateErrorCode.NOT_EXIST_DEBATE_ROOM_ERROR);
         return true;
-    }
-
-    public void nextPhase(int debateId) {
 
     }
 }
