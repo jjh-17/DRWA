@@ -42,7 +42,7 @@ class ProfileServiceTest {
     @Test
     void addProfile() {
         // given
-        Member member = new Member();
+        Member member = Member.builder().build();
         Member savedMember = memberRepository.save(member);
 
         AddProfileRequest request = AddProfileRequest.builder()
