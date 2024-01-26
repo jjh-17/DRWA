@@ -23,7 +23,7 @@ public class GameInfo {
     private String keyword;
 
     // mvp로 선정된 멤버 아이디
-    @Column(name = "mvp_member_id", columnDefinition = "default null")
+    @Column(name = "mvp_member_id")
     private int mvpMemberId;
     
     @Builder
