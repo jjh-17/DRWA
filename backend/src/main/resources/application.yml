@@ -7,7 +7,7 @@ spring:
   config:
     import:
       - security/application-database.yml
-      - security/application-key.yml
+#      - security/application-key.yml
       - security/application-security.yml
 
   # redis cache 사용
@@ -17,7 +17,7 @@ spring:
   # JPA 관련 설정
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         format_sql: true
