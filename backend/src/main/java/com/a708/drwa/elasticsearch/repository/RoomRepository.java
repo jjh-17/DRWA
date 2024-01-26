@@ -6,5 +6,6 @@ import java.util.List;
 
 
 public interface RoomRedisRepository extends CrudRepository<Room, String> {
-    List<Room> findByName(String name);
+    List<Room> findByTitle(String title);
+    List<Room> findByKeyword(String keyword);
 }
