@@ -8,7 +8,7 @@ import java.util.List;
 
 
 public interface RoomSearchRepository extends ElasticsearchRepository<Room, Long> {
-    List<Room> findByNameContaining(String name);
 
-
+    List<Room> findByTitleContaining(String title);
+    List<Room> findByKeywordContaining(String keyword);
 }
