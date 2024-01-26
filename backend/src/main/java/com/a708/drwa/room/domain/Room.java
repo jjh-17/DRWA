@@ -12,18 +12,18 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.elasticsearch.annotations.Setting;
 
 
-
-
-@Document(indexName = "room_index") // Elasticsearch 문서
-@Setting(settingPath = "resources/settings.json") // Elasticsearch 설정
+@Document(indexName = "room_index")
+@Setting(settingPath = "resources/settings.json")
 public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
 
     @Field(type = FieldType.Text, analyzer = "korean")
-    private String name;
+    private String title;
 
+    @Field(type = FieldType.Text, analyzer = "korean")
+    private String keyword;
 
 
     public String getId() {
@@ -32,6 +32,22 @@ public class Room {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getKeyword() {
+        return keyword;
+    }
+
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
     }
 }
 
