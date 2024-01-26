@@ -1,7 +1,15 @@
 FROM openjdk:17
 
-ARG JAR_FILE=drwa-0.0.1-SNAPSHOT.jar
+USER root
 
-COPY build/libs/*.jar app.jar
+COPY docker_install.sh /docker_install.sh
+RUN chmod +x /docker_install.sh
+RUN /docker_install.sh
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+RUN groupadd -f docker
+RUN usermod -aG docker jenkins
+USER jenkins
+
+# COPY build/libs/*.jar app.jar
+
+# ENTRYPOINT ["java", "-jar", "app.jar"]
