@@ -28,17 +28,15 @@ public class Record {
     private GameInfo gameInfo;
 
     // 승패 여부
-    @Enumerated(EnumType.ORDINAL)
     @Column(nullable = false, updatable = false, columnDefinition = "TINYINT")
-    private Result result;
+    private int result;
 
     // 소속
-    @Enumerated(EnumType.ORDINAL)
     @Column(nullable = false, updatable = false, columnDefinition = "TINYINT")
-    private Team team;
+    private int team;
 
     @Builder
-    public Record(Member member, GameInfo gameInfo, Result result, Team team) {
+    public Record(Member member, GameInfo gameInfo, int result, int team) {
         this.member = member;
         this.gameInfo = gameInfo;
         this.result = result;
