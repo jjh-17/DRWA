@@ -6,7 +6,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,8 +27,9 @@ public class RedisUtil {
         return Integer.parseInt(String.valueOf(redisTemplate.opsForValue().get(key)));
     }
 
-    public List<Object> getIntegerListData(String key) {
-        return redisTemplate.opsForList().range(key, 0, -1);
+    public List<Integer> getIntegerListData(String key) {
+        return Objects.requireNonNull(redisTemplate.opsForList().range(key, 0, -1))
+                .stream().map(op -> (int) op).toList();
     }
 
     public Map<Integer, Integer> getIntegerIntegerMapData(String key) {
