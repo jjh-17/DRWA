@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class RedisUtil {
     private final RedisTemplate<String, Object> redisTemplate;
-    private final RedisTemplate<String, Integer> integerRedisTemplate;
 
     public void setData(String key, String value, Long expiredTime) {
         redisTemplate.opsForValue().set(key, value, expiredTime, TimeUnit.MILLISECONDS);
@@ -26,8 +25,8 @@ public class RedisUtil {
         return Integer.parseInt(String.valueOf(redisTemplate.opsForValue().get(key)));
     }
 
-    public List<Integer> getIntegerListData(String key) {
-        return integerRedisTemplate.opsForList().range(key, 0, -1);
+    public List<Object> getIntegerListData(String key) {
+        return redisTemplate.opsForList().range(key, 0, -1);
     }
 
     public Map<Integer, Integer> getIntegerIntegerMapData(String key) {
