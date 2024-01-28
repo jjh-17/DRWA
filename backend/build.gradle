@@ -22,10 +22,14 @@ repositories {
 }
 
 dependencies {
+	// Spring Boot Starter Web
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
-	//elasticsearch
-	implementation 'org.elasticsearch.client:elasticsearch-java:8.11.3'
+	// Spring Boot Starter Data Elasticsearch
+	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+
+	// Elasticsearch Java Client
+	implementation 'co.elastic.clients:elasticsearch-java:8.11.3'
 
 	// websocket
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
