@@ -9,10 +9,10 @@ import java.util.Map;
 @Builder
 @Getter
 public class AddRecordRedisResponseDto {
-    private List<Integer> teamAList;        // A팀 리스트
-    private List<Integer> teamBList;        // B팀 리스트
-    private List<Integer> jurorList;        // 배심원 리스트
-    private List<Integer> viewerList;       // 관전자 리스트
+    private List<Object> teamAList;         // A팀 리스트
+    private List<Object> teamBList;         // B팀 리스트
+    private List<Object> jurorList;         // 배심원 리스트
+    private List<Object> viewerList;        // 관전자 리스트
 
     private Map<Integer, Integer> mvpMap;   // MVP 정보 맵 => (투표한 memberId, 투표된 memberId)
     
