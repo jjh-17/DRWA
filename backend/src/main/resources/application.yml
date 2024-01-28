@@ -15,8 +15,21 @@ spring:
 
   data:
     elasticsearch:
-      cluster-nodes: localhost:9300
-      cluster-name: elegant-lehmann
+      client:
+        # Elasticsearch의 REST 클라이언트 구성
+        rest:
+          uris: "http://localhost:9200" # Elasticsearch 서버의 URL
+#          username: "elastic" # 기본 사용자 이름 (필요한 경우)
+#          password: "password" # 기본 비밀번호 (필요한 경우)
+        redis:
+          host: localhost # Redis 서버 호스트
+          port: 6379 # Redis 서버 포트
+#          password: "" # Redis 비밀번호 (필요한 경우)
+          lettuce:
+            pool:
+              max-active: 10 # 동시에 사용할 수 있는 최대 연결 수
+              max-idle: 5 # 풀에서 유지할 수 있는 최대 유휴 연결 수
+              min-idle: 1 # 풀에서 유지할 수 있는 최소 유휴 연결 수
 
 # swagger 설정
 springdoc:
