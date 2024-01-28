@@ -15,7 +15,7 @@ public class AddRecordResponseDto {
     private int teamBVoteNum;               // 팀B 투표 수
     private int noVoteNum;                  // 미투표 수
 
-    private List<Integer> mvpMemberIds;     // MVP로 선정된 멤버 ID
+    private List<Integer> mvpList;          // MVP로 선정된 멤버 ID 리스트
     private int mvpPoint;                   // MVP 추가 포인트
 
     private int winnerPoint;                // 승리팀 획득 포인트
