@@ -1,12 +1,19 @@
 package com.a708.drwa.debate.data.dto.request;
 
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @NoArgsConstructor
-@Getter
+@Data
 public class DebateJoinRequestDto {
     private int debateId;
-    // TODO: 사용자 정보도 받을 듯?
-    // private JWT Token;
+
+    private int userId;
+
+    private List<Integer> viewerList;
+
+    private List<Integer> debateUserList;
+
 }
