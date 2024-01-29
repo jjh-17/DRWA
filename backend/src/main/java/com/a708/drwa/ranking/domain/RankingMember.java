@@ -28,4 +28,11 @@ public class RankingMember implements Serializable {
         this.title = title;
         this.winRate = winRate;
     }
+
+    public void updatePoint(int point){
+        this.point = point;
+    }
+    public void increasePoint(int point){
+        this.point += point;
+    }
 }
