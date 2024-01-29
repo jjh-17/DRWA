@@ -24,6 +24,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.a708.drwa.redis.constant.Constants.*;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -34,7 +36,6 @@ public class ProfileService {
     private final RedisTemplate<String, RankingMember> rankMemberRedisTemplate;
     private static final int INIT_POINT = 1000;
     private static final int INIT_MVP_COUNT = 0;
-    private static final String REDIS_KEY = "rank";
 
     @Transactional
     public void addProfile(AddProfileRequest addProfileRequest){
@@ -60,7 +61,9 @@ public class ProfileService {
                 .point(profile.getPoint())
                 .build();
 
-        rankMemberRedisTemplate.opsForZSet().add(REDIS_KEY, rankingMember, -profile.getPoint());
+        // Save Points with each category
+        savePointsInRedis(rankingMember, profile);
+
         profileRepository.save(profile);
     }
 
@@ -77,7 +80,7 @@ public class ProfileService {
         Profile profile = profileRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new GlobalException(ProfileErrorCode.PROFILE_NOT_FOUND));
 
-        Set<RankingMember> members = rankMemberRedisTemplate.opsForZSet().range(REDIS_KEY, 0, -1);
+        Set<RankingMember> members = rankMemberRedisTemplate.opsForZSet().range(RANK_REDIS_KEY, 0, -1);
 
         if(members == null) {
             throw new GlobalException(ProfileErrorCode.PROFILE_NOT_FOUND);
@@ -99,15 +102,16 @@ public class ProfileService {
     }
 
     public List<RankingMember> findAll(){
-        Set<RankingMember> members = rankMemberRedisTemplate.opsForZSet().range(REDIS_KEY, 0, -1);
+        Set<RankingMember> members = rankMemberRedisTemplate.opsForZSet().range(RANK_REDIS_KEY, 0, -1);
         if(members == null){
             return List.of();
         }
 
         return members.stream().toList();
     }
+
     public List<ProfileResponse> findAllWithDto(){
-        Set<RankingMember> rankingMembers = rankMemberRedisTemplate.opsForZSet().range(REDIS_KEY, 0, -1);
+        Set<RankingMember> rankingMembers = rankMemberRedisTemplate.opsForZSet().range(RANK_REDIS_KEY, 0, -1);
         if(rankingMembers == null){
             new GlobalException(MemberErrorCode.EXAMPLE_ERROR_CODE);
         }
@@ -132,6 +136,23 @@ public class ProfileService {
                         .rankName(p.getRank().getRankName())
                         .build())
                 .collect(Collectors.toList());
+    }
+    private void savePointsInRedis(RankingMember rankingMember, Profile profile) {
+        // Total Point
+        rankMemberRedisTemplate.opsForZSet().add(RANK_REDIS_KEY, rankingMember, -profile.getPoint());
+
+        // Each Category Point
+        rankMemberRedisTemplate.opsForZSet().add(RANK_ANIMAL_REDIS_KEY, rankingMember, -profile.getPoint());
+        rankMemberRedisTemplate.opsForZSet().add(RANK_CULTURE_REDIS_KEY, rankingMember, -profile.getPoint());
+        rankMemberRedisTemplate.opsForZSet().add(RANK_ECONOMY_REDIS_KEY, rankingMember, -profile.getPoint());
+        rankMemberRedisTemplate.opsForZSet().add(RANK_FOOD_REDIS_KEY, rankingMember, -profile.getPoint());
+        rankMemberRedisTemplate.opsForZSet().add(RANK_LOVE_REDIS_KEY, rankingMember, -profile.getPoint());
+        rankMemberRedisTemplate.opsForZSet().add(RANK_PERSON_REDIS_KEY, rankingMember, -profile.getPoint());
+        rankMemberRedisTemplate.opsForZSet().add(RANK_SHOPPING_REDIS_KEY, rankingMember, -profile.getPoint());
+        rankMemberRedisTemplate.opsForZSet().add(RANK_POLITICS_REDIS_KEY, rankingMember, -profile.getPoint());
+        rankMemberRedisTemplate.opsForZSet().add(RANK_SOCIAL_REDIS_KEY, rankingMember, -profile.getPoint());
+        rankMemberRedisTemplate.opsForZSet().add(RANK_SPORTS_REDIS_KEY, rankingMember, -profile.getPoint());
+        rankMemberRedisTemplate.opsForZSet().add(RANK_ETC_REDIS_KEY, rankingMember, -profile.getPoint());
     }
 
 
