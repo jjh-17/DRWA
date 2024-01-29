@@ -2,6 +2,8 @@ package com.a708.drwa.member.service.Impl;
 
 import com.a708.drwa.member.dto.SocialUserInfoResponse;
 import com.a708.drwa.member.service.SocialLoginService;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpEntity;
@@ -18,7 +20,9 @@ import java.util.Map;
 /**
  * Naver OAuth2.0 로그인 서비스
  */
+@Slf4j
 @Service
+@Setter
 @ConfigurationProperties(prefix = "spring.security.oauth2.client.registration.naver")
 public class NaverLoginServiceImpl implements SocialLoginService {
 
@@ -37,6 +41,8 @@ public class NaverLoginServiceImpl implements SocialLoginService {
      */
     @Override
     public String getAuthorizationUrl() {
+        log.info("clientId: {}, redirectUri: {}", clientId, redirectUri);
+
         return UriComponentsBuilder.fromHttpUrl("https://nid.naver.com/oauth2.0/authorize")
                 .queryParam("client_id", clientId)
                 .queryParam("redirect_uri", redirectUri)
