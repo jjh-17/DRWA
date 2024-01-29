@@ -42,7 +42,7 @@ public class JWTUtil {
 
         // AccessToken을 생성한다.
         JwtBuilder jwtAccessTokenBuilder = Jwts.builder();
-        // 토큰의 유형을 지정한다.
+        // 토큰에 담을 정보를 지정한다.
         jwtAccessTokenBuilder.claim("memberId", memberId);
         // 토큰의 발급시간을 지정한다.
         jwtAccessTokenBuilder.setIssuedAt(new Date(currentTimeMillis));
