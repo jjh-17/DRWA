@@ -14,6 +14,4 @@ public class AuthDto {
     private String refreshToken;
 
 
-
-
 }

@@ -1,27 +1,36 @@
 package com.a708.drwa.member.service;
 
 import com.a708.drwa.member.domain.Member;
+import com.a708.drwa.member.dto.SocialLoginResponse;
 import com.a708.drwa.member.dto.SocialUserInfoResponse;
 import com.a708.drwa.member.repository.MemberRepository;
 import com.a708.drwa.member.service.Impl.GoogleLoginServiceImpl;
 import com.a708.drwa.member.service.Impl.KakaoLoginServiceImpl;
 import com.a708.drwa.member.service.Impl.NaverLoginServiceImpl;
-import com.a708.drwa.member.type.SocialType;
+import com.a708.drwa.member.util.JWTUtil;
+import com.a708.drwa.redis.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.UnsupportedEncodingException;
 
 @Transactional(readOnly = true)
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MemberService {
+public class MemberServiceImpl {
     private final MemberRepository memberRepository;
     private final GoogleLoginServiceImpl googleLoginService;
     private final NaverLoginServiceImpl naverLoginService;
     private final KakaoLoginServiceImpl kakaoLoginService;
+    private final JWTUtil jwtUtil;
+    private final RedisUtil redisUtil;
+
+    @Value("${jwt.refreshtoken.expiretime}")
+    private Long refreshTokenExpireTime;
 
     /**
      * 소셜 로그인 처리
@@ -29,13 +38,24 @@ public class MemberService {
      * @return 처리된 사용자 정보
      */
     @Transactional
-    public Member handleSocialLogin(SocialUserInfoResponse userInfo) {
+    public SocialLoginResponse handleSocialLogin(SocialUserInfoResponse userInfo) throws UnsupportedEncodingException {
         // 사용자 정보를 기반으로 기존 사용자 조회
         Member member = memberRepository.findByUserId(userInfo.getId())
                 // 기존 사용자가 없으면 새로운 사용자 등록
                 .orElseGet(() -> registerNewUser(userInfo));
 
-        return member;
+        // JWT 토큰 생성
+        String jwtAccessToken = jwtUtil.createAccessToken(member.getUserId());
+        String jwtRefreshToken = jwtUtil.createRefreshToken(member.getUserId());
+
+        // Redis에 리프레시 토큰 저장
+        redisUtil.setData(member.getUserId(), jwtRefreshToken, refreshTokenExpireTime);
+
+        // 응답 DTO 생성
+        SocialLoginResponse socialLoginResponse = new SocialLoginResponse(member.getUserId(), jwtAccessToken);
+
+        // 응답 DTO 반환
+        return socialLoginResponse;
     }
 
     /**
