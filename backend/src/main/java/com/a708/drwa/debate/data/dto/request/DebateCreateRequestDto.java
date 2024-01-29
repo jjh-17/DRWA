@@ -1,6 +1,5 @@
 package com.a708.drwa.debate.data.dto.request;
 
-import com.a708.drwa.debate.domain.Debate;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,7 +17,8 @@ public class DebateCreateRequestDto {
     private String rightKeyword;
 
     // 참여 인원 제한
-    private int peopleCnt;
+    private int playerNum;
+    private int jurorNum;
 
     // 비공개 시 비번 설정
     private Boolean isPrivate;
