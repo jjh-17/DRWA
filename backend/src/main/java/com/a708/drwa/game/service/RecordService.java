@@ -23,8 +23,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -43,17 +43,12 @@ public class RecordService {
 
     @Transactional
     public AddRecordResponseDto addRecord(AddRecordRequestDto addRecordRequestDto) {
-        // Redis 통신
+        // Redis에서 필요한 데이터 가져옴
         final AddRecordRedisResponseDto addRecordRedisResponseDto = getRedisGameResponseDto(addRecordRequestDto.getDebateId());
 
-        // 올바른 정보를 받았는지 확인
-        final Debate debate = getDebate(addRecordRequestDto.getDebateId());
-        if(debate.getDebateId() != addRecordRequestDto.getDebateId())
-            throw new GameException(GameErrorCode.BAD_REQUEST);
-
-        final GameInfo gameInfo = getGameInfo(addRecordRequestDto.getGameId());
-        if(gameInfo.getGameId() != addRecordRequestDto.getGameId())
-            throw new GameException(GameErrorCode.BAD_REQUEST);
+        // 올바른 정보를 받았는지 검증
+        final Debate debate = checkDebateId(addRecordRequestDto.getDebateId());
+        final GameInfo gameInfo = checkGameId(addRecordRequestDto.getGameId());
 
         // MySql에 저장할 전적 정보 생성
         final WinnerTeam winnerTeam = getWinnerTeam(addRecordRedisResponseDto.getTeamAVoteNum(), addRecordRedisResponseDto.getTeamBVoteNum());
@@ -84,19 +79,53 @@ public class RecordService {
                 .build();
     }
 
-    // 클라이언트가 전달한 debateId가 존재하는지 확인
-    private Debate getDebate(int debateId) {
-        return debateRepository.findById(debateId)
+    // === 검증 ===
+    // 토론 방 검증
+    private Debate checkDebateId(int debateId) {
+        Debate debate = debateRepository.findById(debateId)
                 .orElseThrow(() -> new GameException(GameErrorCode.GAME_NOT_FOUND));
-    }
 
-    // 클라이언트가 전달한 gameId가 존재하는지 확인
-    private GameInfo getGameInfo(int gameId) {
-        return gameInfoRepository.findById(gameId)
+        if(debateId != debate.getDebateId())
+            throw new GameException(GameErrorCode.BAD_REQUEST);
+
+        return debate;
+    }
+    
+    // 게임 정보 검증
+    private GameInfo checkGameId(int gameId) {
+        GameInfo gameInfo =  gameInfoRepository.findById(gameId)
                 .orElseThrow(() -> new GameException(GameErrorCode.DEBATE_NOT_FOUND));
+
+        if(gameId != gameInfo.getGameId())
+            throw new GameException(GameErrorCode.BAD_REQUEST);
+
+        return gameInfo;
     }
 
-    // 레디스에서 데이터 얻기
+    // 플레이어 검증
+    private List<Member> checkPlayers(List<Integer> teamAList, List<Integer> teamBList) {
+        List<Member> players;
+        List<Integer> mergedList = new ArrayList<>(teamAList);
+        mergedList.addAll(teamBList);
+
+        // DB에서 데이터 가져오기
+        try {
+            players = memberRepository.findAllById(mergedList);
+        } catch(Exception e) {
+            throw new GameException(GameErrorCode.MEMBER_NOT_FOUND);
+        }
+
+        for(Member player : players) {
+            if(!mergedList.contains(player.getId()))
+                throw new GameException(GameErrorCode.BAD_REQUEST);
+        }
+
+        return players;
+    }
+
+
+    // === Redis ===
+    // Redis 내에서 정산에 필요한 데이터 얻기
     private AddRecordRedisResponseDto getRedisGameResponseDto(int debateId) {
         List<Integer> teamAList;
         List<Integer> teamBList;
@@ -108,11 +137,11 @@ public class RecordService {
         String keyword;
 
         try {
-            teamAList = redisUtil.getIntegerListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.TEAM_A_LIST));
-            teamBList = redisUtil.getIntegerListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.TEAM_B_LIST));
-            jurorList = redisUtil.getIntegerListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.JUROR_LIST));
-            viewerList = redisUtil.getIntegerListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.VIEWER_LIST));
-            mvpMap = redisUtil.getIntegerIntegerMapData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.MVP));
+//            teamAList = redisUtil.getIntegerListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.TEAM_A_LIST));
+//            teamBList = redisUtil.getIntegerListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.TEAM_B_LIST));
+//            jurorList = redisUtil.getIntegerListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.JUROR_LIST));
+//            viewerList = redisUtil.getIntegerListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.VIEWER_LIST));
+//            mvpMap = redisUtil.getIntegerIntegerMapData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.MVP));
             teamAVoteNum = redisUtil.getIntegerData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.VOTE_TEAM_A));
             teamBVoteNum = redisUtil.getIntegerData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.VOTE_TEAM_B));
             keyword = redisUtil.getData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.KEY_WORD));
@@ -122,11 +151,11 @@ public class RecordService {
         }
 
         return AddRecordRedisResponseDto.builder()
-                .teamAList(teamAList)
-                .teamBList(teamBList)
-                .jurorList(jurorList)
-                .viewerList(viewerList)
-                .mvpMap(mvpMap)
+//                .teamAList(teamAList)
+//                .teamBList(teamBList)
+//                .jurorList(jurorList)
+//                .viewerList(viewerList)
+//                .mvpMap(mvpMap)
                 .teamAVoteNum(teamAVoteNum)
                 .teamBVoteNum(teamBVoteNum)
                 .keyword(keyword)
@@ -134,37 +163,44 @@ public class RecordService {
     }
     
     // Redis에서 더 이상 쓰지 않는 데이터 삭제
-    private void deleteRedisData(int debateId) {
-        
+    public void deleteRedisDebateData(int debateId) {
+        List<String> keys = new ArrayList<>();
+        for (DebateRedisKey key : DebateRedisKey.values()) {
+            keys.add(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, key));
+        }
+
+        redisUtil.deleteDataAll(keys);
     }
 
     // === 편의 메서드 ===
-    // 저장할 전적
+    // 저장할 전적 반환
     private List<Record> getInputRecords(List<Integer> teamAList, List<Integer> teamBList, GameInfo gameInfo, WinnerTeam winnerTeam) {
         List<Record> records = new ArrayList<>();
-        Result resultA = winnerTeam==WinnerTeam.A ? Result.WIN : (winnerTeam==WinnerTeam.B ? Result.LOSE : Result.TIE);
-        Result resultB = winnerTeam==WinnerTeam.A ? Result.LOSE : (winnerTeam==WinnerTeam.B ? Result.WIN : Result.TIE);
-        
-        // DB에서 멤버 검색
-        List<Integer> mergedList = new ArrayList<>(teamAList);
-        mergedList.addAll(teamBList);
+        Result resultA;
+        Result resultB;
 
-        List<Member> savedMembers;
-        try {
-            savedMembers = memberRepository.findAllById(mergedList);
-        } catch(Exception e) {
-            log.error(e.toString());
-            throw new GameException(GameErrorCode.MEMBER_NOT_FOUND);
+        // A, B 팀의 결과 도출
+        if(winnerTeam == WinnerTeam.A) {
+            resultA = Result.WIN;
+            resultB = Result.LOSE;
+        } else if (winnerTeam == WinnerTeam.B) {
+            resultA = Result.LOSE;
+            resultB = Result.WIN;
+        } else{
+            resultA = Result.TIE;
+            resultB = Result.TIE;
         }
 
+        // DB에서 멤버 검색
+        List<Member> players = checkPlayers(teamAList, teamBList);
+
         // 레코드 추가
-        for(Member member: savedMembers) {
+        for(Member player: players) {
             records.add(Record.builder()
-                            .member(member)
+                            .member(player)
                             .gameInfo(gameInfo)
-                            .result(teamAList.contains(member.getId()) ? resultA : resultB)
-                            .team(teamAList.contains(member.getId()) ? Team.A : Team.B)
-                    .build());
+                            .result(teamAList.contains(player.getId()) ? resultA : resultB)
+                            .team(teamAList.contains(player.getId()) ? Team.A : Team.B).build());
         }
 
         return records;
