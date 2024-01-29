@@ -6,9 +6,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class RedisKeyUtil {
 
-    // 일반 키 값
+    // debateId를 이용한 키 값
     public String getKeyByDebateIdWithKeyword(int debateId, DebateRedisKey key) {
         return "debate:" + debateId + key;
     }
 
+    // memberId를 이요한 키 값
+    public String getKeyByMemberIdWithKeyword(int memberId, DebateRedisKey key) {
+        return "member:" + memberId + key;
+    }
 }
