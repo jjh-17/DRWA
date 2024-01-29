@@ -58,18 +58,18 @@ public class MemberController {
      */
     @GetMapping("/login/{socialType}")
     public ResponseEntity<?> socialLogin(@PathVariable String socialType, @RequestParam String code) {
-        SocialLoginService service = memberService.getSocialLoginService(socialType);
+        SocialLoginService socialLoginService = memberService.getSocialLoginService(socialType);
 
         // 지원하지 않는 소셜 로그인 타입
-        if (service == null) {
+        if (socialLoginService == null) {
             return ResponseEntity.badRequest().body("Unsupported social login type");
         }
 
         // 액세스 토큰 반환
-        String accessToken = service.getAccessToken(code);
+        String accessToken = socialLoginService.getAccessToken(code);
 
         // 액세스 토큰으로부터 사용자 정보를 반환한다.
-        SocialUserInfoResponse responseUserInfoDto = service.getUserInfo(accessToken);
+        SocialUserInfoResponse responseUserInfoDto = socialLoginService.getUserInfo(accessToken);
 
         log.info("responseUserInfoDto: {}", responseUserInfoDto);
 

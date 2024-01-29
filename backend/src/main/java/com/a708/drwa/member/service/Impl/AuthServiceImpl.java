@@ -5,6 +5,9 @@ import com.a708.drwa.member.service.AuthService;
 import com.a708.drwa.redis.util.RedisUtil;
 import org.springframework.stereotype.Service;
 
+/**
+ * 인증 관련 서비스 구현체
+ */
 @Service
 public class AuthServiceImpl implements AuthService {
 
@@ -45,6 +48,6 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void updateRefreshToken(AuthDto authDto, long duration) {
         // setData(키, 값, 저장 기간)
-        redisUtil.setData(authDto.getUserId(), authDto.getRefreshToken(), duration);;
+        redisUtil.setData(authDto.getUserId(), authDto.getRefreshToken(), duration);
     }
 }
