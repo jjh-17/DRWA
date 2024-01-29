@@ -17,6 +17,7 @@ public class RedisMessageUtil {
     private final ObjectMapper objectMapper;
 
     // 이벤트
+    private final String JOIN_EVENT = "join";
     private final String CHOOSE_POSITION_EVENT = "position";
     private final String SETTING_EVENT = "setting";
     private final String CHANGE_SETTING_EVENT = "changeSetting";
