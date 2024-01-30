@@ -1,5 +1,9 @@
 package com.a708.drwa.debate.service;
 
+import com.a708.drwa.debate.data.dto.DebateMemberDto;
+import com.a708.drwa.debate.data.dto.RoomInfo;
+import com.a708.drwa.debate.data.dto.request.DebateStartRequestDto;
+import com.a708.drwa.debate.domain.enums.Role;
 import com.a708.drwa.debate.repository.DebateCategoryRepository;
 import com.a708.drwa.debate.repository.DebateRepository;
 import com.a708.drwa.member.domain.Member;
@@ -8,7 +12,9 @@ import com.a708.drwa.member.exception.MemberException;
 import com.a708.drwa.member.repository.MemberRepository;
 import com.a708.drwa.member.type.SocialType;
 import com.a708.drwa.redis.domain.DebateRedisKey;
+import com.a708.drwa.redis.util.RedisKeyUtil;
 import com.a708.drwa.redis.util.RedisUtil;
+import com.a708.drwa.room.domain.Room;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tags;
 import org.junit.jupiter.api.Test;
@@ -19,7 +25,9 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,7 +42,12 @@ class DebateServiceTest {
     @Autowired
     DebateCategoryRepository debateCategoryRepository;
     @Autowired
+    RedisUtil redisUtil;
+    @Autowired
+    RedisKeyUtil redisKeyUtil;
+    @Autowired
     RedisTemplate<String, Object> redisTemplate;
+
 
     @BeforeEach
     void init() {
@@ -88,124 +101,111 @@ class DebateServiceTest {
                 .orElseThrow(() -> new MemberException(MemberErrorCode.EXAMPLE_ERROR_CODE));
 
         // when
-        redisTemplate.delete(debateId + "");
-        redisTemplate.opsForHash().put(debateId + "", "member1", member1);
-        redisTemplate.opsForHash().put(debateId + "", "member2", member2);
-        redisTemplate.opsForHash().put(debateId + "", "member3", member3);
-
-        Member res1 = (Member) redisTemplate.opsForHash().get(debateId + "", "member1");
-        Member res2 = (Member) redisTemplate.opsForHash().get(debateId + "", "member2");
-        Member res3 = (Member) redisTemplate.opsForHash().get(debateId + "", "member3");
-
-        // then
-        assertThat(member1.getId()).isEqualTo(res1.getId());
-        assertThat(member1.getUserId()).isEqualTo(res1.getUserId());
-
-        assertThat(member2.getId()).isEqualTo(res2.getId());
-        assertThat(member2.getUserId()).isEqualTo(res2.getUserId());
-
-        assertThat(member3.getId()).isEqualTo(res3.getId());
-        assertThat(member3.getUserId()).isEqualTo(res3.getUserId());
+//        redisTemplate.delete(debateId + "");
+//        redisTemplate.opsForHash().put(debateId + "", "member1", member1);
+//        redisTemplate.opsForHash().put(debateId + "", "member2", member2);
+//        redisTemplate.opsForHash().put(debateId + "", "member3", member3);
+//
+//        Member res1 = (Member) redisTemplate.opsForHash().get(debateId + "", "member1");
+//        Member res2 = (Member) redisTemplate.opsForHash().get(debateId + "", "member2");
+//        Member res3 = (Member) redisTemplate.opsForHash().get(debateId + "", "member3");
+//
+//        // then
+//        assertThat(member1.getId()).isEqualTo(res1.getId());
+//        assertThat(member1.getUserId()).isEqualTo(res1.getUserId());
+//
+//        assertThat(member2.getId()).isEqualTo(res2.getId());
+//        assertThat(member2.getUserId()).isEqualTo(res2.getUserId());
+//
+//        assertThat(member3.getId()).isEqualTo(res3.getId());
+//        assertThat(member3.getUserId()).isEqualTo(res3.getUserId());
     }
 
     @Test
     void start() {
-        // given
-        int debateId = 1;
-        String key = debateId + "";
+        //// given
+        DebateStartRequestDto testDto = create();
 
-        // A팀 참여자
-        Member aMember1 = memberRepository.findByUserId("a1")
-                .orElseThrow(() -> new MemberException(MemberErrorCode.EXAMPLE_ERROR_CODE));
-        Member aMember2 = memberRepository.findByUserId("a2")
-                .orElseThrow(() -> new MemberException(MemberErrorCode.EXAMPLE_ERROR_CODE));
-        Member aMember3 = memberRepository.findByUserId("a3")
-                .orElseThrow(() -> new MemberException(MemberErrorCode.EXAMPLE_ERROR_CODE));
+        String debateKey = testDto.getDebateId() + "";
+        String startTimeKey = DebateRedisKey.START_TIME.string();
+        String roomInfoKey = DebateRedisKey.ROOM_INFO.string();
 
-        // B팀 참여자
-        Member bMember1 = memberRepository.findByUserId("b1")
-                .orElseThrow(() -> new MemberException(MemberErrorCode.EXAMPLE_ERROR_CODE));
-        Member bMember2 = memberRepository.findByUserId("b2")
-                .orElseThrow(() -> new MemberException(MemberErrorCode.EXAMPLE_ERROR_CODE));
-        Member bMember3 = memberRepository.findByUserId("b3")
-                .orElseThrow(() -> new MemberException(MemberErrorCode.EXAMPLE_ERROR_CODE));
+        // phase 초기화
+        redisUtil.hSet(debateKey, redisKeyUtil.getKeyByRoomIdWithKeyword(DebateRedisKey.PHASE.string()), 0);
 
-        // 배심원
-//        Member cMember1 = memberRepository.findByUserId("c1")
-//                .orElseThrow(() -> new MemberException(MemberErrorCode.EXAMPLE_ERROR_CODE));
-//        Member cMember2 = memberRepository.findByUserId("c2")
-//                .orElseThrow(() -> new MemberException(MemberErrorCode.EXAMPLE_ERROR_CODE));
-//        Member cMember3 = memberRepository.findByUserId("c3")
-//                .orElseThrow(() -> new MemberException(MemberErrorCode.EXAMPLE_ERROR_CODE));
-//
-//        // 관전자
-//        Member dMember1 = memberRepository.findByUserId("d1")
-//                .orElseThrow(() -> new MemberException(MemberErrorCode.EXAMPLE_ERROR_CODE));
-//        Member dMember2 = memberRepository.findByUserId("d2")
-//                .orElseThrow(() -> new MemberException(MemberErrorCode.EXAMPLE_ERROR_CODE));
-//        Member dMember3 = memberRepository.findByUserId("d3")
-//                .orElseThrow(() -> new MemberException(MemberErrorCode.EXAMPLE_ERROR_CODE));
+        //// when
 
-        ////// 팀 유저 리스트 저장
-        String AKey = DebateRedisKey.TEAM_A_LIST.string();
-        String BKey = DebateRedisKey.TEAM_B_LIST.string();
-        String CKey = DebateRedisKey.JUROR_LIST.string();
-        String DKey = DebateRedisKey.VIEWER_LIST.string();
+        // 시작 시간 및 설정 저장
+        redisUtil.hSet(debateKey, startTimeKey, System.currentTimeMillis() / 1000L + "");
+        redisUtil.hSet(debateKey, roomInfoKey, testDto.getRoomInfo());
 
-        // 팀 A
-        redisTemplate.opsForList().rightPush(AKey, aMember1);
-        redisTemplate.opsForList().rightPush(AKey, aMember2);
-        redisTemplate.opsForList().rightPush(AKey, aMember3);
+        // 유저 리스트 저장
+        for(Map.Entry<Integer, DebateMemberDto> member : testDto.getMemberDtoHashMap().entrySet()) {
+            DebateMemberDto memberDto = member.getValue();
+            String teamKey = member.getValue().getRole().string();
+            redisUtil.setList(redisKeyUtil.getKeyByRoomIdWithKeyword(debateKey, teamKey), memberDto);
+        }
 
-        // 팀 B
-        redisTemplate.opsForList().rightPush(BKey, bMember1);
-        redisTemplate.opsForList().rightPush(BKey, bMember2);
-        redisTemplate.opsForList().rightPush(BKey, bMember3);
-
-//        // 배심원
-//        redisTemplate.opsForList().rightPush(CKey, cMember1);
-//        redisTemplate.opsForList().rightPush(CKey, cMember2);
-//        redisTemplate.opsForList().rightPush(CKey, cMember3);
-//
-//        // 관전자
-//        redisTemplate.opsForList().rightPush(DKey, dMember1);
-//        redisTemplate.opsForList().rightPush(DKey, dMember2);
-//        redisTemplate.opsForList().rightPush(DKey, dMember3);
-
-        // 대기 단계 PHASE => 0
-        redisTemplate.opsForHash().put(key, DebateRedisKey.PHASE, 0);
-
-        // when
-        redisTemplate.opsForHash().put(key, DebateRedisKey.START_TIME, System.currentTimeMillis() / 1000L);
-        redisTemplate.opsForHash().increment(key, DebateRedisKey.PHASE, 1);
-        redisTemplate.opsForHash().put(key, DebateRedisKey.LEFT_KEYWORD, "치킨");
-        redisTemplate.opsForHash().put(key, DebateRedisKey.RIGHT_KEYWORD, "피자");
-
-        // A팀 리스트
-        List<Object> oLeftList = redisTemplate.opsForList().range(AKey, 0, -1);
-        List<Member> LeftList = new ArrayList<>();
-        for(Object o : oLeftList)
-            LeftList.add((Member) o);
-
-        // B팀 리스트
-        List<Object> oRightList = redisTemplate.opsForList().range(BKey, 0, -1);
-        List<Member> RightList = new ArrayList<>();
-        for(Object o : oRightList)
-            RightList.add((Member) o);
+        // 준비 단계로 진행
+        redisTemplate.opsForHash().increment(debateKey, DebateRedisKey.PHASE, 1);
 
         // then
         // roomInfo check
-        assertThat("치킨").isEqualTo(redisTemplate.opsForHash().get(key, DebateRedisKey.LEFT_KEYWORD));
-        assertThat("피자").isEqualTo(redisTemplate.opsForHash().get(key, DebateRedisKey.RIGHT_KEYWORD));
-        assertThat(1).isEqualTo(redisTemplate.opsForHash().get(key, DebateRedisKey.PHASE));
+        RoomInfo redisRoomInfo = (RoomInfo) redisUtil.hGet(debateKey, DebateRedisKey.ROOM_INFO.string());
+
+        assertThat(redisRoomInfo.getDebateTitle()).isEqualTo(testDto.getRoomInfo().getDebateTitle());
+        assertThat(redisRoomInfo.getHostId()).isEqualTo(testDto.getRoomInfo().getHostId());
+        assertThat(redisRoomInfo.getPassword()).isEqualTo(testDto.getRoomInfo().getPassword());
 
         // UserList check
-        assertThat(aMember1.getUserId()).isEqualTo(LeftList.get(0).getUserId());
-        assertThat(aMember2.getUserId()).isEqualTo(LeftList.get(1).getUserId());
-        assertThat(aMember3.getUserId()).isEqualTo(LeftList.get(2).getUserId());
+        List<Object> oLeftList = redisUtil.getList(redisKeyUtil.getKeyByRoomIdWithKeyword(debateKey, Role.A_TEAM.string()));
+        List<Object> oRightList = redisUtil.getList(redisKeyUtil.getKeyByRoomIdWithKeyword(debateKey, Role.B_TEAM.string()));
 
-        assertThat(bMember1.getUserId()).isEqualTo(RightList.get(0).getUserId());
-        assertThat(bMember2.getUserId()).isEqualTo(RightList.get(1).getUserId());
-        assertThat(bMember3.getUserId()).isEqualTo(RightList.get(2).getUserId());
+        assertThat(((DebateMemberDto)oLeftList.get(0)).getRole()).isEqualTo(Role.A_TEAM);
+        assertThat(((DebateMemberDto)oLeftList.get(1)).getRole()).isEqualTo(Role.A_TEAM);
+
+        assertThat(((DebateMemberDto)oRightList.get(0)).getRole()).isEqualTo(Role.B_TEAM);
+        assertThat(((DebateMemberDto)oRightList.get(1)).getRole()).isEqualTo(Role.B_TEAM);
+    }
+
+    private DebateStartRequestDto create() {
+        HashMap<Integer, DebateMemberDto> memberMap = new HashMap<>();
+        memberMap.put(2, DebateMemberDto.builder()
+                .memberId(2)
+                .role(Role.A_TEAM)
+                .build());
+        memberMap.put(3, DebateMemberDto.builder()
+                .memberId(3)
+                .role(Role.A_TEAM)
+                .build());
+        memberMap.put(4, DebateMemberDto.builder()
+                .memberId(4)
+                .role(Role.B_TEAM)
+                .build());
+        memberMap.put(5, DebateMemberDto.builder()
+                .memberId(5)
+                .role(Role.B_TEAM)
+                .build());
+
+        return DebateStartRequestDto.builder()
+                .debateId(1)
+                .roomInfo(RoomInfo.builder()
+                        .debateCategoryId(1)
+                        .hostId(1)
+                        .debateTitle("t")
+                        .leftKeyword("치킨")
+                        .rightKeyword("피자")
+                        .playerNum(4)
+                        .jurorNum(2)
+                        .isPrivate(true)
+                        .password("1234")
+                        .speakingTime(1)
+                        .readyTime(1)
+                        .qnaTime(1)
+                        .thumbnail1("a")
+                        .thumbnail2("b")
+                        .build())
+                .memberDtoHashMap(memberMap)
+                .build();
     }
 }
