@@ -1,5 +1,6 @@
 package com.a708.drwa.redis.domain;
 
+
 public enum DebateRedisKey {
     TITLE(":title"),
     IS_PRIVATE(":isPrivate"),
