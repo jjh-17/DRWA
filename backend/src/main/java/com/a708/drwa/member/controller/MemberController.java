@@ -77,6 +77,7 @@ public class MemberController {
         socialUserInfoResponse.setSocialType(SocialType.fromString(socialType));
         log.info("SocialType: {}", SocialType.fromString(socialType).ordinal());
 
+        socialUserInfoResponse.setSocialType(SocialType.NAVER);
         log.info("socialUserInfoResponse{}: {}", socialUserInfoResponse.hashCode(), socialUserInfoResponse);
         log.info("socialUserInfoResponse.socialType: {}", socialUserInfoResponse.getSocialType());
 

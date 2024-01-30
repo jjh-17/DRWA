@@ -10,17 +10,11 @@ import lombok.ToString;
 
 import java.util.Map;
 
-@AllArgsConstructor
-@NoArgsConstructor
+
 @Getter
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NaverUserInfoResponse extends SocialUserInfoResponse{
-    private String id;
-    private String email;
-    private String name;
-    private String picture;
-    private SocialType socialType;
 
     /**
      * JSON 응답을 Map으로 변환하여 중첩된 response 필드를 언패킹한다.
