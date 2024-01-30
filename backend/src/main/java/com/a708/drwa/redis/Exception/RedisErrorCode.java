@@ -8,8 +8,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum RedisErrorCode implements ErrorCode {
 
-    REDIS_SELECT_FAIL(500, "Redis Select Fail", "Redis에서 데이터 가져오기에 실패하였습니다."),
-    REDIS_INSERT_FAIL(500, "Redis Insert Fail", "Redis에 데이터 저장을 실패하였습니다.");
+    REDIS_UPDATE_FAIL(500, "Redis Craete Fail", "Redis 데이터 자장/수정에 실패하였습니다."),
+    REDIS_READ_FAIL(500, "Redis Read Fail", "Redis에서 데이터 읽기에 실패하였습니다."),
+    REDIS_DELETE_FAIL(500, "Redis Delete Fail", "Redis에서 데이터 삭제에 실패하였습니다.");
 
     private final int statusCode;
     private final String errorCode;
