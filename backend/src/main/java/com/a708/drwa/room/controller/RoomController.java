@@ -29,11 +29,5 @@ public class RoomController {
     }
 
 
-//    @GetMapping("/nori")
-//    public ResponseEntity<List<Room>> searchRoomsByNori(@RequestParam String query) {
-//        // Nori 분석기를 사용하여 방을 검색합니다.
-//        List<Room> rooms = roomSearchService.searchRoomsByNori(query);
-//        return ResponseEntity.ok(rooms);
-//    }
 
 }
