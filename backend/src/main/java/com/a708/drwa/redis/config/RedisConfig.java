@@ -1,17 +1,21 @@
 package com.a708.drwa.redis.config;
 
+import com.a708.drwa.ranking.domain.RankingMember;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 
 @Configuration
 @EnableCaching
@@ -27,11 +31,11 @@ public class RedisConfig {
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
-        config.setHostName(host);
-        config.setPort(port);
-        config.setPassword(password);
-        return new LettuceConnectionFactory(config);
+        RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration();
+        redisConfig.setHostName(host);
+        redisConfig.setPort(port);
+        redisConfig.setPassword(RedisPassword.of(password));
+        return new LettuceConnectionFactory(redisConfig);
     }
 
     @Bean
@@ -58,6 +62,15 @@ public class RedisConfig {
         RedisMessageListenerContainer redisMessageListenerContainer = new RedisMessageListenerContainer();
         redisMessageListenerContainer.setConnectionFactory(lettuceConnectionFactory);
         return redisMessageListenerContainer;
+    }
+
+
+    @Bean(name = "rankMemberRedisTemplate")
+    public RedisTemplate<String, RankingMember> rankMemberRedisTemplate(){
+        RedisTemplate<String, RankingMember> rankMemberRedisTemplate = new RedisTemplate<>();
+        rankMemberRedisTemplate.setConnectionFactory(redisConnectionFactory());
+        rankMemberRedisTemplate.setDefaultSerializer(new Jackson2JsonRedisSerializer<>(RankingMember.class));
+        return rankMemberRedisTemplate;
     }
 
     @Bean
