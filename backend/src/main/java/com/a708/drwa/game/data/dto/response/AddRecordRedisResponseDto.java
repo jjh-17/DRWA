@@ -19,5 +19,6 @@ public class AddRecordRedisResponseDto {
     private int teamAVoteNum;               // 팀A 투표 수
     private int teamBVoteNum;               // 팀B 투표 수
     
-    private String keyword;                 // 키워드
+    private String keywordA;
+    private String keywordB;// 키워드
 }
