@@ -130,7 +130,8 @@ public class RecordService {
         Map<Integer, Integer> mvpMap;
         int teamAVoteNum;
         int teamBVoteNum;
-        String keyword;
+        String keywordA;
+        String keywordB;
 
 //        teamAList = redisUtil.getListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.TEAM_A_LIST));
 //        teamBList = redisUtil.getListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.TEAM_B_LIST));
@@ -139,8 +140,8 @@ public class RecordService {
 //        mvpMap = redisUtil.getListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.MVP));
         teamAVoteNum = redisUtil.getIntegerData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.VOTE_TEAM_A));
         teamBVoteNum = redisUtil.getIntegerData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.VOTE_TEAM_B));
-//        keyword = redisUtil.getData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.KEY_WORD));
-
+        keywordA = redisUtil.getData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.KEY_WORD_A));
+        keywordB = redisUtil.getData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.KEY_WORD_B));
         return AddRecordRedisResponseDto.builder()
 //                .teamAList(teamAList)
 //                .teamBList(teamBList)
@@ -149,7 +150,8 @@ public class RecordService {
 //                .mvpMap(mvpMap)
                 .teamAVoteNum(teamAVoteNum)
                 .teamBVoteNum(teamBVoteNum)
-//                .keyword(keyword)
+                .keywordA(keywordA)
+                .keywordB(keywordB)
                 .build();
     }
     
