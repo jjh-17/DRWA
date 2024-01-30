@@ -4,7 +4,7 @@ import com.a708.drwa.global.exception.GlobalException;
 import com.a708.drwa.member.domain.Member;
 import com.a708.drwa.member.exception.MemberErrorCode;
 import com.a708.drwa.member.repository.MemberRepository;
-import com.a708.drwa.member.service.MemberService;
+import com.a708.drwa.member.service.MemberServiceImpl;
 import com.a708.drwa.profile.domain.Profile;
 import com.a708.drwa.profile.exception.ProfileErrorCode;
 import com.a708.drwa.profile.repository.ProfileRepository;
