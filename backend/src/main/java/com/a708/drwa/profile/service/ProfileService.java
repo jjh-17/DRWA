@@ -1,5 +1,6 @@
 package com.a708.drwa.profile.service;
 
+import com.a708.drwa.achievement.domain.MemberAchievement;
 import com.a708.drwa.global.exception.GlobalException;
 import com.a708.drwa.member.domain.Member;
 import com.a708.drwa.member.exception.MemberErrorCode;
@@ -14,9 +15,8 @@ import com.a708.drwa.rank.domain.Rank;
 import com.a708.drwa.rank.enums.RankName;
 import com.a708.drwa.ranking.domain.RankingMember;
 import com.a708.drwa.rank.service.RankService;
-import com.a708.drwa.title.domain.MemberTitle;
-import com.a708.drwa.title.exception.TitleErrorCode;
-import com.a708.drwa.title.repository.MemberTitleRepository;
+import com.a708.drwa.achievement.exception.AchievementErrorCode;
+import com.a708.drwa.achievement.repository.MemberAchievementRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -35,7 +35,7 @@ import static com.a708.drwa.redis.constant.Constants.*;
 public class ProfileService {
     private final ProfileRepository profileRepository;
     private final MemberRepository memberRepository;
-    private final MemberTitleRepository memberTitleRepository;
+    private final MemberAchievementRepository memberAchievementRepository;
     private final RankService rankService;
     private final RedisTemplate<String, RankingMember> rankMemberRedisTemplate;
     private static final int INIT_POINT = 1000;
@@ -56,16 +56,16 @@ public class ProfileService {
                 .mvpCount(INIT_MVP_COUNT)
                 .rank(INIT_RANK_BRONZE)
                 .build();
-        MemberTitle title = memberTitleRepository.findByMemberId(addProfileRequest.getMemberId())
+        MemberAchievement title = memberAchievementRepository.findByMemberId(addProfileRequest.getMemberId())
                 .stream()
-                .filter(memberTitle -> memberTitle.isSelected())
+                .filter(memberAchievement -> memberAchievement.isSelected())
                 .findFirst()
-                .orElseThrow(() -> new GlobalException(TitleErrorCode.TITLE_REPRESENTATIVE_NOT_FOUND));
+                .orElseThrow(() -> new GlobalException(AchievementErrorCode.TITLE_REPRESENTATIVE_NOT_FOUND));
 
         RankingMember rankingMember = RankingMember.builder()
                 .memberId(member.getId())
                 .nickname(profile.getNickname())
-                .title(title.getTitle().getName())
+                .title(title.getAchievement().getName())
                 //.winRate()
                 .point(profile.getPoint())
                 .build();
