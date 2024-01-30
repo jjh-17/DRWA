@@ -1,5 +1,7 @@
 package com.a708.drwa.room.domain;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.elasticsearch.annotations.Document;
 import jakarta.persistence.Id;
 
@@ -10,8 +12,9 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.elasticsearch.annotations.Setting;
 
 
+@Setter
+@Getter
 @Document(indexName = "room_index")
-@Setting(settingPath = "resources/settings.json")
 public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,29 +27,6 @@ public class Room {
     private String keyword;
 
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getKeyword() {
-        return keyword;
-    }
-
-    public void setKeyword(String keyword) {
-        this.keyword = keyword;
-    }
 }
 
 
