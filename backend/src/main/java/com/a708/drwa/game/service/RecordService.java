@@ -59,12 +59,8 @@ public class RecordService {
                 winnerTeam);
         
         // MySQL에 전적 Bulk 저장
-        try {
-            recordBulkRepository.saveAll(records);
-        } catch(Exception e) {
-            log.error(e.toString());
-            throw new GameException(GameErrorCode.BATCH_UPDATE_FAIL);
-        }
+        int[] recordSaveResult = recordBulkRepository.saveAll(records);
+        if(recordSaveResult==null) throw new GameException(GameErrorCode.BATCH_UPDATE_FAIL);
 
         // 전적 저장 이후 클라이언트에게 전달할 데이터
         return AddRecordResponseDto.builder()
@@ -136,19 +132,14 @@ public class RecordService {
         int teamBVoteNum;
         String keyword;
 
-        try {
-//            teamAList = redisUtil.getIntegerListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.TEAM_A_LIST));
-//            teamBList = redisUtil.getIntegerListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.TEAM_B_LIST));
-//            jurorList = redisUtil.getIntegerListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.JUROR_LIST));
-//            viewerList = redisUtil.getIntegerListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.VIEWER_LIST));
-//            mvpMap = redisUtil.getIntegerIntegerMapData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.MVP));
-            teamAVoteNum = redisUtil.getIntegerData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.VOTE_TEAM_A));
-            teamBVoteNum = redisUtil.getIntegerData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.VOTE_TEAM_B));
-            keyword = redisUtil.getData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.KEY_WORD));
-        } catch(Exception e) {
-            log.error(e.toString());
-            throw new GameException(GameErrorCode.REDIS_GET_FAIL);
-        }
+//        teamAList = redisUtil.getListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.TEAM_A_LIST));
+//        teamBList = redisUtil.getListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.TEAM_B_LIST));
+//        jurorList = redisUtil.getListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.JUROR_LIST));
+//        viewerList = redisUtil.getListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.VIEWER_LIST));
+//        mvpMap = redisUtil.getListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.MVP));
+        teamAVoteNum = redisUtil.getIntegerData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.VOTE_TEAM_A));
+        teamBVoteNum = redisUtil.getIntegerData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.VOTE_TEAM_B));
+        keyword = redisUtil.getData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.KEY_WORD));
 
         return AddRecordRedisResponseDto.builder()
 //                .teamAList(teamAList)
