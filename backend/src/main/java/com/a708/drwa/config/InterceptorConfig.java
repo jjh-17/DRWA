@@ -2,7 +2,7 @@ package com.a708.drwa.config;
 
 import com.a708.drwa.member.interceptor.AuthInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;dlsxpf
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 public class InterceptorConfig implements WebMvcConfigurer {
     private final AuthInterceptor authInterceptor;
