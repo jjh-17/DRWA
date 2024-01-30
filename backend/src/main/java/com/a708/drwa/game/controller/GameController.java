@@ -1,9 +1,8 @@
 package com.a708.drwa.game.controller;
 
-import com.a708.drwa.game.data.dto.request.GameInfoCreateRequestDto;
-import com.a708.drwa.game.data.dto.request.RecordCreateRequestDto;
-import com.a708.drwa.game.service.GameService;
-import jakarta.validation.Valid;
+import com.a708.drwa.game.data.dto.request.AddRecordRequestDto;
+import com.a708.drwa.game.data.dto.response.AddRecordResponseDto;
+import com.a708.drwa.game.service.RecordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,21 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/game")
 public class GameController {
 
-    private final GameService gameService;
+    private final RecordService gameService;
 
     // 게임 정보 저장
-    @PostMapping("/gameinfo/create")
-    public ResponseEntity<?> createGameInfo(@RequestBody @Valid GameInfoCreateRequestDto gameInfoRequestDto) {
+    @PostMapping("/create")
+    public ResponseEntity<AddRecordResponseDto> createGameInfo(@RequestBody AddRecordRequestDto addRecordRequestDto) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(gameService.createGameInfo(gameInfoRequestDto));
+                .body(gameService.addRecord(addRecordRequestDto));
     }
-
-    @PostMapping("/record/create")
-    public ResponseEntity<?> createRecord(@RequestBody @Valid RecordCreateRequestDto recordRequestDto) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(gameService.createRecord(recordRequestDto));
-    }
-
 }

@@ -12,17 +12,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class GameInfo {
 
+    // PK
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int gameId;
 
-    @Column(name="keyword", updatable = false, nullable = false)
+    // 키워드
+    @Column(name="keyword", nullable = false)
     @Size(max = 31)
     private String keyword;
 
-    @Column(name = "mvp_member_id", updatable = false, nullable = false)
+    // mvp로 선정된 멤버 아이디
+    @Column(name = "mvp_member_id")
     private int mvpMemberId;
-
+    
     @Builder
     public GameInfo(
             String keyword,
@@ -32,4 +35,13 @@ public class GameInfo {
         this.mvpMemberId = mvpMemberId;
     }
 
+    // 키워드 수정
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
+    }
+
+    // MVP 선정 멤버 ID 수정
+    public void setMvpMemberId(int mvpMemberId) {
+        this.mvpMemberId = mvpMemberId;
+    }
 }
