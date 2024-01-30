@@ -1,5 +1,6 @@
 package com.a708.drwa.redis.config;
 
+import com.a708.drwa.ranking.domain.RankingMember;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
@@ -10,6 +11,8 @@ import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
@@ -35,20 +38,20 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate() {
+    public RedisTemplate<?, ?> redisTemplate() {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
 
         // 일반적인 key:value의 경우 시리얼라이저
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
 
         // Hash를 사용할 경우 시리얼라이저
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        redisTemplate.setHashValueSerializer(new StringRedisSerializer());
+        redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
 
         // 모든 경우
-        redisTemplate.setDefaultSerializer(new StringRedisSerializer());
+        redisTemplate.setDefaultSerializer(new GenericJackson2JsonRedisSerializer());
 
         return redisTemplate;
     }
@@ -58,6 +61,15 @@ public class RedisConfig {
         RedisMessageListenerContainer redisMessageListenerContainer = new RedisMessageListenerContainer();
         redisMessageListenerContainer.setConnectionFactory(lettuceConnectionFactory);
         return redisMessageListenerContainer;
+    }
+
+
+    @Bean(name = "rankMemberRedisTemplate")
+    public RedisTemplate<String, RankingMember> rankMemberRedisTemplate(){
+        RedisTemplate<String, RankingMember> rankMemberRedisTemplate = new RedisTemplate<>();
+        rankMemberRedisTemplate.setConnectionFactory(redisConnectionFactory());
+        rankMemberRedisTemplate.setDefaultSerializer(new Jackson2JsonRedisSerializer<>(RankingMember.class));
+        return rankMemberRedisTemplate;
     }
 
     @Bean
