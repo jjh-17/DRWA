@@ -7,14 +7,10 @@ import com.a708.drwa.game.domain.Team;
 import com.a708.drwa.member.domain.Member;
 import com.a708.drwa.member.repository.MemberRepository;
 import com.a708.drwa.member.type.SocialType;
-import com.a708.drwa.profile.repository.ProfileRepository;
-import com.a708.drwa.profile.service.ProfileService;
-import com.a708.drwa.rank.service.RankService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootTest
