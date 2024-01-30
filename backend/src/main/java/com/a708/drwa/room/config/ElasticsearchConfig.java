@@ -25,35 +25,21 @@ public class ElasticsearchConfig {
     @Bean
     public boolean createIndex(ElasticsearchClient elasticsearchClient) {
         try {
-            var existsResponse = elasticsearchClient.indices().exists(e -> e.index("room_index"));
-            if (!existsResponse.value()) {
-                elasticsearchClient.indices().create(c -> c
+            boolean exists = elasticsearchClient.indices().exists(e -> e.index("room_index")).value();
+            if (!exists) {
+                // 인덱스 생성 요청
+                var response = elasticsearchClient.indices().create(c -> c
                         .index("room_index")
                         .mappings(m -> m
                                 .properties("title", p -> p
-                                        .text(t -> t
-                                                .analyzer("korean")
-                                        )
+                                        .text(t -> t.analyzer("korean"))
                                 )
                                 .properties("keyword", p -> p
-                                        .text(t -> t
-                                                .analyzer("korean")
-                                        )
-                                )
-                        )
-                        .settings(s -> s
-                                .analysis(a -> a
-                                        .tokenizer("nori_tokenizer", t -> t
-                                                .type("nori_tokenizer") // nori_tokenizer 설정
-                                        )
-                                        .analyzer("korean", an -> an
-                                                .tokenizer("nori_tokenizer") // korean 분석기에 nori_tokenizer 사용
-                                                .addCharFilters("html_strip") // 필요한 경우 추가 설정
-                                        )
+                                        .text(t -> t.analyzer("korean"))
                                 )
                         )
                 );
-                return true;
+                return response.acknowledged();
             }
         } catch (Exception e) {
             e.printStackTrace();
