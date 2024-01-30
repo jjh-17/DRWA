@@ -1,4 +1,4 @@
-package com.a708.drwa.room;
+package com.a708.drwa.elasticsearch.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
