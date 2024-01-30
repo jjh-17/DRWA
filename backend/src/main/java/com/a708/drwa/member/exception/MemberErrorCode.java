@@ -6,8 +6,10 @@ import lombok.Getter;
 @Getter
 public enum MemberErrorCode implements ErrorCode {
 
-    EXAMPLE_ERROR_CODE(400, "MEMBER_01", "예시용 에러코드입니다. 상태코드, DOMAIN_##, 메세지 형식으로 만들어주세요.");
+    EXAMPLE_ERROR_CODE(400, "MEMBER_01", "예시용 에러코드입니다. 상태코드, DOMAIN_##, 메세지 형식으로 만들어주세요."),
+    MEMBER_NOT_FOUND(404, "MEMBER_01", "해당 유저를 찾을 수 없습니다.")
 
+    ;
     private final int statusCode;
     private final String errorCode;
     private final String message;

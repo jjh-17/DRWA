@@ -17,16 +17,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.a708.drwa.redis.constant.Constants.*;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Slf4j
 public class RankingService {
     private final RedisTemplate<String, RankingMember> rankMemberRedisTemplate;
-    private static final String REDIS_KEY = "rank";
 
     public List<RankingMember> findTop20Ranks(){
-        Set<RankingMember> members = rankMemberRedisTemplate.opsForZSet().range(REDIS_KEY, 0, 19);
+        Set<RankingMember> members = rankMemberRedisTemplate.opsForZSet().range(RANK_REDIS_KEY, 0, 19);
         if(members == null) {
             throw new GlobalException(RankErrorCode.RANK_NOT_FOUND);
         }
@@ -35,16 +36,16 @@ public class RankingService {
     }
 
     public SearchByNicknameResponse findTop10Bottom10(String nickname){
-        Set<RankingMember> members = rankMemberRedisTemplate.opsForZSet().range(REDIS_KEY, 0, -1);
+        Set<RankingMember> members = rankMemberRedisTemplate.opsForZSet().range(RANK_REDIS_KEY, 0, -1);
         RankingMember rankingMember = members.stream()
                 .filter(m -> m.getNickname().equals(nickname))
                 .findFirst()
-                .orElseThrow(() -> new GlobalException(MemberErrorCode.EXAMPLE_ERROR_CODE));
+                .orElseThrow(() -> new GlobalException(MemberErrorCode.MEMBER_NOT_FOUND));
 
-        Double memberScore = rankMemberRedisTemplate.opsForZSet().score(REDIS_KEY, rankingMember);
+        Double memberScore = rankMemberRedisTemplate.opsForZSet().score(RANK_REDIS_KEY, rankingMember);
 
-        Set<ZSetOperations.TypedTuple<RankingMember>> bottomMembers = rankMemberRedisTemplate.opsForZSet().rangeByScoreWithScores(REDIS_KEY, memberScore, Double.POSITIVE_INFINITY, 1, 10);
-        Set<ZSetOperations.TypedTuple<RankingMember>> topMembers = rankMemberRedisTemplate.opsForZSet().reverseRangeByScoreWithScores(REDIS_KEY, Double.NEGATIVE_INFINITY, memberScore, 1, 10);
+        Set<ZSetOperations.TypedTuple<RankingMember>> bottomMembers = rankMemberRedisTemplate.opsForZSet().rangeByScoreWithScores(RANK_REDIS_KEY, memberScore, Double.POSITIVE_INFINITY, 1, 10);
+        Set<ZSetOperations.TypedTuple<RankingMember>> topMembers = rankMemberRedisTemplate.opsForZSet().reverseRangeByScoreWithScores(RANK_REDIS_KEY, Double.NEGATIVE_INFINITY, memberScore, 1, 10);
 
         List<RankingMember> rankingWithNeighbors = Stream.concat(
                     topMembers.stream().sorted(),
