@@ -27,6 +27,7 @@ public class Member {
     private String userId;
 
     @Column
+    @Enumerated(EnumType.ORDINAL)
     private SocialType socialType;
 
     @Builder

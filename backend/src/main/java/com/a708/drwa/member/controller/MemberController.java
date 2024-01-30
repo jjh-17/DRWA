@@ -73,10 +73,12 @@ public class MemberController {
         // 액세스 토큰으로부터 사용자 정보를 반환한다.
         SocialUserInfoResponse socialUserInfoResponse = socialLoginService.getUserInfo(accessToken);
 
-        log.info("socialUserInfoResponse: {}", socialUserInfoResponse);
-
         // 소셜로그인 타입 설정
         socialUserInfoResponse.setSocialType(SocialType.fromString(socialType));
+        log.info("SocialType: {}", SocialType.fromString(socialType).ordinal());
+
+        log.info("socialUserInfoResponse{}: {}", socialUserInfoResponse.hashCode(), socialUserInfoResponse);
+        log.info("socialUserInfoResponse.socialType: {}", socialUserInfoResponse.getSocialType());
 
         // 소셜 로그인 처리
         SocialLoginResponse socialLoginResponse = memberServiceImpl.handleSocialLogin(socialUserInfoResponse);

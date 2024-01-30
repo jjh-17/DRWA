@@ -35,15 +35,15 @@ public class MemberServiceImpl {
 
     /**
      * 소셜 로그인 처리
-     * @param userInfo 사용자 정보
+     * @param socialUserInfoResponse 사용자 정보
      * @return 처리된 사용자 정보
      */
     @Transactional
-    public SocialLoginResponse handleSocialLogin(SocialUserInfoResponse userInfo) throws UnsupportedEncodingException {
+    public SocialLoginResponse handleSocialLogin(SocialUserInfoResponse socialUserInfoResponse) throws UnsupportedEncodingException {
         // 사용자 정보를 기반으로 기존 사용자 조회
-        Member member = memberRepository.findByUserId(userInfo.getId())
+        Member member = memberRepository.findByUserId(socialUserInfoResponse.getId())
                 // 기존 사용자가 없으면 새로운 사용자 등록
-                .orElseGet(() -> registerNewUser(userInfo));
+                .orElseGet(() -> registerNewUser(socialUserInfoResponse));
 
         // JWT 토큰 생성
         String jwtAccessToken = jwtUtil.createAccessToken(member.getUserId());
@@ -58,13 +58,13 @@ public class MemberServiceImpl {
 
     /**
      * 새로운 사용자 등록
-     * @param userInfo 사용자 정보
+     * @param socialUserInfoResponse 사용자 정보
      * @return 등록된 사용자 정보
      */
-    private Member registerNewUser(SocialUserInfoResponse userInfo) {
+    private Member registerNewUser(SocialUserInfoResponse socialUserInfoResponse) {
         Member member = Member.builder()
-                .userId(userInfo.getId())
-                .socialType(userInfo.getSocialType())
+                .userId(socialUserInfoResponse.getId())
+                .socialType(socialUserInfoResponse.getSocialType())
                 .build();
 
         return memberRepository.save(member);
