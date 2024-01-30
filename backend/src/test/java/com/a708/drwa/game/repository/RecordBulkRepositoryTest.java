@@ -34,7 +34,11 @@ class RecordBulkRepositoryTest {
                 .socialType(SocialType.GOOGLE)
                 .userId("test2")
                 .build();
-        memberRepository.saveAll(List.of(member1, member2));
+        Member member3 = Member.builder()
+                .socialType(SocialType.KAKAO)
+                .userId("test3")
+                .build();
+        memberRepository.saveAll(List.of(member1, member2, member3));
 
         // 게임 정보 저장
         GameInfo gameInfo1 = GameInfo.builder()
@@ -55,10 +59,19 @@ class RecordBulkRepositoryTest {
                 .team(Team.B)
                 .result(Result.LOSE)
                 .build();
-        recordBulkRepository.saveAll(List.of(record1, record2));
+        Record record3 = Record.builder()
+                .member(member3)
+                .gameInfo(gameInfo1)
+                .team(Team.B)
+                .result(Result.LOSE)
+                .build();
 
-        System.out.println(recordRepository.findAll());
+//        recordBulkRepository.saveAll(List.of(record1));
+//        recordBulkRepository.saveAll(List.of(record1, record2));
+        recordBulkRepository.saveAll(List.of(record1, record2, record3));
 
-        recordRepository.deleteAll(List.of(record1, record2));
+//        System.out.println(recordRepository.findAll());
+
+//        recordRepository.deleteAll(List.of(record1, record2));
     }
 }

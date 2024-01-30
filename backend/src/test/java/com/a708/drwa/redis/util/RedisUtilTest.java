@@ -32,6 +32,12 @@ class RedisUtilTest {
     }
 
     @Test
+    void setDataFail() {
+        redisUtil.setData("key", "value", (long)180000);
+        redisUtil.setData("key", 4, (long)180000);
+    }
+
+    @Test
     void setIntegerData() {
         redisUtil.setData("key", 3, (long)180000);
     }
