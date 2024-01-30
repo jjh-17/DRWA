@@ -1,7 +1,9 @@
 package com.a708.drwa.debate.domain;
 
+import com.a708.drwa.debate.enums.DebateCategoryName;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -14,8 +16,9 @@ public class DebateCategory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "debate_category_id")
     private int debateCategoryId;
 
-    @Column(updatable = false)
-    private String debateCategoryName;
+    @Enumerated(value = EnumType.STRING)
+    private DebateCategoryName debateCategoryName;
 }
