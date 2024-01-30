@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Setter
 @JsonSerialize
-public class DebateSettingMessage {
+public class DebateChangeSettingMessage {
     // 방 설정
     private String event;
 
@@ -15,10 +15,6 @@ public class DebateSettingMessage {
     private String keyword;
     private Boolean isPrivate;
     private Integer password;
-    // playerNum 2->1:1      4->2:2     6->3:3
-    private Integer playerNum;
-    private Integer jurorNum;
-
 
     private Integer opinionTime;
     private Integer readyTime;
@@ -49,15 +45,6 @@ public class DebateSettingMessage {
         return password;
     }
 
-    @JsonProperty
-    public Integer getPlayerNum() {
-        return playerNum;
-    }
-
-    @JsonProperty
-    public Integer getJurorNum() {
-        return jurorNum;
-    }
     @JsonProperty
     public Integer getOpinionTime() {
         return opinionTime;
