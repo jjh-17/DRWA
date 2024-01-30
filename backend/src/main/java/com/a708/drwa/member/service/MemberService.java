@@ -2,7 +2,6 @@ package com.a708.drwa.member.service;
 
 import com.a708.drwa.member.domain.Member;
 import com.a708.drwa.member.dto.SocialLoginResponse;
-import com.a708.drwa.member.dto.GoogleUserInfoResponse;
 import com.a708.drwa.member.dto.SocialUserInfoResponse;
 import com.a708.drwa.member.repository.MemberRepository;
 import com.a708.drwa.member.service.Impl.GoogleLoginServiceImpl;
@@ -22,7 +21,7 @@ import java.io.UnsupportedEncodingException;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MemberServiceImpl {
+public class MemberService {
     private final MemberRepository memberRepository;
     private final GoogleLoginServiceImpl googleLoginService;
     private final NaverLoginServiceImpl naverLoginService;

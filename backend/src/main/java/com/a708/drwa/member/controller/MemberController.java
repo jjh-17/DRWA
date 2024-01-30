@@ -2,9 +2,8 @@ package com.a708.drwa.member.controller;
 
 import com.a708.drwa.member.dto.SocialAuthURLResponse;
 import com.a708.drwa.member.dto.SocialLoginResponse;
-import com.a708.drwa.member.dto.GoogleUserInfoResponse;
 import com.a708.drwa.member.dto.SocialUserInfoResponse;
-import com.a708.drwa.member.service.MemberServiceImpl;
+import com.a708.drwa.member.service.MemberService;
 import com.a708.drwa.member.service.SocialLoginService;
 import com.a708.drwa.member.type.SocialType;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,7 @@ import java.io.UnsupportedEncodingException;
 public class MemberController {
 
 
-    private final MemberServiceImpl memberServiceImpl;
+    private final MemberService memberService;
 
     /**
      * 소셜 로그인 인증 URL을 반환한다.
@@ -32,7 +31,7 @@ public class MemberController {
     @GetMapping("/authURL/{socialType}")
     public ResponseEntity<SocialAuthURLResponse> getAuthURL(@PathVariable String socialType) {
         // 소셜 로그인 서비스
-        SocialLoginService socialLoginService = memberServiceImpl.getSocialLoginService(socialType);
+        SocialLoginService socialLoginService = memberService.getSocialLoginService(socialType);
         // 응답 DTO
         SocialAuthURLResponse socialAuthURLResponse = new SocialAuthURLResponse();
 
@@ -58,7 +57,7 @@ public class MemberController {
      */
     @GetMapping("/login/{socialType}")
     public ResponseEntity<?> socialLogin(@PathVariable String socialType, @RequestParam String code) throws UnsupportedEncodingException {
-        SocialLoginService socialLoginService = memberServiceImpl.getSocialLoginService(socialType);
+        SocialLoginService socialLoginService = memberService.getSocialLoginService(socialType);
 
         // 지원하지 않는 소셜 로그인 타입
         if (socialLoginService == null) {
@@ -77,7 +76,7 @@ public class MemberController {
         socialUserInfoResponse.setSocialType(SocialType.fromString(socialType));
 
         // 소셜 로그인 처리
-        SocialLoginResponse socialLoginResponse = memberServiceImpl.handleSocialLogin(socialUserInfoResponse);
+        SocialLoginResponse socialLoginResponse = memberService.handleSocialLogin(socialUserInfoResponse);
 
         // 응답 DTO 반환
         return new ResponseEntity<SocialLoginResponse>(socialLoginResponse, null, HttpStatus.OK);
