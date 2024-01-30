@@ -1,6 +1,7 @@
 package com.a708.drwa.game.controller;
 
 import com.a708.drwa.game.data.dto.request.AddRecordRequestDto;
+import com.a708.drwa.game.data.dto.response.AddRecordResponseDto;
 import com.a708.drwa.game.service.RecordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,7 +20,7 @@ public class GameController {
 
     // 게임 정보 저장
     @PostMapping("/create")
-    public ResponseEntity<?> createGameInfo(@RequestBody AddRecordRequestDto addRecordRequestDto) {
+    public ResponseEntity<AddRecordResponseDto> createGameInfo(@RequestBody AddRecordRequestDto addRecordRequestDto) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(gameService.addRecord(addRecordRequestDto));
