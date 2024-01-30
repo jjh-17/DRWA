@@ -20,10 +20,10 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 @Configuration
 @EnableCaching
 public class RedisConfig {
-    @Value("${spring.data.redis.session.host}")
+    @Value("${spring.data.redis.host}")
     private String host;
 
-    @Value("${spring.data.redis.session.port}")
+    @Value("${spring.data.redis.port}")
     private int port;
 
     @Value("${spring.data.redis.password}")

@@ -139,7 +139,7 @@ public class RecordService {
 //        mvpMap = redisUtil.getListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.MVP));
         teamAVoteNum = redisUtil.getIntegerData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.VOTE_TEAM_A));
         teamBVoteNum = redisUtil.getIntegerData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.VOTE_TEAM_B));
-        keyword = redisUtil.getData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.KEY_WORD));
+//        keyword = redisUtil.getData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.KEY_WORD));
 
         return AddRecordRedisResponseDto.builder()
 //                .teamAList(teamAList)
@@ -149,7 +149,7 @@ public class RecordService {
 //                .mvpMap(mvpMap)
                 .teamAVoteNum(teamAVoteNum)
                 .teamBVoteNum(teamBVoteNum)
-                .keyword(keyword)
+//                .keyword(keyword)
                 .build();
     }
     

@@ -6,7 +6,7 @@ import com.a708.drwa.debate.service.DebateService;
 import com.a708.drwa.debate.service.OpenViduService;
 import com.a708.drwa.redis.domain.DebateRedisKey;
 import com.a708.drwa.redis.util.RedisKeyUtil;
-import com.a708.drwa.room.domain.Room;
+
 import io.openvidu.java.client.OpenViduHttpException;
 import io.openvidu.java.client.OpenViduJavaClientException;
 import lombok.RequiredArgsConstructor;
