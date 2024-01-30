@@ -1,8 +1,8 @@
 package com.a708.drwa.member.controller;
 
-import com.a708.drwa.member.domain.Member;
 import com.a708.drwa.member.dto.SocialAuthURLResponse;
 import com.a708.drwa.member.dto.SocialLoginResponse;
+import com.a708.drwa.member.dto.GoogleUserInfoResponse;
 import com.a708.drwa.member.dto.SocialUserInfoResponse;
 import com.a708.drwa.member.service.MemberServiceImpl;
 import com.a708.drwa.member.service.SocialLoginService;
@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/member")
@@ -69,16 +68,18 @@ public class MemberController {
         // 액세스 토큰 반환
         String accessToken = socialLoginService.getAccessToken(code);
 
-        // 액세스 토큰으로부터 사용자 정보를 반환한다.
-        SocialUserInfoResponse responseUserInfoDto = socialLoginService.getUserInfo(accessToken);
+        log.info("accessToken: {}", accessToken);
 
-        log.info("responseUserInfoDto: {}", responseUserInfoDto);
+        // 액세스 토큰으로부터 사용자 정보를 반환한다.
+        SocialUserInfoResponse socialUserInfoResponse = socialLoginService.getUserInfo(accessToken);
+
+        log.info("socialUserInfoResponse: {}", socialUserInfoResponse);
 
         // 소셜로그인 타입 설정
-        responseUserInfoDto.setSocialType(SocialType.fromString(socialType));
+        socialUserInfoResponse.setSocialType(SocialType.fromString(socialType));
 
         // 소셜 로그인 처리
-        SocialLoginResponse socialLoginResponse = memberServiceImpl.handleSocialLogin(responseUserInfoDto);
+        SocialLoginResponse socialLoginResponse = memberServiceImpl.handleSocialLogin(socialUserInfoResponse);
 
         // 응답 DTO 반환
         return new ResponseEntity<SocialLoginResponse>(socialLoginResponse, null, HttpStatus.OK);

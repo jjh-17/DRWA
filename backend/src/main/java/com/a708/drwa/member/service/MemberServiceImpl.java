@@ -2,6 +2,7 @@ package com.a708.drwa.member.service;
 
 import com.a708.drwa.member.domain.Member;
 import com.a708.drwa.member.dto.SocialLoginResponse;
+import com.a708.drwa.member.dto.GoogleUserInfoResponse;
 import com.a708.drwa.member.dto.SocialUserInfoResponse;
 import com.a708.drwa.member.repository.MemberRepository;
 import com.a708.drwa.member.service.Impl.GoogleLoginServiceImpl;
@@ -51,11 +52,8 @@ public class MemberServiceImpl {
         // Redis에 리프레시 토큰 저장
         redisUtil.setData(member.getUserId(), jwtRefreshToken, refreshTokenExpireTime);
 
-        // 응답 DTO 생성
-        SocialLoginResponse socialLoginResponse = new SocialLoginResponse(member.getUserId(), jwtAccessToken);
-
         // 응답 DTO 반환
-        return socialLoginResponse;
+        return new SocialLoginResponse(member.getUserId(), jwtAccessToken);
     }
 
     /**

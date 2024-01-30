@@ -1,15 +1,10 @@
 package com.a708.drwa.member.service.Impl;
 
-import com.a708.drwa.member.dto.SocialUserInfoResponse;
+import com.a708.drwa.member.dto.GoogleUserInfoResponse;
 import com.a708.drwa.member.service.SocialLoginService;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.ConfigurationPropertiesBinding;
-import org.springframework.boot.context.properties.bind.ConstructorBinding;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -17,10 +12,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Google OAuth2 인증을 위한 서비스
@@ -110,7 +103,7 @@ public class GoogleLoginServiceImpl implements SocialLoginService {
      * @return 사용자 정보
      */
     @Override
-    public SocialUserInfoResponse getUserInfo(String accessToken) {
+    public GoogleUserInfoResponse getUserInfo(String accessToken) {
         RestTemplate restTemplate = new RestTemplate();
         String userInfoUri = "https://www.googleapis.com/oauth2/v2/userinfo";
 
@@ -120,8 +113,8 @@ public class GoogleLoginServiceImpl implements SocialLoginService {
         HttpEntity<?> entity = new HttpEntity<>(headers);
 
         // Google OAuth2 사용자 정보 요청
-        ResponseEntity<SocialUserInfoResponse> response = restTemplate.exchange(
-                userInfoUri, HttpMethod.GET, entity, SocialUserInfoResponse.class);
+        ResponseEntity<GoogleUserInfoResponse> response = restTemplate.exchange(
+                userInfoUri, HttpMethod.GET, entity, GoogleUserInfoResponse.class);
 
         // Google OAuth2 사용자 정보 응답
         return response.getBody();

@@ -1,8 +1,7 @@
 package com.a708.drwa.member.service.Impl;
 
-import com.a708.drwa.member.dto.SocialUserInfoResponse;
+import com.a708.drwa.member.dto.GoogleUserInfoResponse;
 import com.a708.drwa.member.service.SocialLoginService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -67,7 +66,7 @@ public class KakaoLoginServiceImpl implements SocialLoginService {
      * @return 사용자 정보
      */
     @Override
-    public SocialUserInfoResponse getUserInfo(String accessToken) {
+    public GoogleUserInfoResponse getUserInfo(String accessToken) {
         RestTemplate restTemplate = new RestTemplate();
         String userInfoUri = "https://kapi.kakao.com/v2/user/me";
 
@@ -75,8 +74,8 @@ public class KakaoLoginServiceImpl implements SocialLoginService {
         headers.setBearerAuth(accessToken);
         HttpEntity<?> entity = new HttpEntity<>(headers);
 
-        ResponseEntity<SocialUserInfoResponse> response = restTemplate.exchange(
-                userInfoUri, HttpMethod.GET, entity, SocialUserInfoResponse.class);
+        ResponseEntity<GoogleUserInfoResponse> response = restTemplate.exchange(
+                userInfoUri, HttpMethod.GET, entity, GoogleUserInfoResponse.class);
 
         return response.getBody();
     }
