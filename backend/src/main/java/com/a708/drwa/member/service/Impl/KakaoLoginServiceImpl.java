@@ -2,6 +2,7 @@ package com.a708.drwa.member.service.Impl;
 
 import com.a708.drwa.member.dto.GoogleUserInfoResponse;
 import com.a708.drwa.member.service.SocialLoginService;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,13 +19,12 @@ import java.util.Map;
  * Kakao OAuth2.0 로그인 서비스
  */
 @Service
+@Setter
 @ConfigurationProperties(prefix = "spring.security.oauth2.client.registration.kakao")
 public class KakaoLoginServiceImpl implements SocialLoginService {
 
-//    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String clientId;
 
-//    @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
     private String redirectUri;
 
     /**
