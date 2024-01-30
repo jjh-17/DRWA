@@ -16,5 +16,5 @@ public class AddRecordResponseDto {
     private int mvpPoint;                   // MVP 추가 포인트
 
     private int winnerPoint;                // 승리팀 획득 포인트
-    private WinnerTeam winnerTeam;          // 승리 팀
+    private String winnerTeam;              // 승리 팀
 }
