@@ -75,7 +75,7 @@ public class RecordService {
                 .mvpList(getMvpList(addRecordRedisResponseDto.getMvpMap()))
                 .mvpPoint(MVP_POINT)
                 .winnerPoint(WINNER_POINT)
-                .winnerTeam(winnerTeam)
+                .winnerTeam(winnerTeam.name())
                 .build();
     }
 
