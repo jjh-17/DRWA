@@ -3,12 +3,13 @@ package com.a708.drwa.member.service.Impl;
 import com.a708.drwa.member.dto.GoogleUserInfoResponse;
 import com.a708.drwa.member.service.SocialLoginService;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -20,10 +21,13 @@ import java.util.Map;
  */
 @Service
 @Setter
+@Slf4j
 @ConfigurationProperties(prefix = "spring.security.oauth2.client.registration.kakao")
 public class KakaoLoginServiceImpl implements SocialLoginService {
 
     private String clientId;
+
+    private String clientSecret;
 
     private String redirectUri;
 
@@ -48,16 +52,29 @@ public class KakaoLoginServiceImpl implements SocialLoginService {
     @Override
     public String getAccessToken(String code) {
         RestTemplate restTemplate = new RestTemplate();
-        Map<String, String> params = new HashMap<>();
-        params.put("client_id", clientId);
-        params.put("code", code);
-        params.put("redirect_uri", redirectUri);
-        params.put("grant_type", "authorization_code");
+        HttpHeaders headers = new HttpHeaders();
+        // 헤더에 Content-Type을 application/x-www-form-urlencoded로 지정
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("client_id", clientId);
+        params.add("client_secret", clientSecret);
+        params.add("code", code);
+        params.add("redirect_uri", redirectUri);
+        params.add("grant_type", "authorization_code");
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
         String accessTokenUri = "https://kauth.kakao.com/oauth/token";
-        Map<String, String> response = restTemplate.postForObject(accessTokenUri, params, Map.class);
 
-        return response != null ? response.get("access_token") : null;
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(accessTokenUri, request, Map.class);
+            if (response.getBody() != null && response.getBody().containsKey("access_token")) {
+                return response.getBody().get("access_token").toString();
+            }
+        } catch (HttpClientErrorException e) {
+            log.error("Error getting access token from Kakao: {}", e.getMessage());
+        }
+        return null;
     }
 
     /**

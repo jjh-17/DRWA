@@ -75,11 +75,6 @@ public class MemberController {
 
         // 소셜로그인 타입 설정
         socialUserInfoResponse.setSocialType(SocialType.fromString(socialType));
-        log.info("SocialType: {}", SocialType.fromString(socialType).ordinal());
-
-        socialUserInfoResponse.setSocialType(SocialType.NAVER);
-        log.info("socialUserInfoResponse{}: {}", socialUserInfoResponse.hashCode(), socialUserInfoResponse);
-        log.info("socialUserInfoResponse.socialType: {}", socialUserInfoResponse.getSocialType());
 
         // 소셜 로그인 처리
         SocialLoginResponse socialLoginResponse = memberServiceImpl.handleSocialLogin(socialUserInfoResponse);
