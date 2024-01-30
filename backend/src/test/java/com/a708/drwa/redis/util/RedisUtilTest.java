@@ -1,5 +1,7 @@
 package com.a708.drwa.redis.util;
 
+import com.a708.drwa.redis.domain.DebateRedisKey;
+import com.a708.drwa.redis.domain.MemberRedisKey;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class RedisUtilTest {
 
     @Autowired RedisUtil redisUtil;
+    RedisKeyUtil redisKeyUtil = new RedisKeyUtil();
 
     @BeforeEach
     void init() {
@@ -43,7 +46,8 @@ class RedisUtilTest {
     @Test
     void setMapData() {
         Map<Object, Object> map = new HashMap<>();
-        map.put(1+"", 1);  map.put(2+"", 2);
+        map.put(redisKeyUtil.getDebateKeyByMemberIdWithKeyword(1, DebateRedisKey.MVP), 1);
+        map.put(redisKeyUtil.getDebateKeyByMemberIdWithKeyword(2, DebateRedisKey.MVP), 2);
 
         redisUtil.setMapData("key", map, 3);
     }
@@ -73,7 +77,8 @@ class RedisUtilTest {
     @Test
     void getMapData() {
         Map<Object, Object> map = new HashMap<>();
-        map.put(1, 1);  map.put(2, 2);
+        map.put(redisKeyUtil.getDebateKeyByMemberIdWithKeyword(1, DebateRedisKey.MVP), 1);
+        map.put(redisKeyUtil.getDebateKeyByMemberIdWithKeyword(2, DebateRedisKey.MVP), 2);
         redisUtil.setMapData("key", map, 3);
 
         System.out.println(redisUtil.getMapData("key"));
