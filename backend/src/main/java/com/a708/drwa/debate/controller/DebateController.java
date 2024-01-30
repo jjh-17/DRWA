@@ -37,17 +37,13 @@ public class DebateController {
      */
     @PostMapping("/create")
     public ResponseEntity<Void> create(@RequestBody DebateCreateRequestDto debateCreateRequestDto) {
-        int debateId = debateCreateRequestDto.getDebateId();
-        openViduService.create(debateService.create(debateCreateRequestDto));
-        ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
-        String hostKey = redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.HOST);
-        int hostId = (int) valueOperations.get(hostKey);
+        int debateId = debateService.create(debateCreateRequestDto);
+        openViduService.create(debateId);
 
         DebateJoinRequestDto debateJoinRequestDto = new DebateJoinRequestDto();
         debateJoinRequestDto.setDebateId(debateId);
-        debateJoinRequestDto.setUserId(hostId);
 
-        String token = openViduService.join(debateJoinRequestDto.getDebateId());
+        String token = openViduService.join(debateId);
 
 
         return ResponseEntity
@@ -64,14 +60,17 @@ public class DebateController {
      * @return
      */
     @PostMapping("/join")
-    public ResponseEntity<String> join(@RequestBody DebateJoinRequestDto debateJoinRequestDto) {
-        String token = "";
-        // TODO: 사용자 정보 Redis에 추가
-        if(debateService.isExistDebate(debateJoinRequestDto))
-            token = openViduService.join(debateJoinRequestDto.getDebateId());
+    public ResponseEntity<?> join(@RequestBody DebateJoinRequestDto debateJoinRequestDto) {
+        try {
+            // 참여
+            String token = openViduService.join(debateJoinRequestDto.getDebateId());
 
-        return ResponseEntity
-                .status(HttpStatus.ACCEPTED)
-                .body(token);
+            // 토큰 반환
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(token);
+        } catch (Exception e) {
+            // 예외 처리
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error joining the debate");
+        }
     }
+
 }
