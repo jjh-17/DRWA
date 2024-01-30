@@ -76,15 +76,12 @@ public class MemberServiceImpl {
      * @return : 소셜 로그인 서비스
      */
     public SocialLoginService getSocialLoginService(String socialType) {
-        switch (socialType) {
-            case "google":
-                return googleLoginService;
-            case "naver":
-                return naverLoginService;
-            case "kakao":
-                return kakaoLoginService;
-            default: // 지원하지 않는 소셜 로그인 타입
-                return null;
-        }
+        return switch (socialType) {
+            case "google" -> googleLoginService;
+            case "naver" -> naverLoginService;
+            case "kakao" -> kakaoLoginService;
+            default -> // 지원하지 않는 소셜 로그인 타입
+                    null;
+        };
     }
 }
