@@ -3,8 +3,6 @@ package com.a708.drwa.member.controller;
 import com.a708.drwa.member.dto.AuthDto;
 import com.a708.drwa.member.service.AuthService;
 import com.a708.drwa.member.util.JWTUtil;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
