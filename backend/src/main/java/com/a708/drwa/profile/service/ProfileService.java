@@ -14,6 +14,9 @@ import com.a708.drwa.rank.domain.Rank;
 import com.a708.drwa.rank.enums.RankName;
 import com.a708.drwa.ranking.domain.RankingMember;
 import com.a708.drwa.rank.service.RankService;
+import com.a708.drwa.title.domain.MemberTitle;
+import com.a708.drwa.title.exception.TitleErrorCode;
+import com.a708.drwa.title.repository.MemberTitleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -32,6 +35,7 @@ import static com.a708.drwa.redis.constant.Constants.*;
 public class ProfileService {
     private final ProfileRepository profileRepository;
     private final MemberRepository memberRepository;
+    private final MemberTitleRepository memberTitleRepository;
     private final RankService rankService;
     private final RedisTemplate<String, RankingMember> rankMemberRedisTemplate;
     private static final int INIT_POINT = 1000;
@@ -40,7 +44,7 @@ public class ProfileService {
     @Transactional
     public void addProfile(AddProfileRequest addProfileRequest){
         Member member = memberRepository.findById(addProfileRequest.getMemberId())
-                .orElseThrow(() -> new GlobalException(MemberErrorCode.EXAMPLE_ERROR_CODE));
+                .orElseThrow(() -> new GlobalException(MemberErrorCode.MEMBER_NOT_FOUND));
         
         Rank INIT_RANK_BRONZE = rankService.findByRankName(RankName.BRONZE);
 
@@ -52,11 +56,16 @@ public class ProfileService {
                 .mvpCount(INIT_MVP_COUNT)
                 .rank(INIT_RANK_BRONZE)
                 .build();
+        MemberTitle title = memberTitleRepository.findByMemberId(addProfileRequest.getMemberId())
+                .stream()
+                .filter(memberTitle -> memberTitle.isSelected())
+                .findFirst()
+                .orElseThrow(() -> new GlobalException(TitleErrorCode.TITLE_REPRESENTATIVE_NOT_FOUND));
 
         RankingMember rankingMember = RankingMember.builder()
                 .memberId(member.getId())
                 .nickname(profile.getNickname())
-                //.title(profile.getTitle())
+                .title(title.getTitle().getName())
                 //.winRate()
                 .point(profile.getPoint())
                 .build();
@@ -90,7 +99,7 @@ public class ProfileService {
                 .stream()
                 .filter(rankMember -> rankMember.getMemberId().equals(memberId))
                 .findAny()
-                .orElseThrow(() -> new GlobalException(MemberErrorCode.EXAMPLE_ERROR_CODE));
+                .orElseThrow(() -> new GlobalException(MemberErrorCode.MEMBER_NOT_FOUND));
 
         return ProfileResponse.builder()
                 .profileId(profile.getId())
@@ -113,7 +122,7 @@ public class ProfileService {
     public List<ProfileResponse> findAllWithDto(){
         Set<RankingMember> rankingMembers = rankMemberRedisTemplate.opsForZSet().range(RANK_REDIS_KEY, 0, -1);
         if(rankingMembers == null){
-            new GlobalException(MemberErrorCode.EXAMPLE_ERROR_CODE);
+            new GlobalException(MemberErrorCode.MEMBER_NOT_FOUND);
         }
 
         List<Profile> profiles = profileRepository.findAll();
