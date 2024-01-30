@@ -68,7 +68,7 @@
 
 ### Commit 예시
 
-```text
+``` text
 Feat: "회원 가입 기능 구현"
 
 SMS, 이메일 중복확인 API 개발
@@ -78,6 +78,7 @@ Ref: #456
 Related to: #48, #45
 ```
 
+> 위 Commit Template의 경우 적용 방법은 노션 - 환경설정 - BackEnd에 있습니다.
 > 이슈의 경우 JIRA를 사용중이므로 #{projectId}-{issueId}의 형태가 됩니다.
 
 ## Branch Naming
