@@ -10,10 +10,4 @@ import java.util.List;
 public class DebateJoinRequestDto {
     private int debateId;
 
-    private int userId;
-
-    private List<Integer> viewerList;
-
-    private List<Integer> debateUserList;
-
 }
