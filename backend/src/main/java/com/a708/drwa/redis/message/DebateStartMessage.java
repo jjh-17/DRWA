@@ -7,7 +7,6 @@ import lombok.Setter;
 @Setter
 @JsonSerialize
 public class DebateStartMessage {
-    // 페이즈 변경 알려줌
     private String event;
 
     // 토론 시작
