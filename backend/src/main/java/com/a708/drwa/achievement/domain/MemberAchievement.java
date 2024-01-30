@@ -1,4 +1,4 @@
-package com.a708.drwa.title.domain;
+package com.a708.drwa.achievement.domain;
 
 import com.a708.drwa.member.domain.Member;
 import jakarta.persistence.*;
@@ -10,13 +10,13 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class MemberTitle {
+public class MemberAchievement {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "title_id")
-    private Title title;
+    private Achievement achievement;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -25,8 +25,8 @@ public class MemberTitle {
     private boolean isSelected;
 
     @Builder
-    private MemberTitle(Title title, Member member, boolean isSelected) {
-        this.title = title;
+    private MemberAchievement(Achievement achievement, Member member, boolean isSelected) {
+        this.achievement = achievement;
         this.member = member;
         this.isSelected = isSelected;
     }

@@ -1,4 +1,4 @@
-package com.a708.drwa.title.dto.response;
+package com.a708.drwa.achievement.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 @Builder
-public class TitleResponse {
+public class AchievementResponse {
     private String name;
     private String description;
 }

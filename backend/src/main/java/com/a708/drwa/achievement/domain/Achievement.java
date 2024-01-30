@@ -1,4 +1,4 @@
-package com.a708.drwa.title.domain;
+package com.a708.drwa.achievement.domain;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Title {
+public class Achievement {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
@@ -20,7 +20,7 @@ public class Title {
     private String description;
 
     @Builder
-    private Title(String name, String description) {
+    private Achievement(String name, String description) {
         this.name = name;
         this.description = description;
     }
