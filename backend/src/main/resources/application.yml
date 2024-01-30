@@ -25,10 +25,6 @@ spring:
         show_sql: true
     defer-datasource-initialization: true # data.sql 사용
 
-  # data.sql 사용
-  sql:
-    init:
-      mode: embedded
 
 # swagger 설정
 springdoc:
