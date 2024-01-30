@@ -48,4 +48,8 @@ public class Profile implements Serializable {
     public void updateProfile(UpdateProfileRequest request) {
         this.nickname = request.getNickname();
     }
+
+    public void updatePoint(int point){
+        this.point = point;
+    }
 }

@@ -12,13 +12,22 @@ import com.a708.drwa.profile.exception.ProfileErrorCode;
 import com.a708.drwa.profile.repository.ProfileRepository;
 import com.a708.drwa.rank.domain.Rank;
 import com.a708.drwa.rank.enums.RankName;
+import com.a708.drwa.ranking.domain.RankingMember;
 import com.a708.drwa.rank.service.RankService;
+import com.a708.drwa.title.domain.MemberTitle;
+import com.a708.drwa.title.exception.TitleErrorCode;
+import com.a708.drwa.title.repository.MemberTitleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.a708.drwa.redis.constant.Constants.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -26,14 +35,16 @@ import java.util.stream.Collectors;
 public class ProfileService {
     private final ProfileRepository profileRepository;
     private final MemberRepository memberRepository;
+    private final MemberTitleRepository memberTitleRepository;
     private final RankService rankService;
+    private final RedisTemplate<String, RankingMember> rankMemberRedisTemplate;
     private static final int INIT_POINT = 1000;
     private static final int INIT_MVP_COUNT = 0;
 
     @Transactional
     public void addProfile(AddProfileRequest addProfileRequest){
         Member member = memberRepository.findById(addProfileRequest.getMemberId())
-                .orElseThrow(() -> new GlobalException(MemberErrorCode.EXAMPLE_ERROR_CODE));
+                .orElseThrow(() -> new GlobalException(MemberErrorCode.MEMBER_NOT_FOUND));
         
         Rank INIT_RANK_BRONZE = rankService.findByRankName(RankName.BRONZE);
 
@@ -45,6 +56,23 @@ public class ProfileService {
                 .mvpCount(INIT_MVP_COUNT)
                 .rank(INIT_RANK_BRONZE)
                 .build();
+        MemberTitle title = memberTitleRepository.findByMemberId(addProfileRequest.getMemberId())
+                .stream()
+                .filter(memberTitle -> memberTitle.isSelected())
+                .findFirst()
+                .orElseThrow(() -> new GlobalException(TitleErrorCode.TITLE_REPRESENTATIVE_NOT_FOUND));
+
+        RankingMember rankingMember = RankingMember.builder()
+                .memberId(member.getId())
+                .nickname(profile.getNickname())
+                .title(title.getTitle().getName())
+                //.winRate()
+                .point(profile.getPoint())
+                .build();
+
+        // Save Points with each category
+        savePointsInRedis(rankingMember, profile);
+
         profileRepository.save(profile);
     }
 
@@ -61,20 +89,52 @@ public class ProfileService {
         Profile profile = profileRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new GlobalException(ProfileErrorCode.PROFILE_NOT_FOUND));
 
+        Set<RankingMember> members = rankMemberRedisTemplate.opsForZSet().range(RANK_REDIS_KEY, 0, -1);
+
+        if(members == null) {
+            throw new GlobalException(ProfileErrorCode.PROFILE_NOT_FOUND);
+        }
+
+        RankingMember memberRankInfo = members
+                .stream()
+                .filter(rankMember -> rankMember.getMemberId().equals(memberId))
+                .findAny()
+                .orElseThrow(() -> new GlobalException(MemberErrorCode.MEMBER_NOT_FOUND));
+
         return ProfileResponse.builder()
                 .profileId(profile.getId())
                 .memberId(memberId)
                 .nickname(profile.getNickname())
-                .point(profile.getPoint())
+                .point(memberRankInfo.getPoint())
                 .rankName(profile.getRank().getRankName())
                 .build();
     }
 
-    public List<Profile> findAll(){
-        return profileRepository.findAll();
+    public List<RankingMember> findAll(){
+        Set<RankingMember> members = rankMemberRedisTemplate.opsForZSet().range(RANK_REDIS_KEY, 0, -1);
+        if(members == null){
+            return List.of();
+        }
+
+        return members.stream().toList();
     }
+
     public List<ProfileResponse> findAllWithDto(){
-        return profileRepository.findAll()
+        Set<RankingMember> rankingMembers = rankMemberRedisTemplate.opsForZSet().range(RANK_REDIS_KEY, 0, -1);
+        if(rankingMembers == null){
+            new GlobalException(MemberErrorCode.MEMBER_NOT_FOUND);
+        }
+
+        List<Profile> profiles = profileRepository.findAll();
+
+        for(RankingMember rankingMember : rankingMembers){
+            Optional<Profile> matchingProfile = profiles.stream()
+                    .filter(p -> p.getMember().getId().equals(rankingMember.getMemberId()))
+                    .findFirst();
+            matchingProfile.ifPresent(profile -> profile.updatePoint(rankingMember.getPoint()));
+        }
+
+        return profiles
                 .stream()
                 .map(p -> ProfileResponse.builder()
                         .profileId(p.getId())
@@ -85,6 +145,23 @@ public class ProfileService {
                         .rankName(p.getRank().getRankName())
                         .build())
                 .collect(Collectors.toList());
+    }
+    private void savePointsInRedis(RankingMember rankingMember, Profile profile) {
+        // Total Point
+        rankMemberRedisTemplate.opsForZSet().add(RANK_REDIS_KEY, rankingMember, -profile.getPoint());
+
+        // Each Category Point
+        rankMemberRedisTemplate.opsForZSet().add(RANK_ANIMAL_REDIS_KEY, rankingMember, -profile.getPoint());
+        rankMemberRedisTemplate.opsForZSet().add(RANK_CULTURE_REDIS_KEY, rankingMember, -profile.getPoint());
+        rankMemberRedisTemplate.opsForZSet().add(RANK_ECONOMY_REDIS_KEY, rankingMember, -profile.getPoint());
+        rankMemberRedisTemplate.opsForZSet().add(RANK_FOOD_REDIS_KEY, rankingMember, -profile.getPoint());
+        rankMemberRedisTemplate.opsForZSet().add(RANK_LOVE_REDIS_KEY, rankingMember, -profile.getPoint());
+        rankMemberRedisTemplate.opsForZSet().add(RANK_PERSON_REDIS_KEY, rankingMember, -profile.getPoint());
+        rankMemberRedisTemplate.opsForZSet().add(RANK_SHOPPING_REDIS_KEY, rankingMember, -profile.getPoint());
+        rankMemberRedisTemplate.opsForZSet().add(RANK_POLITICS_REDIS_KEY, rankingMember, -profile.getPoint());
+        rankMemberRedisTemplate.opsForZSet().add(RANK_SOCIAL_REDIS_KEY, rankingMember, -profile.getPoint());
+        rankMemberRedisTemplate.opsForZSet().add(RANK_SPORTS_REDIS_KEY, rankingMember, -profile.getPoint());
+        rankMemberRedisTemplate.opsForZSet().add(RANK_ETC_REDIS_KEY, rankingMember, -profile.getPoint());
     }
 
 

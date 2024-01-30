@@ -7,19 +7,19 @@ import com.a708.drwa.profile.dto.request.AddProfileRequest;
 import com.a708.drwa.profile.dto.response.ProfileResponse;
 import com.a708.drwa.profile.repository.ProfileRepository;
 import com.a708.drwa.rank.enums.RankName;
+import com.a708.drwa.ranking.domain.RankingMember;
 import com.a708.drwa.rank.service.RankService;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @org.springframework.context.annotation.Profile("test")
@@ -33,10 +33,13 @@ class ProfileServiceTest {
     MemberRepository memberRepository;
     @Autowired
     RankService rankService;
+    @Autowired
+    RedisTemplate <String, RankingMember> rankMemberRedisTemplate;
 
     @BeforeEach
     public void initRanks(){
         rankService.initAllRanks();
+        rankMemberRedisTemplate.delete("rank");
     }
 
 //    @Test
@@ -60,6 +63,38 @@ class ProfileServiceTest {
 //        assertThat(profile.getRank().getRankName()).isEqualTo(RankName.BRONZE);
 //        assertThat(profile.getPoint()).isEqualTo(1000);
 //    }
+
+    @Test
+    void rankMemberRedisSaveTest(){
+        Member member1 = Member.builder()
+                .build();
+        Member member2 = Member.builder()
+                .build();
+        List<Member> members = memberRepository.saveAll(List.of(member1, member2));
+
+        AddProfileRequest request1 = AddProfileRequest.builder()
+                .nickname("testNickname1")
+                .memberId(members.get(0).getId())
+                .build();
+        AddProfileRequest request2 = AddProfileRequest.builder()
+                .nickname("testNickname2")
+                .memberId(members.get(1).getId())
+                .build();
+        profileService.addProfile(request1);
+        profileService.addProfile(request2);
+
+        // when
+        Set<RankingMember> ranks = rankMemberRedisTemplate.opsForZSet().range("rank", 0, -1);
+        for (RankingMember rank : ranks) {
+            System.out.println(rank.getMemberId() + " " + rank.getPoint());
+        }
+
+        // then
+        assertThat(ranks.size()).isEqualTo(2);
+        assertThat(ranks)
+                .extracting("point")
+                .contains(1000);
+    }
 
     @Test
     void updateProfile() {
