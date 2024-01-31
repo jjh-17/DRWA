@@ -28,14 +28,9 @@ public class MemberController {
      */
     @GetMapping("/authURL/{socialType}")
     public ResponseEntity<?> getAuthURL(@PathVariable String socialType) {
-        try {
-            // 소셜 로그인 타입에 따른 인증 URL 반환
-            String authorizationUrl = memberService.getAuthorizationUrl(socialType);
-            return ResponseEntity.ok(new SocialAuthURLResponse(authorizationUrl));
-        } catch (IllegalArgumentException e) {
-            // 지원하지 않는 소셜 로그인 타입
-            return ResponseEntity.badRequest().body("Unsupported social login type");
-        }
+        // 소셜 로그인 타입에 따른 인증 URL 반환
+        String authorizationUrl = memberService.getAuthorizationUrl(socialType);
+        return ResponseEntity.ok(new SocialAuthURLResponse(authorizationUrl));
     }
 
     /**
@@ -45,17 +40,10 @@ public class MemberController {
      * @return : 액세스 토큰
      */
     @GetMapping("/login/{socialType}")
-    public ResponseEntity<?> socialLogin(@PathVariable String socialType, @RequestParam String code) throws UnsupportedEncodingException {
-        try {
+    public ResponseEntity<?> socialLogin(@PathVariable String socialType, @RequestParam String code) {
             // 소셜 로그인 타입에 따른 액세스 토큰 반환
             SocialLoginResponse socialLoginResponse = memberService.processSocialLogin(socialType, code);
             return ResponseEntity.ok(socialLoginResponse);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Unsupported social login type");
-        } catch (Exception e) {
-            log.error("Error during social login: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
-        }
     }
 
 
@@ -67,15 +55,9 @@ public class MemberController {
     @PostMapping("/deleteAccount")
     @AuthRequired
     public ResponseEntity<?> deleteAccount(@RequestParam String userId) {
-        try {
-            // 계정 정보 삭제
-            memberService.deleteMember(userId);
-
-            return ResponseEntity.ok().body("Account successfully deleted.");
-        } catch (Exception e) {
-            log.error("Error deleting account: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting account.");
-        }
+        // 계정 정보 삭제
+        memberService.deleteMember(userId);
+        return ResponseEntity.ok().body("Account successfully deleted.");
     }
 
     /**
@@ -86,14 +68,9 @@ public class MemberController {
     @PostMapping("/logout")
     @AuthRequired
     public ResponseEntity<?> logout(@RequestParam String userId) {
-        try {
-            // Redis에서 리프레시 토큰 삭제
-            memberService.deleteRefreshToken(userId);
-            return ResponseEntity.ok().body("Successfully logged out.");
-        } catch (Exception e) {
-            log.error("Error during logout: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error during logout.");
-        }
+        // Redis에서 리프레시 토큰 삭제
+        memberService.deleteRefreshToken(userId);
+        return ResponseEntity.ok().body("Successfully logged out.");
     }
 
 

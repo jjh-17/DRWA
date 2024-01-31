@@ -3,6 +3,8 @@ package com.a708.drwa.member.service;
 import com.a708.drwa.member.domain.Member;
 import com.a708.drwa.member.dto.SocialLoginResponse;
 import com.a708.drwa.member.dto.SocialUserInfoResponse;
+import com.a708.drwa.member.exception.MemberErrorCode;
+import com.a708.drwa.member.exception.MemberException;
 import com.a708.drwa.member.repository.MemberRepository;
 import com.a708.drwa.member.service.Impl.GoogleLoginServiceImpl;
 import com.a708.drwa.member.service.Impl.KakaoLoginServiceImpl;
@@ -40,11 +42,6 @@ public class MemberService {
         // 소셜로그인 타입에 따른 소셜로그인 서비스 인스턴스 반환
         SocialLoginService socialLoginService = getSocialLoginService(socialType);
 
-        // 지원하지 않는 소셜 로그인 타입일 경우
-        if (socialLoginService == null) {
-            throw new IllegalArgumentException("Unsupported social login type");
-        }
-
         // 인증 URL 반환
         return socialLoginService.getAuthorizationUrl();
     }
@@ -58,11 +55,6 @@ public class MemberService {
     @Transactional
     public SocialLoginResponse processSocialLogin(String socialType, String code) {
         SocialLoginService socialLoginService = getSocialLoginService(socialType);
-
-        // 지원하지 않는 소셜 로그인 타입
-        if (socialLoginService == null) {
-            throw new IllegalArgumentException("Unsupported social login type");
-        }
 
         // 액세스 토큰 반환
         String accessToken = socialLoginService.getAccessToken(code);
@@ -113,8 +105,8 @@ public class MemberService {
             case "google" -> googleLoginService;
             case "naver" -> naverLoginService;
             case "kakao" -> kakaoLoginService;
-            default -> // 지원하지 않는 소셜 로그인 타입
-                    null;
+            // 지원하지 않는 소셜 로그인 타입
+            default -> throw new MemberException(MemberErrorCode.UNSUPPORTED_SOCIAL_LOGIN_TYPE);
         };
     }
 
