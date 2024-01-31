@@ -52,7 +52,7 @@ public class MemberController {
      * @param userId : 사용자 아이디
      * @return : 삭제 성공 여부
      */
-    @PostMapping("/deleteAccount")
+    @DeleteMapping("/deleteAccount")
     @AuthRequired
     public ResponseEntity<?> deleteAccount(@RequestParam String userId) {
         // 계정 정보 삭제
