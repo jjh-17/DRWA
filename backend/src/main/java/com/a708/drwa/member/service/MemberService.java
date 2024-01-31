@@ -33,6 +33,24 @@ public class MemberService {
     private Long refreshTokenExpireTime;
 
     /**
+     * 소셜 로그인 인증 URL을 반환한다.
+     * @param socialType : google, naver, kakao
+     * @return : 인증 URL
+     */
+    public String getAuthorizationUrl(String socialType) {
+        // 소셜로그인 타입에 따른 소셜로그인 서비스 인스턴스 반환
+        SocialLoginService socialLoginService = getSocialLoginService(socialType);
+
+        // 지원하지 않는 소셜 로그인 타입일 경우
+        if (socialLoginService == null) {
+            throw new IllegalArgumentException("Unsupported social login type");
+        }
+
+        // 인증 URL 반환
+        return socialLoginService.getAuthorizationUrl();
+    }
+
+    /**
      * 소셜 로그인 처리
      * @param socialUserInfoResponse 사용자 정보
      * @return 처리된 사용자 정보
