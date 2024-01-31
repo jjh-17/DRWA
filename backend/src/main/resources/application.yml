@@ -18,7 +18,6 @@ spring:
   config:
     import:
       - security/application-database.yml
-      - security/application-key.yml
       - security/application-security.yml
 
   # redis cache 사용
@@ -34,14 +33,6 @@ spring:
         format_sql: true
         use_sql_comments: true
         show_sql: true
-    defer-datasource-initialization: true # data.sql 사용
-
-
-logging:
-  level:
-    org:
-      hibernate:
-        sql: debug
 
 logging:
   level:
