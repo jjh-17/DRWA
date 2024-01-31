@@ -1,18 +1,13 @@
 package com.a708.drwa.redis.util;
 
-import com.a708.drwa.redis.Exception.RedisErrorCode;
-import com.a708.drwa.redis.Exception.RedisException;
+import com.a708.drwa.redis.exception.RedisErrorCode;
+import com.a708.drwa.redis.exception.RedisException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.sql.Time;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
-
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -34,6 +29,7 @@ public class RedisUtil {
         redisTemplate.expire(key, expiredTime, TimeUnit.MINUTES);
     }
 
+    @Transactional
     public void setMapData(String key, Map<Object, Object> map, int expiredTime) {
         redisTemplate.opsForHash().putAll(key, map);
         redisTemplate.expire(key, expiredTime, TimeUnit.MINUTES);
