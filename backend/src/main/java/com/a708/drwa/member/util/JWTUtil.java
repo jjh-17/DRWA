@@ -31,54 +31,92 @@ public class JWTUtil {
     private Long refreshTokenExpireTime;
 
     /**
+     * JWT 빌더 객체를 생성한다.
+     * @param memberId 토큰에 담을 회원의 아이디
+     * @param expireTime 토큰의 만료시간
+     * @return JWT 빌더 객체
+     */
+    private JwtBuilder createJwtBuilder(String memberId, long expireTime) {
+        long currentTimeMillis = System.currentTimeMillis();
+        return Jwts.builder()
+                // 토큰에 담을 정보를 지정한다.
+                .claim("memberId", memberId)
+                // 토큰의 발급시간을 지정한다.
+                .setIssuedAt(new Date(currentTimeMillis))
+                // 토큰의 만료시간을 지정한다.
+                .setExpiration(new Date(currentTimeMillis + expireTime))
+                // 토큰을 암호화한다.
+                .signWith(SignatureAlgorithm.HS256, jwtKey.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
      * JWT Access 토큰을 생성한다.
      * @param memberId 토큰에 담을 회원의 아이디
      * @return JWT Access 토큰
-     * @throws UnsupportedEncodingException 인코딩 예외
      */
-    public String createAccessToken(String memberId) throws UnsupportedEncodingException {
-        // 현재 시간을 저장한다.
-        long currentTimeMillis = System.currentTimeMillis();
-
-        // AccessToken을 생성한다.
-        JwtBuilder jwtAccessTokenBuilder = Jwts.builder();
-        // 토큰에 담을 정보를 지정한다.
-        jwtAccessTokenBuilder.claim("memberId", memberId);
-        // 토큰의 발급시간을 지정한다.
-        jwtAccessTokenBuilder.setIssuedAt(new Date(currentTimeMillis));
-        // 토큰의 만료시간을 지정한다.
-        jwtAccessTokenBuilder.setExpiration(new Date(currentTimeMillis + accessTokenExpireTime*1000));
-        // 토큰을 암호화한다.
-        jwtAccessTokenBuilder.signWith(SignatureAlgorithm.HS256, jwtKey.getBytes(StandardCharsets.UTF_8));
-
-        // AccessToken을 반환한다.
-        return jwtAccessTokenBuilder.compact();
+    public String createAccessToken(String memberId) {
+        return createJwtBuilder(memberId, accessTokenExpireTime * 1000).compact();
     }
+
 
     /**
      * JWT Refresh 토큰을 생성한다.
      * @param memberId 토큰에 담을 회원의 아이디
      * @return JWT Refresh 토큰
-     * @throws UnsupportedEncodingException 인코딩 예외
      */
-    public String createRefreshToken(String memberId) throws UnsupportedEncodingException {
-        // 현재 시간을 저장한다.
-        long currentTimeMillis = System.currentTimeMillis();
-
-        // RefreshToken을 생성한다.
-        JwtBuilder jwtRefreshTokenBuilder = Jwts.builder();
-        // 토큰의 유형을 지정한다.
-        jwtRefreshTokenBuilder.claim("memberId", memberId);
-        // 토큰의 발급시간을 지정한다.
-        jwtRefreshTokenBuilder.setIssuedAt(new Date(currentTimeMillis));
-        // 토큰의 만료시간을 지정한다.
-        jwtRefreshTokenBuilder.setExpiration(new Date(currentTimeMillis + refreshTokenExpireTime*1000));
-        // 토큰을 암호화한다.
-        jwtRefreshTokenBuilder.signWith(SignatureAlgorithm.HS256, jwtKey.getBytes(StandardCharsets.UTF_8));
-
-        //  RefreshToken을 반환한다.
-        return jwtRefreshTokenBuilder.compact();
+    public String createRefreshToken(String memberId) {
+        return createJwtBuilder(memberId, refreshTokenExpireTime * 1000).compact();
     }
+
+//    /**
+//     * JWT Access 토큰을 생성한다.
+//     * @param memberId 토큰에 담을 회원의 아이디
+//     * @return JWT Access 토큰
+//     * @throws UnsupportedEncodingException 인코딩 예외
+//     */
+//    public String createAccessToken(String memberId) throws UnsupportedEncodingException {
+//        // 현재 시간을 저장한다.
+//        long currentTimeMillis = System.currentTimeMillis();
+//
+//        // AccessToken을 생성한다.
+//        JwtBuilder jwtAccessTokenBuilder = Jwts.builder();
+//        // 토큰에 담을 정보를 지정한다.
+//        jwtAccessTokenBuilder.claim("memberId", memberId);
+//        // 토큰의 발급시간을 지정한다.
+//        jwtAccessTokenBuilder.setIssuedAt(new Date(currentTimeMillis));
+//        // 토큰의 만료시간을 지정한다.
+//        jwtAccessTokenBuilder.setExpiration(new Date(currentTimeMillis + accessTokenExpireTime*1000));
+//        // 토큰을 암호화한다.
+//        jwtAccessTokenBuilder.signWith(SignatureAlgorithm.HS256, jwtKey.getBytes(StandardCharsets.UTF_8));
+//
+//        // AccessToken을 반환한다.
+//        return jwtAccessTokenBuilder.compact();
+//    }
+
+//    /**
+//     * JWT Refresh 토큰을 생성한다.
+//     * @param memberId 토큰에 담을 회원의 아이디
+//     * @return JWT Refresh 토큰
+//     * @throws UnsupportedEncodingException 인코딩 예외
+//     */
+//    public String createRefreshToken(String memberId) throws UnsupportedEncodingException {
+//        // 현재 시간을 저장한다.
+//        long currentTimeMillis = System.currentTimeMillis();
+//
+//        // RefreshToken을 생성한다.
+//        JwtBuilder jwtRefreshTokenBuilder = Jwts.builder();
+//        // 토큰의 유형을 지정한다.
+//        jwtRefreshTokenBuilder.claim("memberId", memberId);
+//        // 토큰의 발급시간을 지정한다.
+//        jwtRefreshTokenBuilder.setIssuedAt(new Date(currentTimeMillis));
+//        // 토큰의 만료시간을 지정한다.
+//        jwtRefreshTokenBuilder.setExpiration(new Date(currentTimeMillis + refreshTokenExpireTime*1000));
+//        // 토큰을 암호화한다.
+//        jwtRefreshTokenBuilder.signWith(SignatureAlgorithm.HS256, jwtKey.getBytes(StandardCharsets.UTF_8));
+//
+//        //  RefreshToken을 반환한다.
+//        return jwtRefreshTokenBuilder.compact();
+//    }
 
     /**
      * AccessToken에서 멤버 아이디를 추출한다.
