@@ -1,23 +1,13 @@
-spring:
-  config:
-    activate:
-      on-profile: test
-
-  jpa:
-    hibernate:
-      ddl-auto: create
-    properties:
-      hibernate:
-        format_sql: true
-        show_sql: true
-        use_sql_comments: true
-
----
-
+# test 환경 따로 만들 경우 사용
+#spring:
+#  profiles:
+#    active: test
+#---
 spring:
   config:
     import:
       - security/application-database.yml
+      - security/application-key.yml
       - security/application-security.yml
 
   # redis cache 사용
@@ -34,12 +24,6 @@ spring:
         use_sql_comments: true
         show_sql: true
 
-logging:
-  level:
-    org:
-      hibernate:
-        sql: debug
-
 # swagger 설정
 springdoc:
   default-consumes-media-type: application/json
@@ -54,6 +38,3 @@ springdoc:
     disable-swagger-default-url: true
     doc-expansion: none # tag, operation 펼치는 방식
   paths-to-match:
-
-server:
-  port: 8081
