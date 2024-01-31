@@ -18,7 +18,7 @@ public class RedisKeyUtil {
     }
 
     // memberId를 이용하여 MemberRedis 키 생성
-    public String getMemberKeyNyMEmberIdWithKeyword(int memberId, MemberRedisKey key) {
+    public String getMemberKeyByMemberIdWithKeyword(int memberId, MemberRedisKey key) {
         return "member:" + memberId + key;
     }
 }
