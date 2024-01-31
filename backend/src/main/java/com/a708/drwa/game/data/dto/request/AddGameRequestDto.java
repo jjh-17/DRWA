@@ -5,6 +5,6 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class AddRecordRequestDto {
+public class AddGameRequestDto {
     private int debateId;
 }
