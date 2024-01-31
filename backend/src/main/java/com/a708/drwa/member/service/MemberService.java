@@ -7,6 +7,7 @@ import com.a708.drwa.member.repository.MemberRepository;
 import com.a708.drwa.member.service.Impl.GoogleLoginServiceImpl;
 import com.a708.drwa.member.service.Impl.KakaoLoginServiceImpl;
 import com.a708.drwa.member.service.Impl.NaverLoginServiceImpl;
+import com.a708.drwa.member.type.SocialType;
 import com.a708.drwa.member.util.JWTUtil;
 import com.a708.drwa.redis.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.UnsupportedEncodingException;
 
 @Transactional(readOnly = true)
 @Service
@@ -51,12 +50,29 @@ public class MemberService {
     }
 
     /**
-     * 소셜 로그인 처리
-     * @param socialUserInfoResponse 사용자 정보
-     * @return 처리된 사용자 정보
+     * 소셜 로그인 후 인증 코드로부터 액세스 토큰을 반환한다.
+     * @param socialType : google, naver, kakao
+     * @param code : 소셜 로그인 후 인증 코드
+     * @return : 액세스 토큰
      */
     @Transactional
-    public SocialLoginResponse handleSocialLogin(SocialUserInfoResponse socialUserInfoResponse) throws UnsupportedEncodingException {
+    public SocialLoginResponse processSocialLogin(String socialType, String code) {
+        SocialLoginService socialLoginService = getSocialLoginService(socialType);
+
+        // 지원하지 않는 소셜 로그인 타입
+        if (socialLoginService == null) {
+            throw new IllegalArgumentException("Unsupported social login type");
+        }
+
+        // 액세스 토큰 반환
+        String accessToken = socialLoginService.getAccessToken(code);
+
+        // 액세스 토큰으로부터 사용자 정보를 반환한다.
+        SocialUserInfoResponse socialUserInfoResponse = socialLoginService.getUserInfo(accessToken);
+
+        // 소셜로그인 타입 설정
+        socialUserInfoResponse.setSocialType(SocialType.fromString(socialType));
+
         // 사용자 정보를 기반으로 기존 사용자 조회
         Member member = memberRepository.findByUserId(socialUserInfoResponse.getId())
                 // 기존 사용자가 없으면 새로운 사용자 등록
