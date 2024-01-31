@@ -11,9 +11,10 @@ import java.util.*;
 
 @SpringBootTest
 @Transactional
-class RecordServiceTest {
+class GameServiceTest {
 
-    @Autowired RecordService recordService;
+    @Autowired
+    GameService gameService;
     @Autowired RedisUtil redisUtil;
     RedisKeyUtil redisKeyUtil = new RedisKeyUtil();
 
@@ -27,16 +28,10 @@ class RecordServiceTest {
         mvpMap.put(4, 3);
         mvpMap.put(5, 3);
 
-        System.out.println(recordService.getMvpList(mvpMap));
+//        System.out.println(gameService.getMvpList(mvpMap));
     }
 
     @Test
     void deleteRedisDataTest() {
-        // String 데이터 추가
-        redisUtil.setData(
-                redisKeyUtil.getKeyByDebateIdWithKeyword(3, DebateRedisKey.KEY_WORD),
-                "keyword", (long) 180000);
-
-        recordService.deleteRedisDebateData(3);
     }
 }
