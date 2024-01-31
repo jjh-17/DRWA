@@ -18,6 +18,41 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/debate")
 public class DebateController {
     private final DebateService debateService;
+    private final OpenViduService openViduService;
+
+    /**
+     * 방 생성 API
+     * debateCreateDto -> debateRepository -> roomId
+     * getToken by roomId -> openvidu.createSession()
+     * @param debateCreateRequestDto
+     * @return
+     */
+    @PostMapping("/create")
+    public ResponseEntity<Void> create(@RequestBody DebateCreateRequestDto debateCreateRequestDto) {
+        openViduService.create(debateService.create(debateCreateRequestDto));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .build();
+    }
+
+    /**
+     * 방 입장 API
+     * debateJoinRequestDto -> get session from OpenVidu Session
+     * -> get token by session -> return session
+     * @param debateJoinRequestDto
+     * @return
+     */
+    @PostMapping("/join")
+    public ResponseEntity<String> join(@RequestBody DebateJoinRequestDto debateJoinRequestDto) {
+        String token = "";
+        // TODO: 사용자 정보 Redis에 추가
+        if(debateService.isExistDebate(debateJoinRequestDto))
+            token = openViduService.join(debateJoinRequestDto.getDebateId());
+
+        return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .body(token);
+    }
 
     @PostMapping("/start")
     public ResponseEntity<Void> start(@RequestBody DebateStartRequestDto debateStartRequestDto) {
