@@ -11,7 +11,7 @@ import lombok.ToString;
 @ToString
 public class AuthDto {
     private String userId;
-    private String refreshToken;
+    private String accessToken;
 
 
 }

@@ -1,11 +1,9 @@
 package com.a708.drwa.member.controller;
 
+import com.a708.drwa.annotation.AuthRequired;
 import com.a708.drwa.member.dto.SocialAuthURLResponse;
 import com.a708.drwa.member.dto.SocialLoginResponse;
-import com.a708.drwa.member.dto.SocialUserInfoResponse;
 import com.a708.drwa.member.service.MemberService;
-import com.a708.drwa.member.service.SocialLoginService;
-import com.a708.drwa.member.type.SocialType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -29,24 +27,10 @@ public class MemberController {
      * @return : 인증 URL
      */
     @GetMapping("/authURL/{socialType}")
-    public ResponseEntity<SocialAuthURLResponse> getAuthURL(@PathVariable String socialType) {
-        // 소셜 로그인 서비스
-        SocialLoginService socialLoginService = memberService.getSocialLoginService(socialType);
-        // 응답 DTO
-        SocialAuthURLResponse socialAuthURLResponse = new SocialAuthURLResponse();
-
-        // 지원하지 않는 소셜 로그인 타입
-        if (socialLoginService == null) {
-            // 응답 DTO에 에러 메시지 저장
-            socialAuthURLResponse.setErrorMessage("Unsupported social login type");
-            // 400 Bad Request 반환
-            return ResponseEntity.badRequest().body(socialAuthURLResponse);
-        }
-
-        // 인증 URL 생성
-        String authorizationUrl = socialLoginService.getAuthorizationUrl();
-        socialAuthURLResponse.setAuthorizationUrl(authorizationUrl);
-        return ResponseEntity.ok(socialAuthURLResponse);
+    public ResponseEntity<?> getAuthURL(@PathVariable String socialType) {
+        // 소셜 로그인 타입에 따른 인증 URL 반환
+        String authorizationUrl = memberService.getAuthorizationUrl(socialType);
+        return ResponseEntity.ok(new SocialAuthURLResponse(authorizationUrl));
     }
 
     /**
@@ -56,32 +40,38 @@ public class MemberController {
      * @return : 액세스 토큰
      */
     @GetMapping("/login/{socialType}")
-    public ResponseEntity<?> socialLogin(@PathVariable String socialType, @RequestParam String code) throws UnsupportedEncodingException {
-        SocialLoginService socialLoginService = memberService.getSocialLoginService(socialType);
-
-        // 지원하지 않는 소셜 로그인 타입
-        if (socialLoginService == null) {
-            return ResponseEntity.badRequest().body("Unsupported social login type");
-        }
-
-        // 액세스 토큰 반환
-        String accessToken = socialLoginService.getAccessToken(code);
-
-        log.info("accessToken: {}", accessToken);
-
-        // 액세스 토큰으로부터 사용자 정보를 반환한다.
-        SocialUserInfoResponse socialUserInfoResponse = socialLoginService.getUserInfo(accessToken);
-
-        // 소셜로그인 타입 설정
-        socialUserInfoResponse.setSocialType(SocialType.fromString(socialType));
-
-        // 소셜 로그인 처리
-        SocialLoginResponse socialLoginResponse = memberService.handleSocialLogin(socialUserInfoResponse);
-
-        // 응답 DTO 반환
-        return new ResponseEntity<SocialLoginResponse>(socialLoginResponse, null, HttpStatus.OK);
+    public ResponseEntity<?> socialLogin(@PathVariable String socialType, @RequestParam String code) {
+            // 소셜 로그인 타입에 따른 액세스 토큰 반환
+            SocialLoginResponse socialLoginResponse = memberService.processSocialLogin(socialType, code);
+            return ResponseEntity.ok(socialLoginResponse);
     }
 
+
+    /**
+     * 사용자 정보 삭제
+     * @param userId : 사용자 아이디
+     * @return : 삭제 성공 여부
+     */
+    @PostMapping("/deleteAccount")
+    @AuthRequired
+    public ResponseEntity<?> deleteAccount(@RequestParam String userId) {
+        // 계정 정보 삭제
+        memberService.deleteMember(userId);
+        return ResponseEntity.ok().body("Account successfully deleted.");
+    }
+
+    /**
+     * 로그아웃
+     * @param userId : 사용자 아이디
+     * @return : 로그아웃 성공 여부
+     */
+    @PostMapping("/logout")
+    @AuthRequired
+    public ResponseEntity<?> logout(@RequestParam String userId) {
+        // Redis에서 리프레시 토큰 삭제
+        memberService.deleteRefreshToken(userId);
+        return ResponseEntity.ok().body("Successfully logged out.");
+    }
 
 
 
