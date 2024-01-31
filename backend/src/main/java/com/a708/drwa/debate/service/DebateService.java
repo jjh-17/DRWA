@@ -1,7 +1,9 @@
 package com.a708.drwa.debate.service;
 
+import com.a708.drwa.debate.data.dto.DebateMemberDto;
 import com.a708.drwa.debate.data.dto.request.DebateCreateRequestDto;
 import com.a708.drwa.debate.data.dto.request.DebateJoinRequestDto;
+import com.a708.drwa.debate.data.dto.request.DebateStartRequestDto;
 import com.a708.drwa.debate.domain.Debate;
 import com.a708.drwa.debate.domain.DebateCategory;
 import com.a708.drwa.debate.exception.DebateErrorCode;
@@ -16,8 +18,15 @@ import io.openvidu.java.client.OpenViduHttpException;
 import io.openvidu.java.client.OpenViduJavaClientException;
 import io.openvidu.java.client.Session;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.ListOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Transactional(readOnly = true)
 @Service
@@ -25,7 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DebateService {
     private final DebateRepository debateRepository;
     private final DebateCategoryRepository debateCategoryRepository;
-    private final RedisUtil redisUtil;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final RedisKeyUtil redisKeyUtil;
 
     /**
@@ -40,17 +49,32 @@ public class DebateService {
                 .findById(debateCreateRequestDto.getDebateCategoryId())
                 .orElse(null);
 
+        // 방 저장 및 아이디 추출
         return debateRepository.save(Debate.builder()
-                .debateCategory(debateCategory).build()).getDebateId();
+                        .debateCategory(debateCategory).build()).getDebateId();
     }
 
-    public void start(int debateId) {
-        redisUtil.hSet(debateId + "", DebateRedisKey.START_TIME + "", System.currentTimeMillis() / 1000L + "");
-        String leftUserKey = redisKeyUtil.getKeyByRoomIdWithKeyword(debateId, DebateRedisKey.TEAM_A_LIST);
-        String rightUserKey = redisKeyUtil.getKeyByRoomIdWithKeyword(debateId, DebateRedisKey.TEAM_B_LIST);
+    public void start(DebateStartRequestDto debateStartRequestDto) {
+        HashOperations<String, String, Object> hashOperations = redisTemplate.opsForHash();
+        ListOperations<String, Object> listOperations = redisTemplate.opsForList();
 
-//        List<Object> oLeftUserList = redisUtil.hGet()
+        String debateKey = debateStartRequestDto.getDebateId() + "";
+        String startTimeKey = DebateRedisKey.START_TIME.string();
+        String roomInfoKey = DebateRedisKey.ROOM_INFO.string();
 
+        // 시작 시간 및 설정 저장
+        hashOperations.put(debateKey, startTimeKey, System.currentTimeMillis() / 1000L + "");
+        hashOperations.put(debateKey, roomInfoKey, debateStartRequestDto.getRoomInfo());
+
+        // 유저 리스트 저장
+        for(Map.Entry<Integer, DebateMemberDto> member : debateStartRequestDto.getMemberDtoHashMap().entrySet()) {
+            DebateMemberDto memberDto = member.getValue();
+            String teamKey = member.getValue().getRole().string();
+            listOperations.rightPush(redisKeyUtil.getKeyByRoomIdWithKeyword(debateKey, teamKey), memberDto);
+        }
+
+        // 준비 단계로 PHASE 진행
+        hashOperations.increment(debateKey, DebateRedisKey.PHASE.string(), 1);
     }
 
 
