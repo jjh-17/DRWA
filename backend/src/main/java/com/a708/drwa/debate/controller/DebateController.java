@@ -71,4 +71,10 @@ public class DebateController {
         debateService.start(debateStartRequestDto);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+    @PostMapping("/start")
+    public ResponseEntity<Void> start(@RequestBody DebateStartRequestDto debateStartRequestDto) {
+        debateService.start(debateStartRequestDto);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }
