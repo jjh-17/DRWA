@@ -23,7 +23,7 @@ public class RedisUtil {
 
     @Transactional
     public void setData(String key, Object value, Long expiredTime) {
-        redisTemplate.opsForValue().set(key, value, expiredTime, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue().set(key, value, expiredTime, TimeUnit.SECONDS);
     }
 
     @Transactional
