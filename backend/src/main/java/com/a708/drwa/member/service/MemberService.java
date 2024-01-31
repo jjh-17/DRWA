@@ -86,7 +86,8 @@ public class MemberService {
      * @param socialUserInfoResponse 사용자 정보
      * @return 등록된 사용자 정보
      */
-    private Member registerNewUser(SocialUserInfoResponse socialUserInfoResponse) {
+    @Transactional
+    protected Member registerNewUser(SocialUserInfoResponse socialUserInfoResponse) {
         Member member = Member.builder()
                 .userId(socialUserInfoResponse.getId())
                 .socialType(socialUserInfoResponse.getSocialType())
@@ -114,6 +115,7 @@ public class MemberService {
      * 회원탈퇴 처리
      * @param userId : 사용자 아이디
      */
+    @Transactional
     public void deleteMember(String userId) {
         // 사용자 정보 DB에서 삭제
     	memberRepository.deleteByUserId(userId);
