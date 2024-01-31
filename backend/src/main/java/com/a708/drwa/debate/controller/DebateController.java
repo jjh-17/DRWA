@@ -2,6 +2,7 @@ package com.a708.drwa.debate.controller;
 
 import com.a708.drwa.debate.data.dto.request.DebateCreateRequestDto;
 import com.a708.drwa.debate.data.dto.request.DebateJoinRequestDto;
+import com.a708.drwa.debate.data.dto.request.DebateStartRequestDto;
 import com.a708.drwa.debate.service.DebateService;
 import com.a708.drwa.debate.service.OpenViduService;
 import com.a708.drwa.redis.util.RedisKeyUtil;
@@ -68,4 +69,9 @@ public class DebateController {
         }
     }
 
+    @PostMapping("/start")
+    public ResponseEntity<Void> start(@RequestBody DebateStartRequestDto debateStartRequestDto) {
+        debateService.start(debateStartRequestDto);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }
