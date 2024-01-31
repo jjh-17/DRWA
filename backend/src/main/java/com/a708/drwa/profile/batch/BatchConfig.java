@@ -12,7 +12,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 @RequiredArgsConstructor
 public class BatchConfig {
     private final ProfileTasklet profileTasklet;
-    private final RankTasklet rankTasklet;
+    private final RankingTasklet rankingTasklet;
 
     @Bean
     public Job updateRankingJob(JobRepository jobRepository, PlatformTransactionManager transactionManager){
@@ -31,8 +31,8 @@ public class BatchConfig {
 
     @Bean
     public Step updateRank(JobRepository jobRepository, PlatformTransactionManager transactionManager){
-        return new StepBuilder("updateRankStep", jobRepository)
-                .tasklet(rankTasklet, transactionManager)
+        return new StepBuilder("updateRankingStep", jobRepository)
+                .tasklet(rankingTasklet, transactionManager)
                 .build();
     }
 
