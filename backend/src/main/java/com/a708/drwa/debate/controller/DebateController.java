@@ -57,16 +57,8 @@ public class DebateController {
      */
     @PostMapping("/join")
     public ResponseEntity<?> join(@RequestBody DebateJoinRequestDto debateJoinRequestDto) {
-        try {
-            // 참여
-            String token = openViduService.join(debateJoinRequestDto.getDebateId());
-
-            // 토큰 반환
-            return ResponseEntity.status(HttpStatus.ACCEPTED).body(token);
-        } catch (Exception e) {
-            // 예외 처리
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error joining the debate");
-        }
+        String token = openViduService.join(debateJoinRequestDto.getDebateId());
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(token);
     }
 
     @PostMapping("/start")
