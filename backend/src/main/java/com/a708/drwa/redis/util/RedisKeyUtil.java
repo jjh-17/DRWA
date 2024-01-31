@@ -5,10 +5,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class RedisKeyUtil {
-
-    public String getKeyByDebateIdWithKeyword(int debateId, DebateRedisKey key) {
-        return "debate:" + debateId + key;
+    public String getKeyByRoomIdWithKeyword(String... key) {
+        return String.join(":", key);
     }
-
-
 }
