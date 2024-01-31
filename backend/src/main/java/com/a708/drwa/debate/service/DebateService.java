@@ -81,5 +81,6 @@ public class DebateService {
         if(!debateRepository.existsById(debateJoinRequestDto.getDebateId()))
             throw new DebateException(DebateErrorCode.NOT_EXIST_DEBATE_ROOM_ERROR);
         return true;
+
     }
 }
