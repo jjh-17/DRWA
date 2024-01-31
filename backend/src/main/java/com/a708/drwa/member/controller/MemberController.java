@@ -1,5 +1,6 @@
 package com.a708.drwa.member.controller;
 
+import com.a708.drwa.annotation.AuthRequired;
 import com.a708.drwa.member.dto.SocialAuthURLResponse;
 import com.a708.drwa.member.dto.SocialLoginResponse;
 import com.a708.drwa.member.service.MemberService;
@@ -57,6 +58,43 @@ public class MemberController {
         }
     }
 
+
+    /**
+     * 사용자 정보 삭제
+     * @param userId : 사용자 아이디
+     * @return : 삭제 성공 여부
+     */
+    @PostMapping("/deleteAccount")
+    @AuthRequired
+    public ResponseEntity<?> deleteAccount(@RequestParam String userId) {
+        try {
+            // 계정 정보 삭제
+            memberService.deleteMember(userId);
+
+            return ResponseEntity.ok().body("Account successfully deleted.");
+        } catch (Exception e) {
+            log.error("Error deleting account: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting account.");
+        }
+    }
+
+    /**
+     * 로그아웃
+     * @param userId : 사용자 아이디
+     * @return : 로그아웃 성공 여부
+     */
+    @PostMapping("/logout")
+    @AuthRequired
+    public ResponseEntity<?> logout(@RequestParam String userId) {
+        try {
+            // Redis에서 리프레시 토큰 삭제
+            memberService.deleteRefreshToken(userId);
+            return ResponseEntity.ok().body("Successfully logged out.");
+        } catch (Exception e) {
+            log.error("Error during logout: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error during logout.");
+        }
+    }
 
 
 
