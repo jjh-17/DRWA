@@ -21,7 +21,7 @@ public class RoomController {
     }
 
 
-    // 기본 검색 엔드포인트
+    // /search 엔드포인트 정의, 들어온 검색어에 따라 방 검색
     @GetMapping("/search")
     public ResponseEntity<List<Room>> searchRooms(@RequestParam String query) {
         List<Room> rooms = roomSearchService.searchRoomsByNori(query);
