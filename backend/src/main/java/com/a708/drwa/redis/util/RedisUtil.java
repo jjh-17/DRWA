@@ -3,35 +3,43 @@ package com.a708.drwa.redis.util;
 import com.a708.drwa.redis.Exception.RedisErrorCode;
 import com.a708.drwa.redis.Exception.RedisException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Time;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class RedisUtil {
     private final RedisTemplate<String, Object> redisTemplate;
 
-    @Transactional
-    public void setData(String key, Object value, Long expiredTime) {
-        redisTemplate.opsForValue().set(key, value, expiredTime, TimeUnit.MILLISECONDS);
+    public void set(String key, Object value) {
+        redisTemplate.opsForValue().set(key, value);
     }
 
-    @Transactional
-    public void setListData(String key, List<Object> list, int expiredTime) {
-        ListOperations<String, Object> stringObjectListOperations = redisTemplate.opsForList();
-        for(Object l : list)
-            stringObjectListOperations.rightPush(key, l);
-        redisTemplate.expire(key, expiredTime, TimeUnit.MINUTES);
+    public void set(String key, Object value, Long expriredTime) {
+        redisTemplate.opsForValue().set(key, value, expriredTime);
+    }
+    public Object get(String key) {
+        return redisTemplate.opsForValue().get(key);
+    }
+
+    public void hSet(String key, String hKey, Object value) {
+        redisTemplate.opsForHash().put(key, hKey, value);
+    }
+
+    public Object hGet(String key, String hKey) {
+        return redisTemplate.opsForHash().get(key, hKey);
+    }
+
+    public void setList(String key, Object value) {
+        redisTemplate.opsForList().leftPush(key, value);
+    }
+
+    public List<Object> getList(String key) {
+        return redisTemplate.opsForList().range(key, 0, -1);
     }
 
     public void setMapData(String key, Map<Object, Object> map, int expiredTime) {
@@ -47,7 +55,7 @@ public class RedisUtil {
 
     public int getIntegerData(String key) {
         String result = String.valueOf(redisTemplate.opsForValue().get(key));
-        if(result==null) throw new RedisException(RedisErrorCode.REDIS_READ_FAIL);
+        if (result == null) throw new RedisException(RedisErrorCode.REDIS_READ_FAIL);
         return Integer.parseInt(result);
     }
 
