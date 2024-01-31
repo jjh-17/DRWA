@@ -32,15 +32,15 @@ public class JWTUtil {
 
     /**
      * JWT 빌더 객체를 생성한다.
-     * @param memberId 토큰에 담을 회원의 아이디
+     * @param userId 토큰에 담을 회원의 아이디
      * @param expireTime 토큰의 만료시간
      * @return JWT 빌더 객체
      */
-    private JwtBuilder createJwtBuilder(String memberId, long expireTime) {
+    private JwtBuilder createJwtBuilder(String userId, long expireTime) {
         long currentTimeMillis = System.currentTimeMillis();
         return Jwts.builder()
                 // 토큰에 담을 정보를 지정한다.
-                .claim("memberId", memberId)
+                .claim("userId", userId)
                 // 토큰의 발급시간을 지정한다.
                 .setIssuedAt(new Date(currentTimeMillis))
                 // 토큰의 만료시간을 지정한다.
@@ -51,21 +51,21 @@ public class JWTUtil {
 
     /**
      * JWT Access 토큰을 생성한다.
-     * @param memberId 토큰에 담을 회원의 아이디
+     * @param userId 토큰에 담을 회원의 아이디
      * @return JWT Access 토큰
      */
-    public String createAccessToken(String memberId) {
-        return createJwtBuilder(memberId, accessTokenExpireTime * 1000).compact();
+    public String createAccessToken(String userId) {
+        return createJwtBuilder(userId, accessTokenExpireTime * 1000).compact();
     }
 
 
     /**
      * JWT Refresh 토큰을 생성한다.
-     * @param memberId 토큰에 담을 회원의 아이디
+     * @param userId 토큰에 담을 회원의 아이디
      * @return JWT Refresh 토큰
      */
-    public String createRefreshToken(String memberId) {
-        return createJwtBuilder(memberId, refreshTokenExpireTime * 1000).compact();
+    public String createRefreshToken(String userId) {
+        return createJwtBuilder(userId, refreshTokenExpireTime * 1000).compact();
     }
 
 //    /**
@@ -148,7 +148,7 @@ public class JWTUtil {
      * @param token 검사할 JWT 토큰
      * @return 유효성 검사 결과
      */
-    public boolean vaildCheck(String token) {
+    public boolean validCheck(String token) {
         // 해당 토큰을 확인하면서 예외가 발생하는 경우
         // 만료가 되거나, 잘못된 토큰이다.
         try {
