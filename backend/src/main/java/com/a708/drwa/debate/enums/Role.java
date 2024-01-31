@@ -1,4 +1,4 @@
-package com.a708.drwa.debate.domain.enums;
+package com.a708.drwa.debate.enums;
 
 public enum Role {
     A_TEAM("teamA"),
