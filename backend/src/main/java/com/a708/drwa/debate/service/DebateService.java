@@ -1,14 +1,13 @@
 package com.a708.drwa.debate.service;
 
 import com.a708.drwa.debate.data.dto.DebateMemberDto;
+import com.a708.drwa.debate.data.dto.RoomInfo;
 import com.a708.drwa.debate.data.dto.request.DebateCreateRequestDto;
 import com.a708.drwa.debate.data.dto.request.DebateJoinRequestDto;
 import com.a708.drwa.debate.data.dto.request.DebateStartRequestDto;
 import com.a708.drwa.debate.domain.Debate;
-import com.a708.drwa.debate.domain.DebateCategory;
 import com.a708.drwa.debate.exception.DebateErrorCode;
 import com.a708.drwa.debate.exception.DebateException;
-import com.a708.drwa.debate.repository.DebateCategoryRepository;
 import com.a708.drwa.debate.repository.DebateRepository;
 import com.a708.drwa.redis.domain.DebateRedisKey;
 import com.a708.drwa.redis.util.RedisKeyUtil;
@@ -26,7 +25,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class DebateService {
     private final DebateRepository debateRepository;
-    private final DebateCategoryRepository debateCategoryRepository;
     private final RedisTemplate<String, Object> redisTemplate;
     private final RedisKeyUtil redisKeyUtil;
 
@@ -37,14 +35,11 @@ public class DebateService {
      */
     @Transactional
     public int create(DebateCreateRequestDto debateCreateRequestDto) {
-        // 카테고리 가져옴
-        DebateCategory debateCategory = debateCategoryRepository
-                .findById(debateCreateRequestDto.getDebateCategoryId())
-                .orElse(null);
-
         // 방 저장 및 아이디 추출
         return debateRepository.save(Debate.builder()
-                        .debateCategory(debateCategory).build()).getDebateId();
+                        .debateCategory(debateCreateRequestDto.getDebateCategory())
+                        .build())
+                .getDebateId();
     }
 
     /**
@@ -73,6 +68,32 @@ public class DebateService {
 
         // 준비 단계로 PHASE 진행
         hashOperations.increment(debateKey, DebateRedisKey.PHASE.string(), 1);
+    }
+
+    public void nextPhase(int debateId) {
+        // redis 객체
+        HashOperations<String, DebateRedisKey, Object> hash = redisTemplate.opsForHash();
+        String debateKey = debateId + "";
+
+        // 레디스에서 해당 방 정보 가져오기
+        RoomInfo roomInfo = (RoomInfo) hash.get(debateKey, DebateRedisKey.ROOM_INFO);
+
+        // phase ++
+        hash.increment(debateKey, DebateRedisKey.PHASE, 1);
+        int phase = (int) hash.get(debateKey, DebateRedisKey.PHASE);
+
+        // phase 값으로 무슨 단계인지 확인
+        // -2 : 대기 단계
+        // -1 : 준비 단계
+        // (phase % 4) % 2 == 0  : phase / 4 번째 사람 발언 단계. (phase % 4) % 2가 0이면 Left, 1이면 Right
+        // phase / 4 == playerNum / 2 : 투표 집계 단계. 결과 반영 후 대기 단계(-2)로 돌아가기
+
+        // 값에 따라 처리 다르게
+        // 발언 이었으면 질의, 질의 였으면 발언, 마지막 질의면 투표 집계 후 대기로 돌아가기
+
+        // 단계 별 설정된 시간 후에 nextPhase 호출하게 Scheduler? 사용
+
+        // 단계에 따라 마이크 권한 줄 유저 아이디 반환해주자.
     }
 
 
