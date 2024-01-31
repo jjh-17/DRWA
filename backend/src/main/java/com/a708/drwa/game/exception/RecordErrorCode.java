@@ -6,10 +6,9 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum GameInfoErrorCode implements ErrorCode {
+public enum RecordErrorCode implements ErrorCode {
 
-    GAME_INFO_CREATE_FAIL(500, "GAME_INFO_01", "게임 정보 저장 실패"),
-    GAME_INFO_MISMATCH(500, "GAME_INFO_02", "게임 정보 불일치"),
+    RECORD_CREATE_FAIL(500, "RECORD_01", "전적 저장 실패"),
     ;
 
     private final int statusCode;
