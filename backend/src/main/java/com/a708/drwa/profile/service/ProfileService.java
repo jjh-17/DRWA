@@ -60,7 +60,7 @@ public class ProfileService {
         RankingMember rankingMember = RankingMember.builder()
                 .memberId(member.getId())
                 .nickname(profile.getNickname())
-                .title("뉴비")
+                .achievement("뉴비")
                 .winRate(0)
                 .point(profile.getPoint())
                 .build();
