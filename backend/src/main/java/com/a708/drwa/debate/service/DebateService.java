@@ -12,11 +12,6 @@ import com.a708.drwa.debate.repository.DebateCategoryRepository;
 import com.a708.drwa.debate.repository.DebateRepository;
 import com.a708.drwa.redis.domain.DebateRedisKey;
 import com.a708.drwa.redis.util.RedisKeyUtil;
-import com.a708.drwa.redis.util.RedisUtil;
-import io.openvidu.java.client.OpenVidu;
-import io.openvidu.java.client.OpenViduHttpException;
-import io.openvidu.java.client.OpenViduJavaClientException;
-import io.openvidu.java.client.Session;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.ListOperations;
@@ -24,8 +19,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Transactional(readOnly = true)
