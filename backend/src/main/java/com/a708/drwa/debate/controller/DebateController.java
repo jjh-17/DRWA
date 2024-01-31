@@ -5,9 +5,7 @@ import com.a708.drwa.debate.data.dto.request.DebateJoinRequestDto;
 import com.a708.drwa.debate.data.dto.request.DebateStartRequestDto;
 import com.a708.drwa.debate.service.DebateService;
 import com.a708.drwa.debate.service.OpenViduService;
-import com.a708.drwa.redis.util.RedisKeyUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,8 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class DebateController {
     private final DebateService debateService;
     private final OpenViduService openViduService;
-    private final RedisTemplate<String, Object> redisTemplate;
-    private final RedisKeyUtil redisKeyUtil;
 
     /**
      * 방 생성 API
@@ -33,20 +29,12 @@ public class DebateController {
      */
     @PostMapping("/create")
     public ResponseEntity<Void> create(@RequestBody DebateCreateRequestDto debateCreateRequestDto) {
-        int debateId = debateService.create(debateCreateRequestDto);
-        openViduService.create(debateId);
-
-        DebateJoinRequestDto debateJoinRequestDto = new DebateJoinRequestDto();
-        debateJoinRequestDto.setDebateId(debateId);
-
-        String token = openViduService.join(debateId);
-
-
+        openViduService.create(debateService
+                .create(debateCreateRequestDto));
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .build();
     }
-
 
     /**
      * 방 입장 API
