@@ -1,5 +1,6 @@
 package com.a708.drwa.debate.domain;
 
+import com.a708.drwa.debate.enums.DebateCategory;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -15,8 +16,7 @@ public class Debate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int debateId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "debate_category_id")
+    @Enumerated
     private DebateCategory debateCategory;
 
     @Builder
