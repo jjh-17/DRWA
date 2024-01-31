@@ -54,6 +54,11 @@ public class DebateService {
                         .debateCategory(debateCategory).build()).getDebateId();
     }
 
+    /**
+     * 토론 시작
+     * 방 설정 정보, 참여자 리스트 저장
+     * @param debateStartRequestDto
+     */
     public void start(DebateStartRequestDto debateStartRequestDto) {
         HashOperations<String, String, Object> hashOperations = redisTemplate.opsForHash();
         ListOperations<String, Object> listOperations = redisTemplate.opsForList();
