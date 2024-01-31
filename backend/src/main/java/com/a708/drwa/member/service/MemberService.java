@@ -117,6 +117,10 @@ public class MemberService {
      */
     @Transactional
     public void deleteMember(String userId) {
+        // 사용자 조회
+        Member member = memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
         // 사용자 정보 DB에서 삭제
     	memberRepository.deleteByUserId(userId);
 
