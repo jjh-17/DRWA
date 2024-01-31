@@ -1,20 +1,22 @@
 package com.a708.drwa.game.service;
 
 import com.a708.drwa.debate.domain.Debate;
+import com.a708.drwa.debate.exception.DebateErrorCode;
+import com.a708.drwa.debate.exception.DebateException;
 import com.a708.drwa.debate.repository.DebateRepository;
-import com.a708.drwa.game.data.dto.request.AddRecordRequestDto;
-import com.a708.drwa.game.data.dto.response.AddRecordResponseDto;
-import com.a708.drwa.game.data.dto.response.AddRecordRedisResponseDto;
-import com.a708.drwa.game.data.dto.response.WinnerTeam;
+import com.a708.drwa.game.data.dto.request.AddGameRequestDto;
+import com.a708.drwa.game.data.dto.response.*;
 import com.a708.drwa.game.domain.GameInfo;
 import com.a708.drwa.game.domain.Record;
 import com.a708.drwa.game.domain.Result;
 import com.a708.drwa.game.domain.Team;
-import com.a708.drwa.game.exception.GameErrorCode;
-import com.a708.drwa.game.exception.GameException;
+import com.a708.drwa.game.exception.GameInfoErrorCode;
+import com.a708.drwa.game.exception.GameInfoException;
 import com.a708.drwa.game.repository.GameInfoRepository;
 import com.a708.drwa.game.repository.RecordBulkRepository;
 import com.a708.drwa.member.domain.Member;
+import com.a708.drwa.member.exception.MemberErrorCode;
+import com.a708.drwa.member.exception.MemberException;
 import com.a708.drwa.member.repository.MemberRepository;
 import com.a708.drwa.redis.domain.DebateRedisKey;
 import com.a708.drwa.redis.util.RedisKeyUtil;
@@ -24,13 +26,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class RecordService {
+public class GameService {
 
     private static final RedisKeyUtil redisKeyUtil = new RedisKeyUtil();
     private static final int MVP_POINT = 60;
@@ -41,136 +42,124 @@ public class RecordService {
     private final MemberRepository memberRepository;
     private final RedisUtil redisUtil;
 
+    // 공개 토론방 종료 시 정산 서비스
     @Transactional
-    public AddRecordResponseDto addRecord(AddRecordRequestDto addRecordRequestDto) {
+    public AddPublicGameResponseDto addPublicGame(AddGameRequestDto addGameRequestDto) {
         // Redis에서 필요한 데이터 가져옴
-        final AddRecordRedisResponseDto addRecordRedisResponseDto = getRedisGameResponseDto(addRecordRequestDto.getDebateId());
+        final PublicGameRedisResponseDto addRecordRedisResponseDto
+                = getPublicGameRedisResponseDto(addGameRequestDto.getDebateId());
 
-        // 올바른 정보를 받았는지 검증
-        final Debate debate = checkDebateId(addRecordRequestDto.getDebateId());
-        final GameInfo gameInfo = checkGameId(addRecordRequestDto.getGameId());
+        // DB에서 인자로 받은 토론방 Id 검색
+        Debate savedDebate = getDebate(addGameRequestDto.getDebateId());
 
-        // MySql에 저장할 전적 정보 생성
-        final WinnerTeam winnerTeam = getWinnerTeam(addRecordRedisResponseDto.getTeamAVoteNum(), addRecordRedisResponseDto.getTeamBVoteNum());
+        // DB에 게임 정보, 전적을 저장하기 위해 필요한 데이터 도출
+        final List<Integer> mvpList = getMvpList(addRecordRedisResponseDto.getMvpMap());
+        final int mvpMemberId = mvpList.size()==1 ? mvpList.get(0) : -1;
+        final WinnerTeam winnerTeam = getWinnerTeam(
+                addRecordRedisResponseDto.getTeamAVoteNum(),
+                addRecordRedisResponseDto.getTeamBVoteNum());
+
+        /*
+         * DB에 게임 정보 저장
+         * 일단 임시로 MVP로 선정된 인원이 많으면 mvpMemberId에 '-1'을 넣도록 함.
+         * 추후 명확하게 설정할 필요가 있음
+         */
+        final GameInfo savedGameInfo = addGameInfo(
+                addRecordRedisResponseDto.getKeywordA(),
+                addRecordRedisResponseDto.getKeywordB(),
+                mvpMemberId);
+
+        // DB에 전적 BULK 저장
         final List<Record> records = getInputRecords(
                 addRecordRedisResponseDto.getTeamAList(),
                 addRecordRedisResponseDto.getTeamBList(),
-                gameInfo,
+                savedGameInfo,
                 winnerTeam);
-        
-        // MySQL에 전적 Bulk 저장
-        int[] recordSaveResult = recordBulkRepository.saveAll(records);
-        if(recordSaveResult==null) throw new GameException(GameErrorCode.BATCH_UPDATE_FAIL);
+        recordBulkRepository.saveAll(records);
+
+        // Redis 데이터 수정
+        final int mvpPoint = getMvpPoint(mvpList);
 
         // 전적 저장 이후 클라이언트에게 전달할 데이터
-        return AddRecordResponseDto.builder()
+        return AddPublicGameResponseDto.builder()
                 .teamAVoteNum(addRecordRedisResponseDto.getTeamAVoteNum())
                 .teamBVoteNum(addRecordRedisResponseDto.getTeamBVoteNum())
-                .noVoteNum(addRecordRedisResponseDto.getJurorList().size() + addRecordRedisResponseDto.getViewerList().size()
-                        - addRecordRedisResponseDto.getTeamAVoteNum() - addRecordRedisResponseDto.getTeamBVoteNum())
-                .mvpList(getMvpList(addRecordRedisResponseDto.getMvpMap()))
-                .mvpPoint(MVP_POINT)
+                .noVoteNum(
+                        addRecordRedisResponseDto.getJurorList().size()
+                        + addRecordRedisResponseDto.getViewerList().size()
+                        - addRecordRedisResponseDto.getTeamAVoteNum()
+                        - addRecordRedisResponseDto.getTeamBVoteNum())
+                .mvpList(mvpList)
+                .mvpPoint(mvpPoint)
                 .winnerPoint(WINNER_POINT)
                 .winnerTeam(winnerTeam.name())
                 .build();
     }
 
-    // === 검증 ===
-    // 토론 방 검증
-    private Debate checkDebateId(int debateId) {
-        Debate debate = debateRepository.findById(debateId)
-                .orElseThrow(() -> new GameException(GameErrorCode.GAME_NOT_FOUND));
-
-        if(debateId != debate.getDebateId())
-            throw new GameException(GameErrorCode.BAD_REQUEST);
-
-        return debate;
-    }
-    
-    // 게임 정보 검증
-    private GameInfo checkGameId(int gameId) {
-        GameInfo gameInfo =  gameInfoRepository.findById(gameId)
-                .orElseThrow(() -> new GameException(GameErrorCode.DEBATE_NOT_FOUND));
-
-        if(gameId != gameInfo.getGameId())
-            throw new GameException(GameErrorCode.BAD_REQUEST);
-
-        return gameInfo;
+    // 토론 방 검색
+    private Debate getDebate(int debateId) {
+        return debateRepository.findById(debateId)
+                .orElseThrow(() -> new DebateException(DebateErrorCode.NOT_EXIST_DEBATE_ROOM_ERROR));
     }
 
-    // 플레이어 검증
-    private List<Member> checkPlayers(List<Object> teamAList, List<Object> teamBList) {
-        List<Member> players;
-        List<Object> mergedList = new ArrayList<>(teamAList);
-        mergedList.addAll(teamBList);
+    // 게임 정보 저장 및 검증
+    @Transactional
+    public GameInfo addGameInfo(String keywordA, String keywordB, int mvpMemberId) {
+        GameInfo gameInfo = GameInfo.builder()
+                .keyword(keywordA + "_" + keywordB)
+                .mvpMemberId(mvpMemberId)
+                .build();
 
-        // DB에서 데이터 가져오기
-        try {
-            players = memberRepository.findAllById(mergedList);
-        } catch(Exception e) {
-            throw new GameException(GameErrorCode.MEMBER_NOT_FOUND);
-        }
+        GameInfo savedGameInfo = gameInfoRepository.save(gameInfo);
+        if(!gameInfo.getKeyword().equals(savedGameInfo.getKeyword())
+                || gameInfo.getMvpMemberId()!= savedGameInfo.getMvpMemberId())
+            throw new GameInfoException(GameInfoErrorCode.GAME_INFO_MISMATCH);
 
-        for(Member player : players) {
-            if(!mergedList.contains(player.getId()))
-                throw new GameException(GameErrorCode.BAD_REQUEST);
-        }
-
-        return players;
+        return savedGameInfo;
     }
-
 
     // === Redis ===
-    // Redis 내에서 정산에 필요한 데이터 얻기
-    private AddRecordRedisResponseDto getRedisGameResponseDto(int debateId) {
-        List<Integer> teamAList;
-        List<Integer> teamBList;
-        List<Integer> jurorList;
-        List<Integer> viewerList;
-        Map<Integer, Integer> mvpMap;
+    // Redis 내에서 공개방 정산에 필요한 데이터 얻기
+    private PublicGameRedisResponseDto getPublicGameRedisResponseDto(int debateId) {
+        List<Object> teamAList;
+        List<Object> teamBList;
+        List<Object> jurorList;
+        List<Object> viewerList;
+        Map<Object, Object> mvpMap;
         int teamAVoteNum;
         int teamBVoteNum;
-        String keyword1;
-        String keyword2;
+        String keywordA;
+        String keywordB;
 
-//        teamAList = redisUtil.getListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.TEAM_A_LIST));
-//        teamBList = redisUtil.getListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.TEAM_B_LIST));
-//        jurorList = redisUtil.getListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.JUROR_LIST));
-//        viewerList = redisUtil.getListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.VIEWER_LIST));
-//        mvpMap = redisUtil.getListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.MVP));
+        teamAList = redisUtil.getListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.TEAM_A_LIST));
+        teamBList = redisUtil.getListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.TEAM_B_LIST));
+        jurorList = redisUtil.getListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.JUROR_LIST));
+        viewerList = redisUtil.getListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.VIEWER_LIST));
+        mvpMap = redisUtil.getMapData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.MVP));
         teamAVoteNum = redisUtil.getIntegerData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.VOTE_TEAM_A));
         teamBVoteNum = redisUtil.getIntegerData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.VOTE_TEAM_B));
-        keyword1 = redisUtil.getData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.KEY_WORD1));
-        keyword2 = redisUtil.getData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.KEY_WORD2));
+        keywordA = redisUtil.getData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.KEY_WORD_A));
+        keywordB = redisUtil.getData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.KEY_WORD_B));
 
-        return AddRecordRedisResponseDto.builder()
-//                .teamAList(teamAList)
-//                .teamBList(teamBList)
-//                .jurorList(jurorList)
-//                .viewerList(viewerList)
-//                .mvpMap(mvpMap)
+        return PublicGameRedisResponseDto.builder()
+                .teamAList(teamAList)
+                .teamBList(teamBList)
+                .jurorList(jurorList)
+                .viewerList(viewerList)
+                .mvpMap(mvpMap)
                 .teamAVoteNum(teamAVoteNum)
                 .teamBVoteNum(teamBVoteNum)
-                .keyword1(keyword1)
-                .keyword2(keyword2)
+                .keywordA(keywordA)
+                .keywordB(keywordB)
                 .build();
-    }
-    
-    // Redis에서 더 이상 쓰지 않는 데이터 삭제
-    public void deleteRedisDebateData(int debateId) {
-        List<String> keys = new ArrayList<>();
-        for (DebateRedisKey key : DebateRedisKey.values()) {
-            keys.add(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, key));
-        }
-
-        redisUtil.deleteDataAll(keys);
     }
 
     // === 편의 메서드 ===
     // 저장할 전적 반환
     private List<Record> getInputRecords(List<Object> teamAList, List<Object> teamBList, GameInfo gameInfo, WinnerTeam winnerTeam) {
         List<Record> records = new ArrayList<>();
-        List<Member> players;
+        List<Integer> players = new ArrayList<>();
+        List<Member> savedPlayers;
         Result resultA;
         Result resultB;
 
@@ -187,10 +176,13 @@ public class RecordService {
         }
 
         // DB에서 멤버 검색
-        players = checkPlayers(teamAList, teamBList);
+        for(Object id : teamAList) players.add((int) id);
+        for(Object id : teamBList) players.add((int) id);
+        savedPlayers = memberRepository.findAllByIdIn(players)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
 
         // 레코드 추가
-        for(Member player: players) {
+        for(Member player : savedPlayers) {
             records.add(Record.builder()
                             .member(player)
                             .gameInfo(gameInfo)
@@ -218,12 +210,22 @@ public class RecordService {
 
         // keys를 순회하며 mvpList에 저장
         int maxVoteNum = voteResultMap.get(keys.get(0));
-        for(Object key : keys) {
-            if((int) voteResultMap.get(key) < maxVoteNum) break;
-            mvpList.add(Integer.parseInt(key.toString().split(":")[1]));
+
+        // MVP 리스트
+        if(maxVoteNum > 0) {
+            for(int key : keys) {
+                if(voteResultMap.get(key) < maxVoteNum) break;
+                mvpList.add(key);
+            }
         }
 
         return mvpList;
+    }
+
+    // MVP 포인트 도출
+    private int getMvpPoint(List<Integer> mvpList) {
+        int size = mvpList.size();
+        return size==0 ? 0 : GameService.MVP_POINT /size;
     }
 
     // 승리 팀 도출
