@@ -2,10 +2,7 @@ package com.a708.drwa.member.controller;
 
 import com.a708.drwa.member.dto.SocialAuthURLResponse;
 import com.a708.drwa.member.dto.SocialLoginResponse;
-import com.a708.drwa.member.dto.SocialUserInfoResponse;
 import com.a708.drwa.member.service.MemberService;
-import com.a708.drwa.member.service.SocialLoginService;
-import com.a708.drwa.member.type.SocialType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -48,29 +45,16 @@ public class MemberController {
      */
     @GetMapping("/login/{socialType}")
     public ResponseEntity<?> socialLogin(@PathVariable String socialType, @RequestParam String code) throws UnsupportedEncodingException {
-        SocialLoginService socialLoginService = memberService.getSocialLoginService(socialType);
-
-        // 지원하지 않는 소셜 로그인 타입
-        if (socialLoginService == null) {
+        try {
+            // 소셜 로그인 타입에 따른 액세스 토큰 반환
+            SocialLoginResponse socialLoginResponse = memberService.processSocialLogin(socialType, code);
+            return ResponseEntity.ok(socialLoginResponse);
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Unsupported social login type");
+        } catch (Exception e) {
+            log.error("Error during social login: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
         }
-
-        // 액세스 토큰 반환
-        String accessToken = socialLoginService.getAccessToken(code);
-
-        log.info("accessToken: {}", accessToken);
-
-        // 액세스 토큰으로부터 사용자 정보를 반환한다.
-        SocialUserInfoResponse socialUserInfoResponse = socialLoginService.getUserInfo(accessToken);
-
-        // 소셜로그인 타입 설정
-        socialUserInfoResponse.setSocialType(SocialType.fromString(socialType));
-
-        // 소셜 로그인 처리
-        SocialLoginResponse socialLoginResponse = memberService.handleSocialLogin(socialUserInfoResponse);
-
-        // 응답 DTO 반환
-        return new ResponseEntity<SocialLoginResponse>(socialLoginResponse, null, HttpStatus.OK);
     }
 
 
