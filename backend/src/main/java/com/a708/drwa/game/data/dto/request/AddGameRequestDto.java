@@ -7,5 +7,4 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AddRecordRequestDto {
     private int debateId;
-    private int gameId;
 }

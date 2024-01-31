@@ -99,9 +99,9 @@ public class RecordService {
     }
 
     // 플레이어 검증
-    private List<Member> checkPlayers(List<Integer> teamAList, List<Integer> teamBList) {
+    private List<Member> checkPlayers(List<Object> teamAList, List<Object> teamBList) {
         List<Member> players;
-        List<Integer> mergedList = new ArrayList<>(teamAList);
+        List<Object> mergedList = new ArrayList<>(teamAList);
         mergedList.addAll(teamBList);
 
         // DB에서 데이터 가져오기
@@ -130,7 +130,8 @@ public class RecordService {
         Map<Integer, Integer> mvpMap;
         int teamAVoteNum;
         int teamBVoteNum;
-        String keyword;
+        String keyword1;
+        String keyword2;
 
 //        teamAList = redisUtil.getListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.TEAM_A_LIST));
 //        teamBList = redisUtil.getListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.TEAM_B_LIST));
@@ -139,7 +140,8 @@ public class RecordService {
 //        mvpMap = redisUtil.getListData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.MVP));
         teamAVoteNum = redisUtil.getIntegerData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.VOTE_TEAM_A));
         teamBVoteNum = redisUtil.getIntegerData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.VOTE_TEAM_B));
-        keyword = redisUtil.getData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.KEY_WORD));
+        keyword1 = redisUtil.getData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.KEY_WORD1));
+        keyword2 = redisUtil.getData(redisKeyUtil.getKeyByDebateIdWithKeyword(debateId, DebateRedisKey.KEY_WORD2));
 
         return AddRecordRedisResponseDto.builder()
 //                .teamAList(teamAList)
@@ -149,7 +151,8 @@ public class RecordService {
 //                .mvpMap(mvpMap)
                 .teamAVoteNum(teamAVoteNum)
                 .teamBVoteNum(teamBVoteNum)
-                .keyword(keyword)
+                .keyword1(keyword1)
+                .keyword2(keyword2)
                 .build();
     }
     
@@ -165,8 +168,9 @@ public class RecordService {
 
     // === 편의 메서드 ===
     // 저장할 전적 반환
-    private List<Record> getInputRecords(List<Integer> teamAList, List<Integer> teamBList, GameInfo gameInfo, WinnerTeam winnerTeam) {
+    private List<Record> getInputRecords(List<Object> teamAList, List<Object> teamBList, GameInfo gameInfo, WinnerTeam winnerTeam) {
         List<Record> records = new ArrayList<>();
+        List<Member> players;
         Result resultA;
         Result resultB;
 
@@ -183,7 +187,7 @@ public class RecordService {
         }
 
         // DB에서 멤버 검색
-        List<Member> players = checkPlayers(teamAList, teamBList);
+        players = checkPlayers(teamAList, teamBList);
 
         // 레코드 추가
         for(Member player: players) {
@@ -198,7 +202,7 @@ public class RecordService {
     }
 
     // MVP 도출
-    public List<Integer> getMvpList(Map<Integer, Integer> mvpMap) {
+    public List<Integer> getMvpList(Map<Object, Object> mvpMap) {
         Map<Integer, Integer> voteResultMap = new HashMap<>();
         List<Integer> mvpList = new ArrayList<>();
 
@@ -206,7 +210,7 @@ public class RecordService {
         if(mvpMap.keySet().isEmpty()) return mvpList;
 
         // mvpMap을 순회하며 투표 결과 합산
-        mvpMap.forEach((k, v) -> voteResultMap.put(v, voteResultMap.getOrDefault(v, 0) + 1));
+        mvpMap.forEach((k, v) -> voteResultMap.put((int) v, voteResultMap.getOrDefault((int) v, 0) + 1));
 
         // mvpMap의 key 값을 value 내림차순으로 정렬
         List<Integer> keys = new ArrayList<>(voteResultMap.keySet());
@@ -214,9 +218,9 @@ public class RecordService {
 
         // keys를 순회하며 mvpList에 저장
         int maxVoteNum = voteResultMap.get(keys.get(0));
-        for(int key : keys) {
-            if(voteResultMap.get(key) < maxVoteNum) break;
-            mvpList.add(key);
+        for(Object key : keys) {
+            if((int) voteResultMap.get(key) < maxVoteNum) break;
+            mvpList.add(Integer.parseInt(key.toString().split(":")[1]));
         }
 
         return mvpList;
