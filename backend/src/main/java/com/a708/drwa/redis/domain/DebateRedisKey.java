@@ -26,7 +26,8 @@ public enum DebateRedisKey {
     // 관전자 리스트
     VIEWER_LIST(":viewerList"),
     // 제시어
-    KEY_WORD(":keyWord"),
+    LEFT_KEYWORD(":leftKeyword"),
+    RIGHT_KEYWORD(":rightKeyword"),
     // 페이즈
     PHASE(":phase"),
     // 현재 발언자
@@ -37,6 +38,8 @@ public enum DebateRedisKey {
     VOTE_TEAM_A(":voteTeamA"),
     // B팀 투표율
     VOTE_TEAM_B(":voteTeamB"),
+    // 시작 시간
+    START_TIME("startTime"),
     ;
 
     private final String string;
