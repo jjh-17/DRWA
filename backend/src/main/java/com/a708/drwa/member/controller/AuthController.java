@@ -1,21 +1,13 @@
 package com.a708.drwa.member.controller;
 
 import com.a708.drwa.member.dto.AuthDto;
-import com.a708.drwa.member.exception.TokenValidationException;
 import com.a708.drwa.member.service.AuthService;
-import com.a708.drwa.member.util.JWTUtil;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.Map;
-
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -32,17 +24,11 @@ public class AuthController {
      */
     @PostMapping("/silent-refresh")
     public ResponseEntity<?> silentRefresh(@RequestBody String userId) {
-        try {
             // silentRefreshProcess() 메소드를 통해 새로운 액세스 토큰을 발급받는다.
             String newAccessToken  = authService.silentRefreshProcess(userId);
             // 새로 발급한 액세스 토큰을 AuthDto 객체에 담아서 반환한다.
             AuthDto authDto = new AuthDto(userId, newAccessToken);
             return ResponseEntity.ok(authDto);
-        } catch (TokenValidationException e) { // 토큰 검증 실패 시
-            return ResponseEntity.status(e.getHttpStatus()).body(e.getMessage());
-        } catch (Exception e) { // 기타 에러 발생 시
-            return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
 

@@ -1,10 +1,10 @@
 package com.a708.drwa.member.service;
 
-import com.a708.drwa.member.exception.TokenValidationException;
+import com.a708.drwa.member.exception.MemberErrorCode;
+import com.a708.drwa.member.exception.MemberException;
 import com.a708.drwa.member.util.JWTUtil;
 import com.a708.drwa.redis.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 /**
@@ -39,13 +39,13 @@ public class AuthService {
         // 리프레시 토큰이 없는 경우
         if (refreshToken == null) {
             // 401 Unauthorized 에러를 발생시킨다.
-            throw new TokenValidationException("Refresh token not found", HttpStatus.UNAUTHORIZED);
+            throw new MemberException(MemberErrorCode.TOKEN_NOT_FOUND);
         }
 
         // 리프레시 토큰이 유효한지 검사한다.
         if (!jwtUtil.validCheck(refreshToken)) {
             // 리프레시 토큰이 유효하지 않으면 403 Forbidden 에러를 발생시킨다.
-            throw new TokenValidationException("Invalid refresh token", HttpStatus.FORBIDDEN);
+            throw new MemberException(MemberErrorCode.INVALID_TOKEN);
         }
 
         // 새로운 액세스 토큰을 발급한다.

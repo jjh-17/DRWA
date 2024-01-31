@@ -7,7 +7,9 @@ import lombok.Getter;
 public enum MemberErrorCode implements ErrorCode {
 
     EXAMPLE_ERROR_CODE(400, "MEMBER_01", "예시용 에러코드입니다. 상태코드, DOMAIN_##, 메세지 형식으로 만들어주세요."),
-    MEMBER_NOT_FOUND(404, "MEMBER_01", "해당 유저를 찾을 수 없습니다.")
+    TOKEN_NOT_FOUND(401, "TOKEN_NOT_FOUND", "토큰이 존재하지 않습니다."),
+    INVALID_TOKEN(403, "INVALID_TOKEN", "유효하지 않은 토큰입니다."),
+    MEMBER_NOT_FOUND(404, "MEMBER_NOT_FOUND", "해당 유저를 찾을 수 없습니다.")
 
     ;
     private final int statusCode;
