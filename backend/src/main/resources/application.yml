@@ -23,8 +23,6 @@ spring:
         format_sql: true
         use_sql_comments: true
         show_sql: true
-    defer-datasource-initialization: true # data.sql 사용
-
 
 # swagger 설정
 springdoc:

@@ -75,7 +75,7 @@ public class MemberService {
         String jwtRefreshToken = jwtUtil.createRefreshToken(member.getUserId());
 
         // Redis에 리프레시 토큰 저장
-        redisUtil.setData(member.getUserId(), jwtRefreshToken, refreshTokenExpireTime);
+        redisUtil.set(member.getUserId(), jwtRefreshToken, refreshTokenExpireTime);
 
         // 응답 DTO 반환
         return new SocialLoginResponse(member.getUserId(), jwtAccessToken);

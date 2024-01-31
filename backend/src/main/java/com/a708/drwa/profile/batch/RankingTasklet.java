@@ -18,12 +18,12 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class RankTasklet implements Tasklet {
+public class RankingTasklet implements Tasklet {
     private final ProfileRepository profileRepository;
     @Override
     @Transactional
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        log.info("Rank Update Step Start");
+        log.info("Ranking Update Step Start");
 
         List<RankingMember> allRankingMembers = (List<RankingMember>) contribution
                 .getStepExecution()
@@ -43,9 +43,7 @@ public class RankTasklet implements Tasklet {
             matchingProfile.ifPresent(profile -> profile.updatePoint(rankingMember.getPoint()));
         }
 
-
         log.info("Rank Update Step End");
-
         return RepeatStatus.FINISHED;
     }
 }
