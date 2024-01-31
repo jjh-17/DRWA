@@ -43,6 +43,12 @@ logging:
       hibernate:
         sql: debug
 
+logging:
+  level:
+    org:
+      hibernate:
+        sql: debug
+
 # swagger 설정
 springdoc:
   default-consumes-media-type: application/json
