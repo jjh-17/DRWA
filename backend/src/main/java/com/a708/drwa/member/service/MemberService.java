@@ -117,4 +117,24 @@ public class MemberService {
                     null;
         };
     }
+
+    /**
+     * 회원탈퇴 처리
+     * @param userId : 사용자 아이디
+     */
+    public void deleteMember(String userId) {
+        // 사용자 정보 DB에서 삭제
+    	memberRepository.deleteByUserId(userId);
+
+        // Redis에서 리프레시 토큰 삭제
+        redisUtil.deleteData(userId);
+    }
+
+    /**
+     * 리프레시 토큰 삭제
+     * @param userId
+     */
+    public void deleteRefreshToken(String userId) {
+    	redisUtil.deleteData(userId);
+    }
 }
