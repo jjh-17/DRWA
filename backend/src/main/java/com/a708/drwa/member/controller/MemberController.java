@@ -29,24 +29,15 @@ public class MemberController {
      * @return : 인증 URL
      */
     @GetMapping("/authURL/{socialType}")
-    public ResponseEntity<SocialAuthURLResponse> getAuthURL(@PathVariable String socialType) {
-        // 소셜 로그인 서비스
-        SocialLoginService socialLoginService = memberService.getSocialLoginService(socialType);
-        // 응답 DTO
-        SocialAuthURLResponse socialAuthURLResponse = new SocialAuthURLResponse();
-
-        // 지원하지 않는 소셜 로그인 타입
-        if (socialLoginService == null) {
-            // 응답 DTO에 에러 메시지 저장
-            socialAuthURLResponse.setErrorMessage("Unsupported social login type");
-            // 400 Bad Request 반환
-            return ResponseEntity.badRequest().body(socialAuthURLResponse);
+    public ResponseEntity<?> getAuthURL(@PathVariable String socialType) {
+        try {
+            // 소셜 로그인 타입에 따른 인증 URL 반환
+            String authorizationUrl = memberService.getAuthorizationUrl(socialType);
+            return ResponseEntity.ok(new SocialAuthURLResponse(authorizationUrl));
+        } catch (IllegalArgumentException e) {
+            // 지원하지 않는 소셜 로그인 타입
+            return ResponseEntity.badRequest().body("Unsupported social login type");
         }
-
-        // 인증 URL 생성
-        String authorizationUrl = socialLoginService.getAuthorizationUrl();
-        socialAuthURLResponse.setAuthorizationUrl(authorizationUrl);
-        return ResponseEntity.ok(socialAuthURLResponse);
     }
 
     /**
