@@ -15,11 +15,11 @@ const showDialog = ref(false);
 <template>
     <q-toolbar class="bg-purple glossy text-white">
         <!-- 메뉴 버튼 -->
-        <q-btn flat round dense icon="menu" class="q-mr-sm" />
+        <!-- <q-btn flat round dense icon="menu" class="q-mr-sm" /> -->
 
         <!-- 로고 및 랭킹 버튼 -->
         <q-avatar class="q-mr-sm">
-            <img src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg">
+            <img src="src\assets\img\logo.png">
         </q-avatar>
         <q-btn flat label="랭킹" class="text-white q-mr-sm" />
 
