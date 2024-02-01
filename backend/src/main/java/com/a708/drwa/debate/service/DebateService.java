@@ -106,12 +106,16 @@ public class DebateService {
             switch (phaseCol) {
                 case 0:
                     speakPhase(debateKey, phaseRow, DebateRedisKey.TEAM_A);
+                    break;
                 case 2:
                     speakPhase(debateKey, phaseRow, DebateRedisKey.TEAM_B);
+                    break;
                 case 1:
                 case 3:
                     qnaPhase(debateKey);
-
+                    break;
+                default:
+                    throw new DebateException(DebateErrorCode.INTERNAL_ERROR);
             }
         }
 
@@ -157,47 +161,50 @@ public class DebateService {
         DebateMembers debateMembers = (DebateMembers) hash.get(key, DebateRedisKey.DEBATE_MEMBER_LIST);
 
         // 발언자 결정
-        if(HKey)
-        DebateMember currentSpeakingMember = debateMembers.
-        String currentSpeakingUserNickname = "";
-        String currentSpeakingTeam = "";
-
-        if (currentPhaseDetail == 1) {
-            currentSpeakingTeam = "LEFT";
-            currentSpeakingUserNickname = leftUserList.get(currentPhase - 1);
-        } else if (currentPhaseDetail == 2) {
-            currentSpeakingTeam = "RIGHT";
-            currentSpeakingUserNickname = rightUserList.get(currentPhase - 1);
-        }
-
-
-        String currentSpeakingUserKey = redisKeyUtil.currentSpeakingUserKey(roomId);
-        String currentSpeakingTeamKey = redisKeyUtil.currentSpeakingTeamKey(roomId);
-
-        redisTemplate.opsForValue().set(currentSpeakingUserKey, currentSpeakingUserNickname);
-        redisTemplate.opsForValue().set(currentSpeakingTeamKey, currentSpeakingTeam);
-
-        String roomChannelKey = redisChannelUtil.roomChannelKey(roomId);
-
-        String phaseStartAllInOneMessage = redisMessageUtil.speakPhaseStartMessage(currentPhase, currentPhaseDetail, currentSpeakingTeam, currentSpeakingUserNickname);
-        redisPublisher.publishMessage(roomChannelKey, phaseStartAllInOneMessage);
-
-        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-
-        ScheduledFuture<?> future = executorService.schedule(new Runnable() {
-            @Override
-            public void run() {
-
-                redisTemplate.opsForValue().set(currentSpeakingTeamKey, "");
-                redisTemplate.opsForValue().set(currentSpeakingUserKey, "");
-
-                nextPhase(roomId);
-            }
-        }, 180, TimeUnit.SECONDS);
-        // 테스트용 10초 실제 서비스 180초
-        scheduledFutures.put(roomId + "_speakingPhase", future);
+//        if(HKey)
+//        DebateMember currentSpeakingMember = debateMembers.
+//        String currentSpeakingUserNickname = "";
+//        String currentSpeakingTeam = "";
+//
+//        if (currentPhaseDetail == 1) {
+//            currentSpeakingTeam = "LEFT";
+//            currentSpeakingUserNickname = leftUserList.get(currentPhase - 1);
+//        } else if (currentPhaseDetail == 2) {
+//            currentSpeakingTeam = "RIGHT";
+//            currentSpeakingUserNickname = rightUserList.get(currentPhase - 1);
+//        }
+//
+//
+//        String currentSpeakingUserKey = redisKeyUtil.currentSpeakingUserKey(roomId);
+//        String currentSpeakingTeamKey = redisKeyUtil.currentSpeakingTeamKey(roomId);
+//
+//        redisTemplate.opsForValue().set(currentSpeakingUserKey, currentSpeakingUserNickname);
+//        redisTemplate.opsForValue().set(currentSpeakingTeamKey, currentSpeakingTeam);
+//
+//        String roomChannelKey = redisChannelUtil.roomChannelKey(roomId);
+//
+//        String phaseStartAllInOneMessage = redisMessageUtil.speakPhaseStartMessage(currentPhase, currentPhaseDetail, currentSpeakingTeam, currentSpeakingUserNickname);
+//        redisPublisher.publishMessage(roomChannelKey, phaseStartAllInOneMessage);
+//
+//        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+//
+//        ScheduledFuture<?> future = executorService.schedule(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//                redisTemplate.opsForValue().set(currentSpeakingTeamKey, "");
+//                redisTemplate.opsForValue().set(currentSpeakingUserKey, "");
+//
+//                nextPhase(roomId);
+//            }
+//        }, 180, TimeUnit.SECONDS);
+//        // 테스트용 10초 실제 서비스 180초
+//        scheduledFutures.put(roomId + "_speakingPhase", future);
     }
 
+    private void qnaPhase(String debateKey) {
+
+    }
 
     public Boolean isExistDebate(DebateJoinRequestDto debateJoinRequestDto) {
         // 존재하지 않는 방일 경우
