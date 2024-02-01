@@ -11,10 +11,10 @@ import com.a708.drwa.member.service.Impl.KakaoLoginServiceImpl;
 import com.a708.drwa.member.service.Impl.NaverLoginServiceImpl;
 import com.a708.drwa.member.type.SocialType;
 import com.a708.drwa.member.util.JWTUtil;
-import com.a708.drwa.redis.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +28,7 @@ public class MemberService {
     private final NaverLoginServiceImpl naverLoginService;
     private final KakaoLoginServiceImpl kakaoLoginService;
     private final JWTUtil jwtUtil;
-    private final RedisUtil redisUtil;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Value("${jwt.refreshtoken.expiretime}")
     private Long refreshTokenExpireTime;
@@ -75,7 +75,7 @@ public class MemberService {
         String jwtRefreshToken = jwtUtil.createRefreshToken(member.getUserId());
 
         // Redis에 리프레시 토큰 저장
-        redisUtil.set(member.getUserId(), jwtRefreshToken, refreshTokenExpireTime);
+        redisTemplate.opsForValue().set(member.getUserId(), jwtRefreshToken, refreshTokenExpireTime);
 
         // 응답 DTO 반환
         return new SocialLoginResponse(member.getUserId(), jwtAccessToken);
@@ -125,7 +125,7 @@ public class MemberService {
     	memberRepository.deleteByUserId(userId);
 
         // Redis에서 리프레시 토큰 삭제
-        redisUtil.deleteData(userId);
+        redisTemplate.delete(userId);
     }
 
     /**
@@ -133,6 +133,10 @@ public class MemberService {
      * @param userId
      */
     public void deleteRefreshToken(String userId) {
-    	redisUtil.deleteData(userId);
+        boolean exists = Boolean.TRUE.equals(redisTemplate.hasKey(userId));
+        if (!exists) {
+            throw new MemberException(MemberErrorCode.TOKEN_NOT_FOUND);
+        }
+        redisTemplate.delete(userId);
     }
 }
