@@ -1,4 +1,4 @@
-package com.a708.drwa.debate.data.dto;
+package com.a708.drwa.debate.data;
 
 import lombok.*;
 import org.springframework.beans.factory.annotation.Autowired;
