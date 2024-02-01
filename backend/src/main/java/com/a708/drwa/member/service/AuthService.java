@@ -3,7 +3,6 @@ package com.a708.drwa.member.service;
 import com.a708.drwa.member.exception.MemberErrorCode;
 import com.a708.drwa.member.exception.MemberException;
 import com.a708.drwa.member.util.JWTUtil;
-import com.a708.drwa.redis.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
