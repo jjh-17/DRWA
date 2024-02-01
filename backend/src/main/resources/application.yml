@@ -1,28 +1,35 @@
-# test 환경 따로 만들 경우 사용
-#spring:
-#  profiles:
-#    active: test
-#---
 spring:
   config:
     import:
       - security/application-database.yml
       - security/application-key.yml
-      - security/application-security.yml
 
-  # redis cache 사용
-  cache:
-    type: redis
-
-  # JPA 관련 설정
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         format_sql: true
         use_sql_comments: true
         show_sql: true
+
+  data:
+    elasticsearch:
+      client:
+        # Elasticsearch의 REST 클라이언트 구성
+        rest:
+          uris: "http://localhost:9200" # Elasticsearch 서버의 URL
+#          username: "elastic" # 기본 사용자 이름 (필요한 경우)
+#          password: "password" # 기본 비밀번호 (필요한 경우)
+        redis:
+          host: localhost # Redis 서버 호스트
+          port: 6379 # Redis 서버 포트
+#          password: "" # Redis 비밀번호 (필요한 경우)
+          lettuce:
+            pool:
+              max-active: 10 # 동시에 사용할 수 있는 최대 연결 수
+              max-idle: 5 # 풀에서 유지할 수 있는 최대 유휴 연결 수
+              min-idle: 1 # 풀에서 유지할 수 있는 최소 유휴 연결 수
 
 # swagger 설정
 springdoc:
