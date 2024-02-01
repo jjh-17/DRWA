@@ -105,7 +105,7 @@ class RankingServiceTest {
                 .nickname(nickname)
                 .winRate(winRate)
                 .rankName(rankName)
-                .title(rankName + "칭호")
+//                .title(rankName + "칭호")
                 .point(point)
                 .build();
         rankMemberRedisTemplate.opsForZSet().add(REDIS_KEY, rankingMember, -rankingMember.getPoint());
