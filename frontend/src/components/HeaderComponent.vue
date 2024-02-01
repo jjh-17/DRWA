@@ -51,9 +51,9 @@ const showDialog = ref(false);
 
                 <q-card-section class="q-pt-none">
                     <div class="text-h6 text-center q-mb-md">소셜 로그인</div>
-                    <q-btn color="red" icon="favorite" label="구글 로그인" class="full-width q-mb-md" />
-                    <q-btn color="green" icon="forest" label="네이버 로그인" class="full-width q-mb-md" />
-                    <q-btn color="yellow" icon="emoji_people" label="카카오 로그인" class="full-width" />
+                    <img class="login-btn" src="src\assets\img\google_login_btn.png">
+                    <img class="login-btn" src="src\assets\img\naver_login_btn.png">
+                    <img class="login-btn" src="src\assets\img\kakao_login_btn.png">
                 </q-card-section>
             </q-card>
         </q-dialog>
@@ -69,5 +69,10 @@ const showDialog = ref(false);
 
 .search-input {
     width: 100%;
+}
+
+.login-btn {
+    width: 100%;
+    margin-bottom: 10px;
 }
 </style>
