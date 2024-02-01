@@ -106,12 +106,16 @@ public class DebateService {
             switch (phaseCol) {
                 case 0:
                     speakPhase(debateKey, phaseRow, DebateRedisKey.TEAM_A);
+                    break;
                 case 2:
                     speakPhase(debateKey, phaseRow, DebateRedisKey.TEAM_B);
+                    break;
                 case 1:
                 case 3:
                     qnaPhase(debateKey);
-
+                    break;
+                default:
+                    throw new DebateException(DebateErrorCode.INTERNAL_ERROR);
             }
         }
 
@@ -198,6 +202,9 @@ public class DebateService {
         scheduledFutures.put(roomId + "_speakingPhase", future);
     }
 
+    private void qnaPhase(String debateKey) {
+
+    }
 
     public Boolean isExistDebate(DebateJoinRequestDto debateJoinRequestDto) {
         // 존재하지 않는 방일 경우
