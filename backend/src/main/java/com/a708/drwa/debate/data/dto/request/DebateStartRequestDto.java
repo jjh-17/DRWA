@@ -1,7 +1,7 @@
 package com.a708.drwa.debate.data.dto.request;
 
-import com.a708.drwa.debate.data.dto.DebateMemberDto;
-import com.a708.drwa.debate.data.dto.RoomInfo;
+import com.a708.drwa.debate.data.DebateMember;
+import com.a708.drwa.debate.data.RoomInfo;
 import lombok.*;
 
 import java.util.HashMap;
@@ -13,5 +13,5 @@ import java.util.HashMap;
 public class DebateStartRequestDto {
     private int debateId;
     private RoomInfo roomInfo;
-    private HashMap<Integer, DebateMemberDto> memberDtoHashMap;
+    private HashMap<Integer, DebateMember> memberDtoHashMap;
 }
