@@ -25,13 +25,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
 	//elasticsearch
-	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
-//	implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.16.0'
-//	implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:8.12.0'
-//	implementation 'org.elasticsearch.client:elasticsearch-rest-client:7.16.0'
-//	implementation 'org.elasticsearch.client:elasticsearch-rest-client:8.12.0'
-	implementation 'co.elastic.clients:elasticsearch-java:8.12.0'
-	implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.0-rc1'
+	implementation 'org.elasticsearch.client:elasticsearch-java:8.11.3'
 
 	// websocket
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
@@ -48,17 +42,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 
 	// oauth
-//	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
 	// JWT
-//	implementation 'com.auth0:java-jwt:4.4.0'
-	implementation 'io.jsonwebtoken:jjwt:0.9.1'
-	implementation 'com.googlecode.json-simple:json-simple:1.1.1'
-	implementation 'javax.xml.bind:jaxb-api:2.3.1'
-
-
-	// properties auto complete (configurationProperties)
-	implementation 'org.springframework.boot:spring-boot-configuration-processor'
+	implementation 'com.auth0:java-jwt:4.4.0'
 
 
 	////////////////// DB ///////////////////
@@ -70,7 +57,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
 	// queryDSL
-//	implementation 'com.querydsl:querydsl-jpa:'
+	implementation 'com.querydsl:querydsl-jpa:'
 
 	// redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
@@ -82,47 +69,11 @@ dependencies {
 	// swagger
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 
-	// batch
-	implementation 'org.springframework.boot:spring-boot-starter-batch'
-
-	// batch-test
-	testImplementation 'org.springframework.batch:spring-batch-test'
-
 	// test
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
-
-	////////////////// QueryDsl ///////////////////
-	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
-	annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
-
-	implementation "com.querydsl:querydsl-core"
-	implementation "com.querydsl:querydsl-collections"
-
-	annotationProcessor "jakarta.annotation:jakarta.annotation-api"		// java.lang.NoClassDefFoundError (javax.annotation.Generated) 에러 대응 코드
-	annotationProcessor "jakarta.persistence:jakarta.persistence-api"	// java.lang.NoClassDefFoundError (javax.annotation.Entity) 에러 대응 코드
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
-}
-
-////////////////// QueryDsl ///////////////////
-// queryDsl 빌드 옵션(선택)
-def generated = 'src/main/generated'
-
-// queryDsl QClass 파일 생성 위치
-tasks.withType(JavaCompile) {
-	options.getGeneratedSourceOutputDirectory().set(file(generated))
-}
-
-// java source set 에 querydsl QClass 위치 추가
-sourceSets {
-	main.java.srcDirs += [ generated ]
-}
-
-// gradle clean 시에 QClass 디렉토리 삭제
-clean {
-	delete file(generated)
 }
