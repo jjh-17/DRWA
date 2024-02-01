@@ -3,14 +3,16 @@ package com.a708.drwa.member.service;
 import com.a708.drwa.member.exception.MemberErrorCode;
 import com.a708.drwa.member.exception.MemberException;
 import com.a708.drwa.member.util.JWTUtil;
-import com.a708.drwa.redis.util.RedisUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 /**
  * 인증 관련 서비스 구현체
  */
 @Service
+@RequiredArgsConstructor
 public class AuthService {
     @Value("${jwt.accesstoken.expiretime}")
     private int accessTokenExpireTime;
@@ -18,14 +20,9 @@ public class AuthService {
     @Value("${jwt.refreshtoken.expiretime}")
     private int refreshTokenExpireTime;
 
-    private final RedisUtil redisUtil;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final JWTUtil jwtUtil;
 
-    // 생성자를 통해 의존성 주입
-    public AuthService(RedisUtil redisUtil, JWTUtil jwtUtil) {
-        this.redisUtil = redisUtil;
-        this.jwtUtil = jwtUtil;
-    }
 
     /**
      * 리프레시 토큰을 받아서 유효성 검증 후, 새로운 액세스 토큰을 발급한다.
@@ -69,7 +66,7 @@ public class AuthService {
     public void updateRefreshToken(String userId, String refreshToken, long duration) {
         // 사용자 아이디를 키로 리프레시 토큰을 저장한다.
         // setData(키, 값, 저장 기간)
-        redisUtil.setData(userId, refreshToken, duration);
+        redisTemplate.opsForValue().set(userId, refreshToken, duration);
     }
 
     /**
@@ -78,7 +75,7 @@ public class AuthService {
      * @return 리프레시 토큰
      */
     public String getRefreshToken(String userId) {
-        return redisUtil.getData(userId);
+        return (String) redisTemplate.opsForValue().get(userId);
     }
 
 }
