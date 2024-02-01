@@ -15,4 +15,8 @@ public class ProfileResponse {
     private int point;
     private int mvpCount;
     private RankName rankName;
+    private int winCount;
+    private int loseCount;
+    private int tieCount;
+    private int winRate;
 }
