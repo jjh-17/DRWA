@@ -1,20 +1,23 @@
 package com.a708.drwa.redis.util;
 
 import com.a708.drwa.redis.domain.DebateRedisKey;
-import com.a708.drwa.redis.domain.MemberRedisKey;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
 class RedisUtilTest {
+
+    final RedisTemplate<String, Integer> integerRedisTemplate = new RedisTemplate<>();
+    final RedisTemplate<String, String> stringRedisTemplate = new RedisTemplate<>();
 
     @Autowired RedisUtil redisUtil;
     RedisKeyUtil redisKeyUtil = new RedisKeyUtil();
@@ -111,12 +114,28 @@ class RedisUtilTest {
     }
 
     @Test
-    void updateMap() {
-        System.out.println(redisUtil.getData("key"));
-    }
+    void compareSet(){
+        long beforeTime = System.currentTimeMillis();
 
-    @Test
-    void updateList() {
+        //
+        integerRedisTemplate.opsForValue().set("key1", 1, 3, TimeUnit.MINUTES);
+        integerRedisTemplate.opsForValue().set("key2", 2, 3, TimeUnit.MINUTES);
+        stringRedisTemplate.opsForValue().set("key3", "3", 3, TimeUnit.MINUTES);
+
+        integerRedisTemplate.opsForList().rightPushAll("key4", List.of(1, 2, 3));
+        integerRedisTemplate.expire("key4", 3, TimeUnit.MINUTES);
+
+        integerRedisTemplate.opsForHash().putAll("key5", Map.of(
+                "k1", 1,
+                "k2", 2
+        ));
+        integerRedisTemplate.expire("key5", 3, TimeUnit.MINUTES);
+
+        stringRedisTemplate.opsForHash().putAll("key6", Map.of(
+                "k1", 1
+        ));
+        stringRedisTemplate.expire("key6", 3, TimeUnit.MINUTES);
+
 
     }
 }
