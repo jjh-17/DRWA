@@ -1,8 +1,8 @@
 package com.a708.drwa.game.controller;
 
-import com.a708.drwa.game.data.dto.request.AddRecordRequestDto;
-import com.a708.drwa.game.data.dto.response.AddRecordResponseDto;
-import com.a708.drwa.game.service.RecordService;
+import com.a708.drwa.game.data.dto.request.AddGameRequestDto;
+import com.a708.drwa.game.data.dto.response.AddPublicGameResponseDto;
+import com.a708.drwa.game.service.GameService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +16,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/game")
 public class GameController {
 
-    private final RecordService gameService;
+    private final GameService gameService;
 
-    // 게임 정보 저장
-    @PostMapping("/create")
-    public ResponseEntity<AddRecordResponseDto> createGameInfo(@RequestBody AddRecordRequestDto addRecordRequestDto) {
+//    // 사설 토론방 종료 후 전적/게임정보 저장, Redis 수정
+//    @PostMapping("/create/private")
+//    public ResponseEntity<AddPrivateGameResponseDto> createPrivateGame(@RequestBody AddGameRequestDto addGameRequestDto) {
+//        return ResponseEntity
+//                .status(HttpStatus.CREATED)
+//                .body(gameService.addPrivateGame(addGameRequestDto));
+//    }
+
+    // 사설 토론방 종료 후 전적/게임정보 저장, Redis 수정
+    @PostMapping("/create/public")
+    public ResponseEntity<AddPublicGameResponseDto> createPublicGame(@RequestBody AddGameRequestDto addGameRequestDto) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(gameService.addRecord(addRecordRequestDto));
+                .body(gameService.addPublicGame(addGameRequestDto));
     }
 }
