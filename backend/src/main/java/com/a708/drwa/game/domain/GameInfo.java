@@ -35,13 +35,4 @@ public class GameInfo {
         this.mvpMemberId = mvpMemberId;
     }
 
-    // 키워드 수정
-    public void setKeyword(String keyword) {
-        this.keyword = keyword;
-    }
-
-    // MVP 선정 멤버 ID 수정
-    public void setMvpMemberId(int mvpMemberId) {
-        this.mvpMemberId = mvpMemberId;
-    }
 }
