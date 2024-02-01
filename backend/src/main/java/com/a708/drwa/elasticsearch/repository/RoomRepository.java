@@ -1,10 +1,10 @@
-package com.a708.drwa.elasticsearch.repository;
+package com.a708.drwa.room.repository;
 
-import java.util.Optional;
-import com.a708.drwa.elasticsearch.domain.Room;
-import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
+import com.a708.drwa.room.domain.Room;
+import org.springframework.data.repository.CrudRepository;
+import java.util.List;
 
-public interface RoomRepository extends ElasticsearchRepository<Room, String>{
-    Optional<Room> findByTitle(String title);
-    Optional<Room> findByKeyword(String keyword);
+
+public interface RoomRedisRepository extends CrudRepository<Room, String> {
+    List<Room> findByName(String name);
 }
