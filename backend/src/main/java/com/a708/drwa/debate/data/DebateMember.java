@@ -1,4 +1,4 @@
-package com.a708.drwa.debate.data.dto;
+package com.a708.drwa.debate.data;
 
 import com.a708.drwa.debate.enums.Role;
 import lombok.*;
@@ -7,7 +7,8 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Builder
-public class DebateMemberDto {
+public class DebateMember {
     private int memberId;
+    private String nickName;
     private Role role;
 }
