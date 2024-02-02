@@ -1,16 +1,21 @@
 # A708 
+
 # ![캡처-removebg-preview](/uploads/48eb51623a0fd66c4f9834feda6aca61/캡처-removebg-preview.png) Drwa (Debate refined wisdom arena)
+
 ## 토론 게임 서비스
+
 - 재미와 논리적 사고력을 기를 수 있는 다양한 주제의 토론 게임 플랫폼
 
-|팀원|Backend|Frontend|
-|:---|:---:|:---:|
-|김지환|:white_check_mark:|:white_check_mark:|
-|곽민우|:white_check_mark:|:white_check_mark:|
-|이경태|:white_check_mark:|:white_check_mark:|
-|이동현|:white_check_mark:|:white_check_mark:|
-|지준호|:white_check_mark:|:white_check_mark:|
-|차다운|:white_check_mark:|:white_check_mark:|
+## Member
+
+| 팀원   |      Backend       |      Frontend      |
+| :----- | :----------------: | :----------------: |
+| 김지환 | :white_check_mark: | :white_check_mark: |
+| 곽민우 | :white_check_mark: | :white_check_mark: |
+| 이경태 | :white_check_mark: | :white_check_mark: |
+| 이동현 | :white_check_mark: | :white_check_mark: |
+| 지준호 | :white_check_mark: | :white_check_mark: |
+| 차다운 | :white_check_mark: | :white_check_mark: |
 
 ## 📑 프로젝트 개요
 - 진행기간 : 2024.01.08 ~ 2024.02.16 (6주)
@@ -30,19 +35,24 @@ Drwa는 webRTC를 기반으로 한 실시간 화상채팅을 이용한 토론 �
 ## 진행상황
 
 ### 스크럼
-|할 일|월요일|화요일|수요일|목요일|금요일|
-|:---|:---:|:---:|:---:|:---:|:---:|
-|1주차|:white_check_mark:|:white_check_mark:|:white_check_mark:|:white_check_mark:|:white_check_mark:|
-|2주차|:white_check_mark:|:white_check_mark:|:white_check_mark:|:white_check_mark:|:white_check_mark:|
-|3주차|:white_check_mark:|:white_check_mark:|:white_check_mark:|:white_check_mark:|:white_check_mark:|
-|4주차|:white_check_mark:|:white_check_mark:|:white_check_mark:|:white_check_mark:|⬜|
-|5주차|⬜|⬜|⬜|⬜|⬜|
-|6주차|⬜|⬜|⬜|⬜|⬜|
+| 할 일 |       월요일       |       화요일       |       수요일       |       목요일       |       금요일       |
+| :---- | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: |
+| 1주차 | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| 2주차 | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| 3주차 | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| 4주차 | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |         ⬜          |
+| 5주차 |         ⬜          |         ⬜          |         ⬜          |         ⬜          |         ⬜          |
+| 6주차 |         ⬜          |         ⬜          |         ⬜          |         ⬜          |         ⬜          |
 
 ### 팀원별 맡은 기능 / 진행상황
 
 #### Infra - 이경태
-- Jenkins, nginx 연결 후 배포
+
+- [x] DB Server on EC2
+
+- [ ] jenkins CI / CD pipeline 구축
+  - [x] Backend
+  - [ ] Frontend
 
 #### 소셜 로그인 - 곽민우
 - kakao, naver, google
@@ -56,7 +66,20 @@ Drwa는 webRTC를 기반으로 한 실시간 화상채팅을 이용한 토론 �
 - 채널 생성은 아직 X
 
 #### 토론 진행 - 이경태
-- 토론 시작 후 백엔드 요청 및 Redis 통신
+
+- [ ] 토론 시작
+  - [x] 시작 시 방 정보, 참여자 정보 저장
+  - [ ] Redis PUB/SUB으로 방 전체 채널, 각 팀 채널 구독 처리
+  - [x] 데이터 저장 후 준비 단계로 진행
+
+- [ ] 단계 자동 진행
+  - [x] 설정한 시간이 지나면 Scheduler를 이용해 다음 단계로 자동 진행
+  - [ ] Redis PUB/SUB으로 SSE 처리
+
+- [ ] 신고 기능
+
+- [ ] 투표 기능
+  - [ ] 토론 마지막 단계에서 클라이언트의 투표 정보를 계산 후 Redis에 결과 저장 
 
 #### 전적 저장 - 지준호
 - 토론 종료 후 Redis 를 통해 전적에 저장되는 정보만 DB에 저장
@@ -70,4 +93,43 @@ Drwa는 webRTC를 기반으로 한 실시간 화상채팅을 이용한 토론 �
 - 메인페이지 케러셀 - 김지환
 - openvidu session 연결 - 김지환
 
+### 기술 스택
+
+- #### BackEnd
+  - Openjdk17
+  - SpringBoot 3.2.1
+  - Spring Data JPA
+  - Spring Security
+  - QueryDSL
+  - Swagger 3.0.0
+  - jjwt 0.9.1
+
+- #### FrontEnd
+  - Vue3
+  - Axios
+  -  
+  -  
+  -  
+
+- #### Database
+  - MySQL 8.3.0
+  - Redis 7.2.4
+
+- #### Infra
+  - Docker 25.0.0
+  - Jenkins 2.426.2
+  - Nginx 1.18.0
+  - AWS EC2
+
+#### Project Architecture
+
+![아키텍쳐](./documents/architecture/아키텍쳐.png)
+
+#### 명세서
+
+[기능 명세서](https://discovered-lemongrass-789.notion.site/2c04cab8ab864f1caf205112e58a76b2?v=c197501aa796455fabc3eb0a913ff680)
+
+[API 명세서](https://discovered-lemongrass-789.notion.site/6085e93cfd0441028830c2de640f3f00?v=6d2c1d313382493a87cb396067ce9bdf&pvs=4)
+
+[Convention](./documents/convention/convention.md)
 
