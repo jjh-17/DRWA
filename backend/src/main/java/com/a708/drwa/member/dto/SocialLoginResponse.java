@@ -16,5 +16,7 @@ public class SocialLoginResponse {
     private String access_token;
 
     public SocialLoginResponse(String userId, String jwtAccessToken) {
+        this.userId = userId;
+        this.access_token = jwtAccessToken;
     }
 }
