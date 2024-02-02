@@ -11,12 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class SocialLoginResponse {
-    private int memberId;
     private String userId;
-    private String access_token;
+    private String accessToken;
 
-    public SocialLoginResponse(String userId, String jwtAccessToken) {
-        this.userId = userId;
-        this.access_token = jwtAccessToken;
-    }
 }
