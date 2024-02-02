@@ -1,23 +1,28 @@
-package com.a708.drwa.elasticsearch.service;
+package com.a708.drwa.room.service;
 
-import com.a708.drwa.elasticsearch.domain.Room;
-import com.a708.drwa.elasticsearch.repository.RoomRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.a708.drwa.room.domain.Room;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import java.util.Optional;
+import java.util.List;
 
 @Service
-public class RoomService {
-    @Autowired
-    private RoomRepository roomRepository;
+@RequiredArgsConstructor
+public class RoomRedisService { // Redis와 상호작용하는 서비스
 
-    public Room getRoomByTitle(String title){//제목 검색해서 검색어에 해당하는 방 가정오기
-        Optional<Room> roomOptional = roomRepository.findByTitle(title);
-        return roomOptional.orElse(null);
+    private final RedisTemplate<String, Room> redisTemplate;
+
+
+    public Room getRoomFromRedisByTitle(String title) { // 방 제목으로 방 정보 조회 메서드
+        return redisTemplate.opsForValue().get(title);
     }
 
-    public Room getRoomByKeyword(String keyword){//키워드 검색해서 검색어에 해당하는 방 가져오기
-        Optional<Room> roomOptional = roomRepository.findByKeyword(keyword);
-        return roomOptional.orElse(null);
+    public Room getRoomFromRedisByKeyword(String keyword) { // 방 키워드로 레디스에서 방 정보 조회 메서드
+        return redisTemplate.opsForValue().get(keyword);
+    }
+
+    public List<Room> getRoomsFromRedis(List<String> roomIds) {
+
+        return redisTemplate.opsForValue().multiGet(roomIds);
     }
 }

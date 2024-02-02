@@ -25,7 +25,7 @@ public class AuthService {
     public void setRefreshToken(AuthDto authDto, long duration) {
         // 사용자 아이디를 키로 리프레시 토큰을 저장한다.
         // setData(키, 값, 저장 기간)
-        redisUtil.setData(authDto.getUserId(), authDto.getRefreshToken(), duration);
+        redisUtil.set(authDto.getUserId(), authDto.getRefreshToken(), duration);
     }
 
     /**
@@ -44,6 +44,6 @@ public class AuthService {
      */
     public void updateRefreshToken(AuthDto authDto, long duration) {
         // setData(키, 값, 저장 기간)
-        redisUtil.setData(authDto.getUserId(), authDto.getRefreshToken(), duration);
+        redisUtil.set(authDto.getUserId(), authDto.getRefreshToken(), duration);
     }
 }
