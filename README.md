@@ -4,7 +4,7 @@
 |팀원|Backend|Frontend|
 |:---|:---:|:---:|
 |김지환|:white_check_mark:|:white_check_mark:|
-|곽민우|:white_check_mark:|[:white_check_mark:|
+|곽민우|:white_check_mark:|:white_check_mark:|
 |이경태|:white_check_mark:|:white_check_mark:|
 |이동현|:white_check_mark:|:white_check_mark:|
 |지준호|:white_check_mark:|:white_check_mark:|
