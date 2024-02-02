@@ -1,4 +1,4 @@
-package com.a708.drwa.game.service;
+package com.a708.drwa.game.data.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
