@@ -63,6 +63,9 @@ export const useAuthStore = defineStore('auth', {
       // HTTP 서비스의 헤더에 토큰을 설정합니다.
       httpService.defaults.headers.common['Authorization'] = `Bearer ${this.accessToken}`
 
+      console.log('Logged in:', this.accessToken, this.userId)
+      console.log(httpService.defaults.headers.common['Authorization'])
+
       // 로그인 후 원하는 라우트로 리다이렉트. 예를 들어 홈으로 리다이렉트
       router.push('/')
     },
@@ -80,5 +83,9 @@ export const useAuthStore = defineStore('auth', {
       // 로그아웃 후 메인페이지로 리다이렉트
       router.push('/')
     }
+  },
+  persist: {
+    enabled: true, // 상태를 로컬 스토리지에 저장합니다.
+    strategies: [{ storage: localStorage }] // 로컬 스토리지에 저장합니다.
   }
 })
