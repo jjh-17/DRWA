@@ -92,7 +92,11 @@ Drwa는 webRTC를 기반으로 한 실시간 화상채팅을 이용한 토론 �
 - 사설방 종료 시에는 정산 스킵
 
 #### ElasticSearch 검색 - 차다운
-- Elasticsearch의 nori분석기를 활용하여 검색어를 통해 redis에 있는 방 정보를 가져오기
+- [x] Elasticsearch 서버와의 통신 메서드 구현
+- [x] Elasticsearch 인덱스 생성 및 인덱스가 없을 경우의 인덱스 생성 메서드 구현
+- [x] Elasticsearch에서 제목 기반으로 방을 검색하고, 검색 결과에 해당하는 Redis의 방 정보를 조회하여 반환하는 메서드 구현
+- [x] Elasticsearch에서 제시어 기반으로 방을 검색하고, 검색 결과에 해당하는 Redis의 방 정보를 조회하여 반환하는 메서드 구현
+- [ ] 기능 테스트
 
 #### Frontend
 - 상단 nav 바 - 곽민우
