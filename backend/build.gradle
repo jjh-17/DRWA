@@ -28,8 +28,10 @@ dependencies {
 	// Spring Boot Starter Data Elasticsearch
 	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 
+
 	// Elasticsearch Java Client
 	implementation 'co.elastic.clients:elasticsearch-java:8.11.3'
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.1'
 
 	// websocket
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
