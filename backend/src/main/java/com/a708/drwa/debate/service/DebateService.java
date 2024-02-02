@@ -1,7 +1,7 @@
 package com.a708.drwa.debate.service;
 
-import com.a708.drwa.debate.data.DebateMembers;
 import com.a708.drwa.debate.data.DebateMember;
+import com.a708.drwa.debate.data.DebateMembers;
 import com.a708.drwa.debate.data.RoomInfo;
 import com.a708.drwa.debate.data.dto.request.DebateCreateRequestDto;
 import com.a708.drwa.debate.data.dto.request.DebateJoinRequestDto;
@@ -161,45 +161,45 @@ public class DebateService {
         DebateMembers debateMembers = (DebateMembers) hash.get(key, DebateRedisKey.DEBATE_MEMBER_LIST);
 
         // 발언자 결정
-        if(HKey)
-        DebateMember currentSpeakingMember = debateMembers.
-        String currentSpeakingUserNickname = "";
-        String currentSpeakingTeam = "";
-
-        if (currentPhaseDetail == 1) {
-            currentSpeakingTeam = "LEFT";
-            currentSpeakingUserNickname = leftUserList.get(currentPhase - 1);
-        } else if (currentPhaseDetail == 2) {
-            currentSpeakingTeam = "RIGHT";
-            currentSpeakingUserNickname = rightUserList.get(currentPhase - 1);
-        }
-
-
-        String currentSpeakingUserKey = redisKeyUtil.currentSpeakingUserKey(roomId);
-        String currentSpeakingTeamKey = redisKeyUtil.currentSpeakingTeamKey(roomId);
-
-        redisTemplate.opsForValue().set(currentSpeakingUserKey, currentSpeakingUserNickname);
-        redisTemplate.opsForValue().set(currentSpeakingTeamKey, currentSpeakingTeam);
-
-        String roomChannelKey = redisChannelUtil.roomChannelKey(roomId);
-
-        String phaseStartAllInOneMessage = redisMessageUtil.speakPhaseStartMessage(currentPhase, currentPhaseDetail, currentSpeakingTeam, currentSpeakingUserNickname);
-        redisPublisher.publishMessage(roomChannelKey, phaseStartAllInOneMessage);
-
-        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-
-        ScheduledFuture<?> future = executorService.schedule(new Runnable() {
-            @Override
-            public void run() {
-
-                redisTemplate.opsForValue().set(currentSpeakingTeamKey, "");
-                redisTemplate.opsForValue().set(currentSpeakingUserKey, "");
-
-                nextPhase(roomId);
-            }
-        }, 180, TimeUnit.SECONDS);
-        // 테스트용 10초 실제 서비스 180초
-        scheduledFutures.put(roomId + "_speakingPhase", future);
+//        if(HKey)
+//        DebateMember currentSpeakingMember = debateMembers.
+//        String currentSpeakingUserNickname = "";
+//        String currentSpeakingTeam = "";
+//
+//        if (currentPhaseDetail == 1) {
+//            currentSpeakingTeam = "LEFT";
+//            currentSpeakingUserNickname = leftUserList.get(currentPhase - 1);
+//        } else if (currentPhaseDetail == 2) {
+//            currentSpeakingTeam = "RIGHT";
+//            currentSpeakingUserNickname = rightUserList.get(currentPhase - 1);
+//        }
+//
+//
+//        String currentSpeakingUserKey = redisKeyUtil.currentSpeakingUserKey(roomId);
+//        String currentSpeakingTeamKey = redisKeyUtil.currentSpeakingTeamKey(roomId);
+//
+//        redisTemplate.opsForValue().set(currentSpeakingUserKey, currentSpeakingUserNickname);
+//        redisTemplate.opsForValue().set(currentSpeakingTeamKey, currentSpeakingTeam);
+//
+//        String roomChannelKey = redisChannelUtil.roomChannelKey(roomId);
+//
+//        String phaseStartAllInOneMessage = redisMessageUtil.speakPhaseStartMessage(currentPhase, currentPhaseDetail, currentSpeakingTeam, currentSpeakingUserNickname);
+//        redisPublisher.publishMessage(roomChannelKey, phaseStartAllInOneMessage);
+//
+//        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+//
+//        ScheduledFuture<?> future = executorService.schedule(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//                redisTemplate.opsForValue().set(currentSpeakingTeamKey, "");
+//                redisTemplate.opsForValue().set(currentSpeakingUserKey, "");
+//
+//                nextPhase(roomId);
+//            }
+//        }, 180, TimeUnit.SECONDS);
+//        // 테스트용 10초 실제 서비스 180초
+//        scheduledFutures.put(roomId + "_speakingPhase", future);
     }
 
     private void qnaPhase(String debateKey) {
