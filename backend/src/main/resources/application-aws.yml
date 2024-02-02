@@ -1,0 +1,73 @@
+spring:
+  # AWS 프로필 사용
+  config:
+    activate:
+      on-profile: aws
+
+  # MySQL
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${database.hostname}:3306/${database.schema}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: ${database.hostname}
+    password: ${database.password}
+
+  # Redis
+  data:
+    redis:
+      port: 6379
+      host: ${redisHost}
+      password: ${redisPass}
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 10
+          min-idle: 2
+    # ELK
+    elasticsearch:
+      client:
+          # Elasticsearch의 REST 클라이언트 구성
+        rest:
+          uris: 'http://localhost:9200' # Elasticsearch 서버의 URL
+  #          username: "elastic" # 기본 사용자 이름 (필요한 경우)
+  #          password: "password" # 기본 비밀번호 (필요한 경우)
+
+    # redis cache 사용
+  cache:
+    type: redis
+
+    # JPA 관련 설정
+    jpa:
+      hibernate:
+        ddl-auto: none
+      properties:
+        hibernate:
+          format_sql: true
+          use_sql_comments: true
+          show_sql: true
+          default_batch_fetch_size: 100
+  elasticsearch:
+    username:
+
+logging:
+    level:
+        org:
+            hibernate:
+                sql: debug
+
+# swagger 설정
+springdoc:
+    default-consumes-media-type: application/json
+    default-produces-media-type: application/json
+    api-docs:
+        groups:
+            enabled: true
+    swagger-ui:
+        operations-sorter: alpha # alpha(알파벳 오름차순), method(HTTP메소드순)
+        tags-sorter: alpha # 태그 정렬 기준
+        path: /swagger-ui.html # html 문서 접속 경로
+        disable-swagger-default-url: true
+        doc-expansion: none # tag, operation 펼치는 방식
+    paths-to-match:
+
+server:
+    port: 8081
