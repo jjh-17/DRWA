@@ -55,7 +55,9 @@ Drwa는 webRTC를 기반으로 한 실시간 화상채팅을 이용한 토론 �
   - [ ] Frontend
 
 #### 소셜 로그인 - 곽민우
-- kakao, naver, google
+- kakao, naver, google OAuth2 구현
+- JWT AccessToken, RefreshToken 발급
+- RefreshToken Redis에 저장 및 silent-refresh 기능 구현
 
 #### 랭킹 / 칭호 기능 백엔드 - 이동현
 - 카테고리 별 랭킹 Redis 저장 및 조회 기능
