@@ -10,6 +10,11 @@ const router = createRouter({
       component: MainView
     },
     {
+      path: '/member/login',
+      name: 'AuthCallback',
+      component: () => import('../views/AuthCallback.vue')
+    },
+    {
       path: '/about',
       name: 'about'
       // route level code-splitting

@@ -47,7 +47,7 @@ async function fetchSocialLoginUrl(socialType) {
 
         <!-- 로그인 상태에 따른 조건부 렌더링 -->
         <q-space /> <!-- 이것은 나머지 요소들을 오른쪽으로 밀어냅니다 -->
-        <div v-if="isLoggedIn">
+        <div v-if="authStore.isLoggedIn">
             <q-avatar>
                 <img :src="userProfilePic">
             </q-avatar>
