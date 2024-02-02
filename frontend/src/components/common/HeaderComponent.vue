@@ -1,15 +1,27 @@
 <script setup>
 import { ref } from 'vue';
 import { QDialog, QIcon } from 'quasar';
+import { useAuthStore } from '@/stores/auth';
 
-// 로그인 상태를 시뮬레이션하기 위한 ref. 실제 앱에서는 상태 관리 라이브러리나 props를 통해 관리될 수 있습니다.
-const isLoggedIn = ref(false);
+// // 로그인 상태를 시뮬레이션하기 위한 ref. 실제 앱에서는 상태 관리 라이브러리나 props를 통해 관리될 수 있습니다.
+// const isLoggedIn = ref(false);
 
-// 사용자 프로필 사진 URL. 로그인 한 사용자에 대한 정보입니다.
-const userProfilePic = 'https://cdn.quasar.dev/img/boy-avatar.png';
+// // 사용자 프로필 사진 URL. 로그인 한 사용자에 대한 정보입니다.
+// const userProfilePic = 'https://cdn.quasar.dev/img/boy-avatar.png';
+
+const authStore = useAuthStore();
 
 // 모달창 표시 여부 
 const showDialog = ref(false);
+
+/**
+ * 소셜 로그인 URL을 가져오는 함수
+ * @param {*} socialType 
+ */
+async function fetchSocialLoginUrl(socialType) {
+    await authStore.fetchSocialLoginUrl(socialType);
+}
+
 </script>
 
 <template>
@@ -51,9 +63,9 @@ const showDialog = ref(false);
 
                 <q-card-section class="q-pt-none">
                     <div class="text-h6 text-center q-mb-md">소셜 로그인</div>
-                    <img class="login-btn" src="src\assets\img\google_login_btn.png">
-                    <img class="login-btn" src="src\assets\img\naver_login_btn.png">
-                    <img class="login-btn" src="src\assets\img\kakao_login_btn.png">
+                    <img class="login-btn" src="src\assets\img\google_login_btn.png" @click="fetchSocialLoginUrl('google')">
+                    <img class="login-btn" src="src\assets\img\naver_login_btn.png" @click="fetchSocialLoginUrl('naver')">
+                    <img class="login-btn" src="src\assets\img\kakao_login_btn.png" @click="fetchSocialLoginUrl('kakao')">
                 </q-card-section>
             </q-card>
         </q-dialog>
