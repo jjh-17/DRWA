@@ -25,5 +25,3 @@ public class Room { // Elasticsearch에 저장되는 방 정보
 
 
 }
-
-
