@@ -14,7 +14,6 @@ public class ElasticsearchConfig {
 
     @Bean
     public ElasticsearchClient elasticsearchClient() { // Elasticsearch 서버와의 통신
-        // ElasticsearchTransport를 사용하여 ElasticsearchClient 생성
         ElasticsearchTransport transport = new RestClientTransport(
                 RestClient.builder(new HttpHost("localhost", 9200)).build(),
                 new JacksonJsonpMapper()
@@ -26,7 +25,7 @@ public class ElasticsearchConfig {
     public boolean createIndex(ElasticsearchClient elasticsearchClient) { // 인덱스 생성 (+ 한국어 텍스트 분석을 위한 매핑)
         try {
             boolean exists = elasticsearchClient.indices().exists(e -> e.index("room_index")).value();
-            if (!exists) {
+            if (!exists) { // 인덱스 없으면
                 // 인덱스 생성 요청
                 var response = elasticsearchClient.indices().create(c -> c
                         .index("room_index")

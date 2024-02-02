@@ -20,14 +20,16 @@ public class RoomController {
         this.roomSearchService = roomSearchService;
     }
 
-
-    // /search 엔드포인트 정의, 들어온 검색어에 따라 방 검색
-    @GetMapping("/search")
-    public ResponseEntity<List<Room>> searchRooms(@RequestParam String query) {
-        List<Room> rooms = roomSearchService.searchRoomsByNori(query);
+    @GetMapping("/search/title")
+    public ResponseEntity<List<Room>> RoomsByTitle(@RequestParam String query) {
+        List<Room> rooms = roomSearchService.searchRoomsByTitle(query);
         return ResponseEntity.ok(rooms);
     }
 
-
+    @GetMapping("/search/keyword")
+    public ResponseEntity<List<Room>> RoomsByKeyword(@RequestParam String query) {
+        List<Room> rooms = roomSearchService.searchRoomsByKeyword(query);
+        return ResponseEntity.ok(rooms);
+    }
 
 }
