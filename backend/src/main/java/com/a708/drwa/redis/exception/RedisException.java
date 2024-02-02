@@ -5,10 +5,7 @@ import lombok.Getter;
 
 @Getter
 public class RedisException extends GlobalException {
-    private final RedisErrorCode redisErrorCode;
-
     public RedisException(RedisErrorCode redisErrorCode) {
         super(redisErrorCode);
-        this.redisErrorCode = redisErrorCode;
     }
 }
