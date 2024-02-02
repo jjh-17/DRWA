@@ -8,6 +8,7 @@ spring:
     import:
       - security/application-database.yml
       - security/application-security.yml
+      - security/application-key.yml
 
   # redis cache 사용
   cache:
