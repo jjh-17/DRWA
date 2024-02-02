@@ -2,15 +2,13 @@ package com.a708.drwa.member.controller;
 
 import com.a708.drwa.annotation.AuthRequired;
 import com.a708.drwa.member.dto.SocialAuthURLResponse;
+import com.a708.drwa.member.dto.SocialLoginRequest;
 import com.a708.drwa.member.dto.SocialLoginResponse;
 import com.a708.drwa.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.UnsupportedEncodingException;
 
 @RestController
 @RequestMapping("/member")
@@ -23,6 +21,7 @@ public class MemberController {
 
     /**
      * 소셜 로그인 인증 URL을 반환한다.
+     *
      * @param socialType : google, naver, kakao
      * @return : 인증 URL
      */
@@ -35,20 +34,24 @@ public class MemberController {
 
     /**
      * 소셜 로그인 후 인증 코드로부터 액세스 토큰을 반환한다.
-     * @param socialType : google, naver, kakao
-     * @param code : 소셜 로그인 후 인증 코드
+     *
+     * @param requestBody : 소셜 로그인 타입과 코드
      * @return : 액세스 토큰
      */
-    @GetMapping("/login/{socialType}")
-    public ResponseEntity<?> socialLogin(@PathVariable String socialType, @RequestParam String code) {
-            // 소셜 로그인 타입에 따른 액세스 토큰 반환
-            SocialLoginResponse socialLoginResponse = memberService.processSocialLogin(socialType, code);
-            return ResponseEntity.ok(socialLoginResponse);
+    @PostMapping("/login")
+    public ResponseEntity<?> socialLogin(@RequestBody SocialLoginRequest requestBody) {
+        // 요청 바디에서 소셜 로그인 타입과 코드 추출
+        String socialType = requestBody.getSocialType();
+        String code = requestBody.getCode();
+        // 소셜 로그인 타입에 따른 액세스 토큰 반환
+        SocialLoginResponse socialLoginResponse = memberService.processSocialLogin(socialType, code);
+        return ResponseEntity.ok(socialLoginResponse);
     }
 
 
     /**
      * 사용자 정보 삭제
+     *
      * @param userId : 사용자 아이디
      * @return : 삭제 성공 여부
      */
@@ -62,6 +65,7 @@ public class MemberController {
 
     /**
      * 로그아웃
+     *
      * @param userId : 사용자 아이디
      * @return : 로그아웃 성공 여부
      */
@@ -72,7 +76,6 @@ public class MemberController {
         memberService.deleteRefreshToken(userId);
         return ResponseEntity.ok().body("Successfully logged out.");
     }
-
 
 
 }
