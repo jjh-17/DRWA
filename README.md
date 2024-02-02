@@ -3,17 +3,17 @@
 
 |팀원|Backend|Frontend|
 |:---|:---:|:---:|
-|김지환|[ ]|[ ]|
-|곽민우|[ ]|[ ]|
-|이경태|[ ]|[ ]|
-|이동현|[ ]|[ ]|
-|지준호|[ ]|[ ]|
-|차다운|[ ]|[ ]|
+|김지환|:white_check_mark:|:white_check_mark:|
+|곽민우|:white_check_mark:|[:white_check_mark:|
+|이경태|:white_check_mark:|:white_check_mark:|
+|이동현|:white_check_mark:|:white_check_mark:|
+|지준호|:white_check_mark:|:white_check_mark:|
+|차다운|:white_check_mark:|:white_check_mark:|
 
 ## 4주차
 |할 일|월요일|화요일|수요일|목요일|금요일|
 |:---|:---:|:---:|:---:|:---:|:---:|
-|스크럼|[ ]|[ ]|[ ]|[ ]|[ ]|
+|스크럼|:white_check_mark:|:white_check_mark:|:white_check_mark:|:white_check_mark:|[ ]|
 
 ### 랭킹 / 칭호 기능 백엔드
 - 카테고리 별 랭킹 Redis 저장 및 조회 기능
