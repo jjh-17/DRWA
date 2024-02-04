@@ -175,7 +175,7 @@ public class ProfileService {
 
     private int getCount(List<Record> records, Result result) {
         return (int) records.stream()
-                .filter(record -> record.getResult().equals(result))
+                .filter(record -> record.getResult().equals(result) && !record.getGameInfo().isPrivate())
                 .count();
     }
 
