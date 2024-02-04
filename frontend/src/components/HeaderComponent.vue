@@ -9,9 +9,9 @@ const userProfilePic = 'https://cdn.quasar.dev/img/boy-avatar.png';
 </script>
 
 <template>
-    <q-toolbar class="bg-purple glossy text-white">
+    <q-toolbar class="header">
         <!-- 메뉴 버튼 -->
-        <q-btn flat round dense icon="menu" class="q-mr-sm" />
+        <q-btn flat round dense icon="menu" class="q-mr-sm text-white" />
 
         <!-- 로고 및 랭킹 버튼 -->
         <q-avatar class="q-mr-sm">
@@ -25,7 +25,7 @@ const userProfilePic = 'https://cdn.quasar.dev/img/boy-avatar.png';
 
         <!-- 검색창 -->
         <div class="search-container">
-            <q-input color="orange-12" bg-color="white" rounded outlined dense v-model="search" placeholder="검색..."
+            <q-input color="orange-12" bg-color="white" rounded outlined dense v-model="search" placeholder=" 검색..."
                 class="search-input" light />
         </div>
 
@@ -42,6 +42,9 @@ const userProfilePic = 'https://cdn.quasar.dev/img/boy-avatar.png';
 </template>
 
 <style scoped>
+.header{
+    background-color: #34227C;
+}
 .search-container {
     flex: 1;
     max-width: 800px;
