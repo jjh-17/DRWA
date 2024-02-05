@@ -23,16 +23,15 @@
       <div
         v-for="category in categories"
         :key="category.name"
-        :class="['category-box', { active: activeCategory === category }]"
+        :class="['category-box', { active: activeCategory === category.name }]"
         @click="setActiveCategory(category)"
       >
         {{ category.name }}
       </div>
     </div>
   </div>
-  <div>
-    {{ selectedCategory }}
-    <RoomList v-if="selectedCategory" :selectedCategory="selectedCategory" />
+  <div class="roomList">
+    <RoomList v-if="activeCategory" :activeCategory="activeCategory" />
   </div>
 </template>
 
@@ -72,9 +71,9 @@ const navigateToNext = () => {
 }
 
 const setActiveCategory = (category) => {
-  state.activeCategory = category
-  state.selectedCategory = category.english
+  state.activeCategory = state.activeCategory === category.name ? null : category.name;
 }
+
 
 // toRefs를 사용하여 반응성 있는 데이터를 반환
 const { activeCategory, images } = toRefs(state)
@@ -212,5 +211,9 @@ img {
   /* 클릭 시 박스 스타일 변경 */
   background-color: #34227c;
   color: #e8e8e8;
+}
+
+.roomList {
+  padding:0px 50px 50px 50px;
 }
 </style>
