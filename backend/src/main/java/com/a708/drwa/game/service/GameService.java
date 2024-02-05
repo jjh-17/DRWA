@@ -48,7 +48,6 @@ public class GameService {
     private static final int MVP_POINT = 60;
     private static final int WINNER_POINT = 100;
     private final RedisTemplate<String, Object> objectRedisTemplate;
-    private final RedisTemplate<String, Integer> integerRedisTemplate;
     private final RedisTemplate<String, RankingMember> rankMemberRedisTemplate;
     private final RecordBulkRepository recordBulkRepository;
     private final GameInfoRepository gameInfoRepository;
@@ -200,9 +199,8 @@ public class GameService {
                 savedGameInfo,
                 winnerTeam);
         recordBulkRepository.saveAll(records);
-
-        // TODO : Redis 데이터 수정
-//        final RankingMember rankingMember = rankingMemberRedisTemplate.opsForValue().
+        
+        // TODO : 레디스 데이터 수정
 
 
         // 전적 저장 이후 클라이언트에게 전달할 데이터
