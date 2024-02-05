@@ -1,7 +1,6 @@
 package com.a708.drwa.debate.data;
 
 import lombok.*;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -9,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Builder
 public class RoomInfo {
     // 토론 카테고리
-    private int debateCategoryId;
+    private String debateCategory;
 
     // 방장 아이디
     private int hostId;
