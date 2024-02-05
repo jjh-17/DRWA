@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { QDialog, QInput, QBtn, QToolbar, QAvatar, QSpace, QCard, QCardSection } from 'quasar';
+import { QDialog, QIcon } from 'quasar';
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
@@ -33,6 +33,8 @@ const logout = () => {
     authStore.logout()
 }
 
+
+
 //방 검색
 async function searchRooms(type) {
     if (!searchQuery.value.trim()) {
@@ -49,6 +51,12 @@ async function searchRooms(type) {
     }
 }
 
+/**
+ * 사용자 마이페이지로 이동하는 함수
+ */
+const goToMyPage = () => {
+    router.push('/member/mypage');
+}
 </script>
 
 <template>
@@ -58,7 +66,7 @@ async function searchRooms(type) {
 
         <!-- 로고 및 랭킹 버튼 -->
         <q-avatar class="q-mr-sm">
-            <img src="src\assets\img\logo.png">
+            <img src="@\assets\img\logo.png">
         </q-avatar>
         <q-btn flat label="랭킹" class="text-white q-mr-sm" />
 
@@ -78,7 +86,7 @@ async function searchRooms(type) {
         <div v-if="authStore.isLoggedIn">
             <q-btn flat round @click="menu = !menu">
                 <q-avatar>
-                    <img :src="authStore.userProfilePic">
+                    <img src=https://cdn.quasar.dev/img/avatar.png>
                 </q-avatar>
             </q-btn>
             <q-menu v-model="menu" auto-close>
@@ -98,13 +106,13 @@ async function searchRooms(type) {
         <q-btn v-else flat label="로그인" class="text-white" @click="showDialog = true" />
         <!--로그인 모달 -->
         <q-dialog v-model="showDialog">
-            <q-card class="q-pa-md bg-indigo-1" style="width: 300px; max-width: 80vw;">
+            <q-card class="q-pa-md bg-indigo-1 " style="width: 400px; max-width: 80vw; height: 35erd0px;">
                 <q-card-section class="row items-center q-pb-none">
                     <q-space />
                     <q-btn icon="close" flat round dense @click="showDialog = false" />
                 </q-card-section>
 
-                <q-card-section class="q-pt-none">
+                <q-card-section class="q-pt-none flex flex-center column">
                     <div class="text-h6 text-center q-mb-md">소셜 로그인</div>
                     <img class="login-btn" src="src\assets\img\google_login_btn.png" @click="fetchSocialLoginUrl('google')">
                     <img class="login-btn" src="src\assets\img\naver_login_btn.png" @click="fetchSocialLoginUrl('naver')">
@@ -133,7 +141,7 @@ async function searchRooms(type) {
 }
 
 .login-btn {
-    width: 100%;
+    width: 13rem;
     margin-bottom: 10px;
 }
 </style>
