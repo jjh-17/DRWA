@@ -76,17 +76,9 @@ public class MemberController {
      */
     @DeleteMapping("/deleteAccount")
     @AuthRequired
-    public ResponseEntity<?> deleteAccount(@RequestParam String userId, HttpServletResponse response) {
+    public ResponseEntity<?> deleteAccount(@RequestParam String userId) {
         // 계정 정보 삭제
         memberService.deleteMember(userId);
-
-        // 쿠키를 삭제하기 위해 Max-Age를 0으로 설정
-        Cookie cookie = new Cookie("accessToken", null); // 쿠키 이름은 로그인 때 사용한 것과 동일하게
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(0); // 쿠키를 즉시 만료시킵니다.
-        response.addCookie(cookie);
-
         return ResponseEntity.ok().body("Account successfully deleted.");
     }
 
@@ -98,17 +90,9 @@ public class MemberController {
      */
     @PostMapping("/logout")
     @AuthRequired
-    public ResponseEntity<?> logout(@RequestParam String userId, HttpServletResponse response) {
+    public ResponseEntity<?> logout(@RequestParam String userId) {
         // Redis에서 리프레시 토큰 삭제
         memberService.deleteRefreshToken(userId);
-
-        // 쿠키를 삭제하기 위해 Max-Age를 0으로 설정
-        Cookie cookie = new Cookie("accessToken", null); // 쿠키 이름은 로그인 때 사용한 것과 동일하게
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(0); // 쿠키를 즉시 만료시킵니다.
-        response.addCookie(cookie);
-
         return ResponseEntity.ok().body("Successfully logged out.");
     }
 
