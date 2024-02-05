@@ -11,12 +11,17 @@ import com.a708.drwa.member.service.Impl.KakaoLoginServiceImpl;
 import com.a708.drwa.member.service.Impl.NaverLoginServiceImpl;
 import com.a708.drwa.member.type.SocialType;
 import com.a708.drwa.member.util.JWTUtil;
+import com.a708.drwa.redis.domain.MemberRedisKey;
+import com.a708.drwa.redis.util.RedisKeyUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.concurrent.TimeUnit;
 
 @Transactional(readOnly = true)
 @Service
@@ -27,8 +32,8 @@ public class MemberService {
     private final GoogleLoginServiceImpl googleLoginService;
     private final NaverLoginServiceImpl naverLoginService;
     private final KakaoLoginServiceImpl kakaoLoginService;
-    private final JWTUtil jwtUtil;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final JWTUtil jwtUtil;
 
     @Value("${jwt.refreshtoken.expiretime}")
     private Long refreshTokenExpireTime;
@@ -75,7 +80,9 @@ public class MemberService {
         String jwtRefreshToken = jwtUtil.createRefreshToken(member.getUserId());
 
         // Redis에 리프레시 토큰 저장
-        redisTemplate.opsForValue().set(member.getUserId(), jwtRefreshToken, refreshTokenExpireTime);
+        HashOperations<String, MemberRedisKey, Object> hashOperations = redisTemplate.opsForHash();
+        hashOperations.put(member.getUserId(), MemberRedisKey.REFRESH_TOKEN, jwtRefreshToken);
+        redisTemplate.expire(member.getUserId(), refreshTokenExpireTime, TimeUnit.DAYS);
 
         // 응답 DTO 반환
         return new SocialLoginResponse(member.getUserId(), jwtAccessToken);
@@ -133,7 +140,8 @@ public class MemberService {
      * @param userId
      */
     public void deleteRefreshToken(String userId) {
-        boolean exists = Boolean.TRUE.equals(redisTemplate.hasKey(userId));
+        HashOperations<String, MemberRedisKey, Object> hashOperations = redisTemplate.opsForHash();
+        boolean exists = Boolean.TRUE.equals(hashOperations.hasKey(userId, MemberRedisKey.REFRESH_TOKEN));
         if (!exists) {
             throw new MemberException(MemberErrorCode.TOKEN_NOT_FOUND);
         }

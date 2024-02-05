@@ -3,10 +3,15 @@ package com.a708.drwa.member.service;
 import com.a708.drwa.member.exception.MemberErrorCode;
 import com.a708.drwa.member.exception.MemberException;
 import com.a708.drwa.member.util.JWTUtil;
+import com.a708.drwa.redis.domain.MemberRedisKey;
+import com.a708.drwa.redis.util.RedisKeyUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * 인증 관련 서비스 구현체
@@ -22,6 +27,7 @@ public class AuthService {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final JWTUtil jwtUtil;
+    private final RedisKeyUtil redisKeyUtil = new RedisKeyUtil();
 
 
     /**
@@ -66,7 +72,9 @@ public class AuthService {
     public void updateRefreshToken(String userId, String refreshToken, long duration) {
         // 사용자 아이디를 키로 리프레시 토큰을 저장한다.
         // setData(키, 값, 저장 기간)
-        redisTemplate.opsForValue().set(userId, refreshToken, duration);
+        HashOperations<String, MemberRedisKey, Object> hashOperations = redisTemplate.opsForHash();
+        hashOperations.put(userId, MemberRedisKey.REFRESH_TOKEN, refreshToken);
+        redisTemplate.expire(userId, duration, TimeUnit.DAYS);
     }
 
     /**
@@ -75,7 +83,10 @@ public class AuthService {
      * @return 리프레시 토큰
      */
     public String getRefreshToken(String userId) {
-        return (String) redisTemplate.opsForValue().get(userId);
+        HashOperations<String, MemberRedisKey, Object> hashOperations = redisTemplate.opsForHash();
+        Object result = hashOperations.get(userId, MemberRedisKey.REFRESH_TOKEN);
+        if(result == null) throw new MemberException(MemberErrorCode.TOKEN_NOT_FOUND);
+        return (String) result;
     }
 
 }
