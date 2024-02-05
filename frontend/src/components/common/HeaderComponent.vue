@@ -3,7 +3,6 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { QDialog, QIcon } from 'quasar';
 import { useAuthStore } from '@/stores/auth';
-import { useRouter } from 'vue-router';
 import axios from 'axios';
 
 // // 로그인 상태를 시뮬레이션하기 위한 ref. 실제 앱에서는 상태 관리 라이브러리나 props를 통해 관리될 수 있습니다.
@@ -43,21 +42,6 @@ async function searchRooms(type) {
     }
 }
 
-//방 검색
-async function searchRooms(type) {
-    if (!searchQuery.value.trim()) {
-        console.warn('검색어를 입력해주세요.');
-        return;
-    }
-    try {
-        const response = await axios.get(`http://localhost:8080/search/${type}`, {
-            params: { query: searchQuery.value }
-        });
-        router.push({ name: 'SearchResults', query: { type, query: searchQuery.value, rooms: JSON.stringify(response.data) } });
-    } catch (error) {
-        console.error('검색 중 오류 발생:', error);
-    }
-}
 
 /**
  * 로그아웃 함수
