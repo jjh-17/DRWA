@@ -26,6 +26,15 @@ async function fetchSocialLoginUrl(socialType) {
     await authStore.fetchSocialLoginUrl(socialType);
 }
 
+/**
+ * 로그아웃 함수
+ */
+const logout = () => {
+    authStore.logout()
+}
+
+
+
 //방 검색
 async function searchRooms(type) {
     if (!searchQuery.value.trim()) {
@@ -42,20 +51,6 @@ async function searchRooms(type) {
     }
 }
 
-
-/**
- * 로그아웃 함수
- */
-const logout = () => {
-    authStore.logout()
-}
-
-/**
- * 사용자 마이페이지로 이동하는 함수
- */
-const goToMyPage = () => {
-    router.push('/member/mypage');
-}
 </script>
 
 <template>

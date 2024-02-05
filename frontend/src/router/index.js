@@ -24,6 +24,11 @@ const router = createRouter({
       path: '/search-results/:type/:query',
       name: 'SearchResults',
       component: SearchResults
+    },
+    {
+      path: '/member/mypage',
+      name: 'MyPageView',
+      component: () => import('../views/MyPageView.vue')
     }
   ]
 })
