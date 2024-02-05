@@ -25,6 +25,8 @@ public enum DebateRedisKey {
     // 키워드
     KEYWORD_A("keywordA"),
     KEYWORD_B("keywordB"),
+    // 투표 정보
+    VOTE_INFO("voteInfo"),
     ;
 
     private final String string;

@@ -55,7 +55,9 @@ Drwa는 webRTC를 기반으로 한 실시간 화상채팅을 이용한 토론 �
   - [ ] Frontend
 
 #### 소셜 로그인 - 곽민우
-- kakao, naver, google
+- kakao, naver, google OAuth2 구현
+- JWT AccessToken, RefreshToken 발급
+- RefreshToken Redis에 저장 및 silent-refresh 기능 구현
 
 #### 랭킹 / 칭호 기능 백엔드 - 이동현
 - 카테고리 별 랭킹 Redis 저장 및 조회 기능
@@ -87,14 +89,14 @@ Drwa는 webRTC를 기반으로 한 실시간 화상채팅을 이용한 토론 �
   - [ ] 토론 마지막 단계에서 클라이언트의 투표 정보를 계산 후 Redis에 결과 저장 
 
 #### 전적 저장 - 지준호
-- [x]전적, 게임 정보 엔티티 구현
-- [x]전적, 게임 정보 테이블 과의 통신 메서드 구현
-- [x]Redis에 저장된 토론방 공개 여부에 따라 다른 서비스를 제공하도록 구현
-- [x]공개방 여부에 따라 Redis에서 가져올 데이터를 달리함.
-- [x]공개방 종료 시에는 투표 정산을 수행
-	- [x]각 팀의 투표 수에 따라 승/패/비김 여부를 결정
-	- [x]MVP 투표 수에 따라 최종 MVP를 선정한다. 동점자가 있을 경우, 동점자 중 랜덤으로 한명을 선정
-- [x]사설방 종료 시에는 정산 스킵
+- [x] 전적, 게임 정보 엔티티 구현
+- [x] 전적, 게임 정보 테이블 과의 통신 메서드 구현
+- [x] Redis에 저장된 토론방 공개 여부에 따라 다른 서비스를 제공하도록 구현
+- [x] 공개방 여부에 따라 Redis에서 가져올 데이터를 달리함.
+- [x] 공개방 종료 시에는 투표 정산을 수행
+	- [x] 각 팀의 투표 수에 따라 승/패/비김 여부를 결정
+	- [x] MVP 투표 수에 따라 최종 MVP를 선정한다. 동점자가 있을 경우, 동점자 중 랜덤으로 한명을 선정
+- [x] 사설방 종료 시에는 정산 스킵
 
 #### ElasticSearch 검색 - 차다운
 - [x] Elasticsearch 서버와의 통신 메서드 구현
@@ -147,4 +149,3 @@ Drwa는 webRTC를 기반으로 한 실시간 화상채팅을 이용한 토론 �
 [API 명세서](https://discovered-lemongrass-789.notion.site/6085e93cfd0441028830c2de640f3f00?v=6d2c1d313382493a87cb396067ce9bdf&pvs=4)
 
 [Convention](./documents/convention/convention.md)
-
