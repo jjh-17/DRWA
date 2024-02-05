@@ -45,7 +45,7 @@ async function searchRooms(type) {
 </script>
 
 <template>
-    <q-toolbar class="bg-purple glossy text-white">
+    <q-toolbar class="custom-toolbar">
         <!-- 메뉴 버튼 -->
         <!-- <q-btn flat round dense icon="menu" class="q-mr-sm" /> -->
 
@@ -94,6 +94,11 @@ async function searchRooms(type) {
 </template>
 
 <style scoped>
+.custom-toolbar{
+    background-color: #34227C;
+    color: white;
+    height:70px;
+}
 .search-container {
     flex: 1;
     max-width: 800px;
