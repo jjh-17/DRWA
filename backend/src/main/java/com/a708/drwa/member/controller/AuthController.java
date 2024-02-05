@@ -3,6 +3,9 @@ package com.a708.drwa.member.controller;
 import com.a708.drwa.member.dto.AuthDto;
 import com.a708.drwa.member.service.AuthService;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,6 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 public class AuthController {
     private final AuthService authService;
+
+    @Value("${jwt.accesstoken.expiretime}")
+    private Long accessTokenExpireTime;
 
     public AuthController(AuthService authService) {
         this.authService = authService;
@@ -23,12 +29,21 @@ public class AuthController {
      * @return 새로 발급한 액세스 토큰
      */
     @PostMapping("/silent-refresh")
-    public ResponseEntity<?> silentRefresh(@RequestBody String userId) {
-            // silentRefreshProcess() 메소드를 통해 새로운 액세스 토큰을 발급받는다.
-            String newAccessToken  = authService.silentRefreshProcess(userId);
-            // 새로 발급한 액세스 토큰을 AuthDto 객체에 담아서 반환한다.
-            AuthDto authDto = new AuthDto(userId, newAccessToken);
-            return ResponseEntity.ok(authDto);
+    public ResponseEntity<?> silentRefresh(@RequestBody String userId, HttpServletResponse response) {
+        // silentRefreshProcess() 메소드를 통해 새로운 액세스 토큰을 발급받는다.
+        String newAccessToken  = authService.silentRefreshProcess(userId);
+
+        // accessToken을 httpOnly 쿠키에 담아서 반환
+        Cookie cookie = new Cookie("accessToken", newAccessToken);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setSecure(true);
+        cookie.setMaxAge(accessTokenExpireTime.intValue());
+        response.addCookie(cookie);
+
+        // userId만 반환
+        AuthDto authDto = new AuthDto(userId, null);
+        return ResponseEntity.ok(authDto);
     }
 
 
