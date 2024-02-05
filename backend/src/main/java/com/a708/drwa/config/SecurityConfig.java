@@ -14,14 +14,11 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http
-//                // 여기에 보안 설정을 추가합니다.
-//                .authorizeRequests()
-//                .anyRequest().authenticated()
-//                .and()
-//                .formLogin()
-//                .and()
-//                .httpBasic();
+        http
+                .csrf().disable()
+                .authorizeRequests()
+                .anyRequest().permitAll();
+
         return http.build();
     }
 }
