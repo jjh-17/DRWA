@@ -1,7 +1,7 @@
 package com.a708.drwa.debate.service;
 
-import com.a708.drwa.debate.data.DebateMembers;
 import com.a708.drwa.debate.data.DebateMember;
+import com.a708.drwa.debate.data.DebateMembers;
 import com.a708.drwa.debate.data.RoomInfo;
 import com.a708.drwa.debate.data.dto.request.DebateCreateRequestDto;
 import com.a708.drwa.debate.data.dto.request.DebateJoinRequestDto;
