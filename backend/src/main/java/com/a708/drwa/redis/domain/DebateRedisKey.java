@@ -22,6 +22,11 @@ public enum DebateRedisKey {
     VOTE_TEAM_B("voteTeamB"),
     // 시작 시간
     START_TIME("startTime"),
+    // 키워드
+    KEYWORD_A("keywordA"),
+    KEYWORD_B("keywordB"),
+    // 투표 정보
+    VOTE_INFO("voteInfo"),
     ;
 
     private final String string;
