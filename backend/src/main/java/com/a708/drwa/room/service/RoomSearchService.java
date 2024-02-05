@@ -21,38 +21,50 @@ public class RoomSearchService {
     private RedisTemplate<String, Room> redisTemplate;
 
     public List<Room> searchRoomsByTitle(String query) {
-        return searchRoomsByField("title", query);
+        return searchRooms("title", query);
     }
 
     public List<Room> searchRoomsByKeyword(String query) {
-        return searchRoomsByField("keyword", query);
+        return searchRooms("keyword", query);
     }
 
-    private List<Room> searchRoomsByField(String field, String query) {
+    private List<Room> searchRooms(String field, String query) {
         SearchRequest request = new SearchRequest.Builder()
                 .index("room_index")
                 .query(q -> q
-                        .bool(b -> b
-                                .should(s -> s
-                                        .match(m -> m
-                                                .field(field)
-                                                .query(query)
-                                                .analyzer("nori")
-                                        )
-                                )
+                        .match(m -> m
+                                .field(field)
+                                .query(query)
+                                .analyzer("nori")
                         )
                 )
                 .build();
 
         try {
             SearchResponse<Room> response = elasticsearchClient.search(request, Room.class);
-            return response.hits().hits().stream()
-                    .map(hit -> redisTemplate.opsForValue().get(hit.id()))
-                    .filter(room -> room != null)
+            List<Room> rooms = response.hits().hits().stream()
+                    .map(hit -> hit.source())
                     .collect(Collectors.toList());
+
+            rooms.forEach(this::saveRoomInRedis);
+
+            return rooms;
         } catch (Exception e) {
+            e.printStackTrace();
             return Collections.emptyList();
         }
+    }
+    private void saveRoomInRedis(Room room) {
+        if (room != null && room.getId() != null) {
+            redisTemplate.opsForValue().set(room.getId(), room);
+        }
+    }
+    private Room fetchRoomFromRedis(String roomId) {
+        Object result = redisTemplate.opsForValue().get(roomId);
+        if (result instanceof Room) {
+            return (Room) result;
+        }
+        return null;
     }
 }
 
