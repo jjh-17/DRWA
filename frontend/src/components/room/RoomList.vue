@@ -16,7 +16,7 @@ import { useRoomStore } from '@/components/stores/roomStore'
 import { defineProps } from 'vue'
 
 const props = defineProps({
-  selectedCategory: String
+  activeCategory: String
 })
 
 const roomStore = useRoomStore()
@@ -27,4 +27,10 @@ onMounted(() => {
 })
 </script>
 
-<style></style>
+<style>
+.roomList-container {
+    background-color:#E8EBF9;
+    width: 100%;
+    height: 500px;
+}
+</style>
