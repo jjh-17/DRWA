@@ -5,7 +5,7 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import com.a708.drwa.room.domain.Room;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import java.util.Collections;
@@ -13,11 +13,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class RoomSearchService {
-    @Autowired
     private ElasticsearchClient elasticsearchClient;
-
-    @Autowired
     private RedisTemplate<String, Room> redisTemplate;
 
     public List<Room> searchRoomsByTitle(String query) {
@@ -67,5 +65,3 @@ public class RoomSearchService {
         return null;
     }
 }
-
-
