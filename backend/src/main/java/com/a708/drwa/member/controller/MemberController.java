@@ -5,11 +5,8 @@ import com.a708.drwa.member.dto.SocialAuthURLResponse;
 import com.a708.drwa.member.dto.SocialLoginRequest;
 import com.a708.drwa.member.dto.SocialLoginResponse;
 import com.a708.drwa.member.service.MemberService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,8 +16,6 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class MemberController {
 
-    @Value("${jwt.accesstoken.expiretime}")
-    private Long accessTokenExpireTime;
 
     private final MemberService memberService;
 
@@ -44,7 +39,7 @@ public class MemberController {
      * @return : 액세스 토큰
      */
     @PostMapping("/login")
-    public ResponseEntity<?> socialLogin(@RequestBody SocialLoginRequest requestBody, HttpServletResponse response) {
+    public ResponseEntity<?> socialLogin(@RequestBody SocialLoginRequest requestBody) {
         // 요청 바디에서 소셜 로그인 타입과 코드 추출
         String socialType = requestBody.getSocialType();
         String code = requestBody.getCode();
@@ -52,18 +47,6 @@ public class MemberController {
         log.info("code : " + code);
         // 소셜 로그인 타입에 따른 액세스 토큰 반환
         SocialLoginResponse socialLoginResponse = memberService.processSocialLogin(socialType, code);
-
-        // accessToken을 httpOnly 쿠키에 담아서 반환
-        Cookie cookie = new Cookie("accessToken", socialLoginResponse.getAccessToken());
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setSecure(true);
-        cookie.setMaxAge(accessTokenExpireTime.intValue());
-        response.addCookie(cookie);
-
-        // 엑세스토큰은 javascript에서 접근할 수 없도록 httpOnly 쿠키에 담아서 반환
-        socialLoginResponse.setAccessToken(null);
-
         return ResponseEntity.ok(socialLoginResponse);
     }
 
