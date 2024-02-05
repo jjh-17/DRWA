@@ -33,6 +33,13 @@ const logout = () => {
     authStore.logout()
 }
 
+/**
+ * 마이페이지로 이동하는 함수
+ */
+const goToMyPage = () => {
+    router.push({ name: 'MyPageView' });
+}
+
 
 
 //방 검색
