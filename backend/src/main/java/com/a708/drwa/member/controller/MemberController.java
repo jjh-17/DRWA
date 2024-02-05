@@ -43,6 +43,8 @@ public class MemberController {
         // 요청 바디에서 소셜 로그인 타입과 코드 추출
         String socialType = requestBody.getSocialType();
         String code = requestBody.getCode();
+        log.info("socialType : " + socialType);
+        log.info("code : " + code);
         // 소셜 로그인 타입에 따른 액세스 토큰 반환
         SocialLoginResponse socialLoginResponse = memberService.processSocialLogin(socialType, code);
         return ResponseEntity.ok(socialLoginResponse);
