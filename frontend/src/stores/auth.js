@@ -6,7 +6,6 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     isLoggedIn: false,
     userProfilePic: null,
-    accessToken: null,
     userId: null
   }),
   actions: {
@@ -55,16 +54,9 @@ export const useAuthStore = defineStore('auth', {
      */
     setLoginData(loginData) {
       this.isLoggedIn = true
-      this.accessToken = loginData.accessToken
       this.userId = loginData.userId
       // userProfilePic 업데이트 로직이 필요하다면 여기에 추가
       // 예: this.userProfilePic = `https://.../${loginData.userId}.png`
-
-      // HTTP 서비스의 헤더에 토큰을 설정합니다.
-      httpService.defaults.headers.common['Authorization'] = `Bearer ${this.accessToken}`
-
-      console.log('Logged in:', this.accessToken, this.userId)
-      console.log(httpService.defaults.headers.common['Authorization'])
 
       // 로그인 후 원하는 라우트로 리다이렉트. 예를 들어 홈으로 리다이렉트
       router.push('/')
@@ -73,15 +65,22 @@ export const useAuthStore = defineStore('auth', {
      * 로그아웃 함수
      */
     logout() {
-      this.isLoggedIn = false
-      this.accessToken = null
-      this.userId = null
-      this.userProfilePic = null
-      // 필요하다면 HTTP 서비스의 헤더에서 토큰을 제거
-      delete httpService.defaults.headers.common['Authorization']
+      httpService
+        .post('/member/logout')
+        .then(() => {
+          this.isLoggedIn = false
+          this.userId = null
+          this.userProfilePic = null
 
-      // 로그아웃 후 메인페이지로 리다이렉트
-      router.push('/')
+          // 클라이언트 측에서 다른 정리 작업이 필요하다면 여기에 추가
+          // 예: 로컬 스토리지에서 사용자 정보 제거
+
+          // 로그아웃 후 메인페이지로 리다이렉트
+          router.push('/')
+        })
+        .catch((error) => {
+          console.error('Error logging out:', error)
+        })
     }
   },
   persist: {
