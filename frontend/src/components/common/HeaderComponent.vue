@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { QDialog } from 'quasar';
+import { QDialog, QInput, QBtn, QToolbar, QAvatar, QSpace, QCard, QCardSection} from 'quasar';
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
@@ -26,24 +26,21 @@ async function fetchSocialLoginUrl(socialType) {
     await authStore.fetchSocialLoginUrl(socialType);
 }
 
-const searchRoomsByTitle = async () => {
-  await searchRooms('title', searchQuery.value); // SearchComponent에서 searchRooms 함수 호출
-};
-
-const searchRoomsByKeyword = async () => {
-  await searchRooms('keyword', searchQuery.value); // SearchComponent에서 searchRooms 함수 호출
-};
-
-const searchRooms = async (query, type) => {
-  try {
-    const response = await axios.get(`http://localhost:8080/search/${type}`, {
-      params: { query }
-    });
-    router.push({ name: 'SearchResults', params: { type, query, rooms: response.data } });
-  } catch (error) {
-    console.error('검색 중 오류 발생:', error);
-  }
-};
+//방 검색
+async function searchRooms(type) {
+    if (!searchQuery.value.trim()) {
+        console.warn('검색어를 입력해주세요.');
+        return;
+    }
+    try {
+        const response = await axios.get(`http://localhost:8080/search/${type}`, {
+            params: { query: searchQuery.value }
+        });
+        router.push({ name: 'SearchResults', query: { type, query: searchQuery.value, rooms: JSON.stringify(response.data) } });
+    } catch (error) {
+        console.error('검색 중 오류 발생:', error);
+    }
+}
 
 </script>
 
@@ -65,8 +62,8 @@ const searchRooms = async (query, type) => {
         <!-- 검색창 -->
         
         <q-input v-model="searchQuery" placeholder="검색어 입력" />
-        <q-btn @click="searchRoomsByTitle" color="primary">제목 검색</q-btn>
-        <q-btn @click="searchRoomsByKeyword" color="primary">제시어 검색</q-btn>
+        <q-btn @click="searchRooms('title')" color="primary">제목 검색</q-btn>
+        <q-btn @click="searchRooms('keyword')" color="primary">제시어 검색</q-btn>
 
 
         <!-- 로그인 상태에 따른 조건부 렌더링 -->
