@@ -23,19 +23,14 @@ import { useRoute } from 'vue-router';
 
 const route = useRoute();
 const rooms = ref([]);
-const query = route.query.query;
-const type = route.query.type;
 
-const fetchRooms = async () => {
-  try {
-    const response = await axios.get(`http://localhost:8080/search/${type}`, {
-      params: { query }
-    });
-    rooms.value = response.data;
-  } catch (error) {
-    console.error('검색 결과를 불러오는 중 오류 발생:', error);
-  }
-};
-
-onMounted(fetchRooms);
+onMounted(async () => {
+    const { type, query } = route.query;
+    try {
+        const response = await axios.get(`http://localhost:8080/search/${type}`, { params: { query } });
+        rooms.value = response.data;
+    } catch (error) {
+        console.error('검색 결과를 불러오는 중 오류 발생:', error);
+    }
+});
 </script>
