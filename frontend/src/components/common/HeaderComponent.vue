@@ -22,6 +22,13 @@ async function fetchSocialLoginUrl(socialType) {
     await authStore.fetchSocialLoginUrl(socialType);
 }
 
+/**
+ * 로그아웃 함수
+ */
+const logout = () => {
+    authStore.logout()
+}
+
 </script>
 
 <template>
@@ -48,14 +55,29 @@ async function fetchSocialLoginUrl(socialType) {
         <!-- 로그인 상태에 따른 조건부 렌더링 -->
         <q-space /> <!-- 이것은 나머지 요소들을 오른쪽으로 밀어냅니다 -->
         <div v-if="authStore.isLoggedIn">
-            <q-avatar>
-                <img :src="userProfilePic">
-            </q-avatar>
+            <q-btn flat round @click="menu = !menu">
+                <q-avatar>
+                    <img :src="authStore.userProfilePic">
+                </q-avatar>
+            </q-btn>
+            <q-menu v-model="menu" auto-close>
+                <q-list>
+                    <q-item clickable v-close-popup @click="goToUserProfile">
+                        <q-item-section>UserID: {{ authStore.userId }}</q-item-section>
+                    </q-item>
+                    <q-item clickable v-close-popup @click="goToMyPage">
+                        <q-item-section>마이페이지</q-item-section>
+                    </q-item>
+                    <q-item clickable v-close-popup @click="logout">
+                        <q-item-section>로그아웃</q-item-section>
+                    </q-item>
+                </q-list>
+            </q-menu>
         </div>
         <q-btn v-else flat label="로그인" class="text-white" @click="showDialog = true" />
         <!--로그인 모달 -->
         <q-dialog v-model="showDialog">
-            <q-card class="q-pa-md" style="width: 300px; max-width: 80vw;">
+            <q-card class="q-pa-md bg-indigo-1" style="width: 300px; max-width: 80vw;">
                 <q-card-section class="row items-center q-pb-none">
                     <q-space />
                     <q-btn icon="close" flat round dense @click="showDialog = false" />
