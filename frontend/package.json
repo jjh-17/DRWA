@@ -12,9 +12,9 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.16.9",
+    "axios": "^1.6.7",
     "lts": "^1.2.0",
     "openvidu-browser": "^2.29.1",
-    "axios": "^1.6.7",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.1",
     "quasar": "^2.14.3",
