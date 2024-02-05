@@ -1,20 +1,19 @@
-<!-- SearchResults.vue -->
 <template>
-    <div>
-      <h1>검색 결과</h1>
-      <p>검색어: {{ $route.params.query }}</p>
-      <p>검색 타입: {{ $route.params.type }}</p>
-  
-      <div v-if="rooms.length > 0">
-        <div v-for="room in rooms" :key="room.id">
-          <p>방 제목: {{ room.title }}</p>
-          <p>방 제시어: {{ room.keyword }}</p>
-        </div>
-      </div>
-      <div v-else>
-        <p>검색 결과가 없습니다.</p>
+  <div>
+    <h1>검색 결과</h1>
+    <p>검색어: {{ query }}</p>
+    <p>검색 타입: {{ type }}</p>
+
+    <div v-if="rooms.length > 0">
+      <div v-for="room in rooms" :key="room.id">
+        <p>방 제목: {{ room.title }}</p>
+        <p>방 제시어: {{ room.keyword }}</p>
       </div>
     </div>
+    <div v-else>
+      <p>검색 결과가 없습니다.</p>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -24,11 +23,13 @@ import { useRoute } from 'vue-router';
 
 const route = useRoute();
 const rooms = ref([]);
+const query = route.query.query;
+const type = route.query.type;
 
 const fetchRooms = async () => {
   try {
-    const response = await axios.get(`http://localhost:8080/search/${route.params.type}`, {
-      params: { query: route.params.query }
+    const response = await axios.get(`http://localhost:8080/search/${type}`, {
+      params: { query }
     });
     rooms.value = response.data;
   } catch (error) {
@@ -38,7 +39,3 @@ const fetchRooms = async () => {
 
 onMounted(fetchRooms);
 </script>
-
-<style scoped>
-/* 스타일 코드 */
-</style>
