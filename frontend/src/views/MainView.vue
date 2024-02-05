@@ -1,109 +1,110 @@
 <template>
-  <div class="carousel_container">
-    <button type="button" class="carousel__prev" aria-label="Navigate to previous slide" @click="navigateToPrev">
-      <svg
-        class="carousel__icon"
-        viewBox="0 0 24 24"
-        role="img"
-        aria-label="Arrow pointing to the left"
-      >
-      <title>Arrow pointing to the left</title>
-      <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"></path>
-      </svg>
-    </button>
-    <Carousel ref="carousel" :itemsToShow="2.95" :wrapAround="true" :transition="500">
-      <Slide v-for="slide in images" :key="slide">
-        <div class="carousel__item"><img :src="slide" /></div>
-      </Slide>
-    </Carousel>
-    <button type="button" class="carousel__next" aria-label="Navigate to next slide" @click="navigateToNext">
-      <svg
-        class="carousel__icon"
-        viewBox="0 0 24 24"
-        role="img"
-        aria-label="Arrow pointing to the right"
-      >
-      <title>Arrow pointing to the right</title>
-        <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"></path>
-      </svg>
-    </button>
-  </div>
-
-  <div> 토론 카테고리 </div>
-
-  <div class="category-container">
-    <div
-      v-for="category in categories"
-      :key="category.name"
-      :class="['category-box', { active: activeCategory === category }]"
-      @click="setActiveCategory(category)"
-    >
-      {{ category.name }}
+  <div class="most-viewers-rooms">
+    <div class="select-rooms">
+      <div class="select-box" @click="setActiveBox">인기토론방</div>
+      <div class="select-box" @click="setActiveBox">관심 주제</div>
     </div>
+    <div class="carousel">
+      <div class="carousel__prev1" @click="navigateToPrev">&lt;</div>
+      <div class="carousel-container">
+        <Carousel ref="carousel" :itemsToShow="2.95" :wrapAround="true" :transition="500">
+          <Slide v-for="slide in images" :key="slide">
+            <div class="carousel-item"><img :src="slide" /></div>
+          </Slide>
+        </Carousel>
+      </div>
+      <div class="carousel__next1" @click="navigateToNext">&gt;</div>
+    </div>
+  </div>
+  <div class="categories">
+    <div class="debate-category">토론 카테고리</div>
+
+    <div class="category-container">
+      <div
+        v-for="category in categories"
+        :key="category.name"
+        :class="['category-box', { active: activeCategory === category }]"
+        @click="setActiveCategory(category)"
+      >
+        {{ category.name }}
+      </div>
+    </div>
+  </div>
+  <div>
+    {{ selectedCategory }}
+    <RoomList v-if="selectedCategory" :selectedCategory="selectedCategory" />
   </div>
 </template>
 
-<script>
-import { defineComponent, ref } from 'vue'
+<script setup>
+import { ref, reactive, toRefs } from 'vue'
 import { Carousel, Slide } from 'vue3-carousel'
-import { useRouter } from 'vue-router'
 import { categories } from '@/components/category/Category.js'
 import 'vue3-carousel/dist/carousel.css'
+import RoomList from '@/components/room/RoomList.vue'
 
-export default defineComponent({
-  name: 'Autoplay',
-  components: {
-    Carousel,
-    Slide,
-
-  },
-  data() {
-    return {
-      images: [
-        'https://cdn.quasar.dev/img/mountains.jpg',
-        'https://cdn.quasar.dev/img/parallax1.jpg',
-        'https://cdn.quasar.dev/img/parallax2.jpg'
-        // [임시] 여기에 방 thumbnail이 들어감.
-      ],
-      activeIndex: 0,
-      activeCategory: null,
-    }
-  },
-  setup() { 
-    const router = useRouter();
-
-    function goToCategory(path) {
-      router.push(path);
-    }
-    
-    const carousel = ref(null);
-
-    const navigateToPrev = () => {
-      if (carousel.value) {
-        carousel.value.prev();
-      }
-    };
-
-    const navigateToNext = () => {
-      if (carousel.value) {
-        carousel.value.next();
-      }
-    };
-
-    function setActiveCategory(category) {
-      this.activeCategory = category;
-      this.selectedCategory = category.english; // 클릭된 카테고리의 english 값을 selectedCategory에 할당
-    }
-
-    
-
-    return { carousel, navigateToPrev, navigateToNext, goToCategory, categories, setActiveCategory };
-  }
+// Composition API의 ref와 reactive를 사용하여 데이터 정의
+const state = reactive({
+  images: [
+    'https://cdn.quasar.dev/img/mountains.jpg',
+    'https://cdn.quasar.dev/img/parallax1.jpg',
+    'https://cdn.quasar.dev/img/parallax2.jpg'
+    // [임시] 여기에 방 thumbnail이 들어감.
+  ],
+  activeIndex: 0,
+  activeCategory: null,
+  selectedCategory: null
 })
+
+const carousel = ref(null)
+
+// 함수 정의
+const navigateToPrev = () => {
+  if (carousel.value) {
+    carousel.value.prev()
+  }
+}
+
+const navigateToNext = () => {
+  if (carousel.value) {
+    carousel.value.next()
+  }
+}
+
+const setActiveCategory = (category) => {
+  state.activeCategory = category
+  state.selectedCategory = category.english
+}
+
+// toRefs를 사용하여 반응성 있는 데이터를 반환
+const { activeCategory, images } = toRefs(state)
 </script>
 
 <style scoped>
-.carousel_container {
+.most-viewers-rooms {
+  background-color: rgba(47, 41, 73, 0.5);
+  padding: 10px 30px 30px 30px;
+}
+.select-rooms {
+  display: flex;
+  gap: 20px;
+  padding: 5px;
+  height: 50px;
+}
+.select-box {
+  font-size: 15px;
+  background-color: #34227c;
+  text-align: center;
+  line-height: 40px;
+  color: #e8e8e8;
+  border-radius: 4px;
+  width: 150px;
+  height: 40px;
+}
+.carousel {
+}
+.carousel-container {
+  padding: 20px;
   position: relative; /* 내부 절대 위치 요소의 기준이 됨 */
 }
 .carousel__slide {
@@ -124,79 +125,92 @@ export default defineComponent({
 
 .carousel__slide {
   opacity: 0.9;
-  transform: rotateY(-20deg) scale(0.9);
+  transform: rotateY(-20deg) scale(0.8);
 }
 
 .carousel__slide--active ~ .carousel__slide {
-  transform: rotateY(20deg) scale(0.9);
+  transform: rotateY(20deg) scale(0.8);
 }
 
 .carousel__slide--prev {
   opacity: 0.5;
   z-index: 1;
-  transform: rotateY(-10deg) scale(0.95);
+  transform: rotateY(-20deg) scale(0.8);
 }
 
 .carousel__slide--next {
   opacity: 0.5;
   z-index: 1;
-  transform: rotateY(10deg) scale(0.95);
+  transform: rotateY(20deg) scale(0.8);
 }
 
 .carousel__slide--active {
   z-index: 2;
   opacity: 1;
-  transform: rotateY(0) scale(1.1);
+  transform: rotateY(0) scale(1.3);
 }
 
 img {
   width: 35rem;
 }
-.carousel__prev, .carousel__next {
+.carousel__prev1,
+.carousel__next1 {
+  cursor: pointer;
   position: absolute; /* 절대 위치 설정 */
   top: 50%; /* 상위 요소의 중앙에 위치 */
   transform: translateY(-50%); /* Y축 기준 중앙 정렬 */
-  background-color: rgba(0, 0, 0, 0.5); /* 버튼 배경색 설정 */
-  border-radius: 50%; /* 원형 버튼으로 만듬 */
-  padding: 30px; /* 버튼 크기 조절 */
+  background-color: rgba(0, 0, 0, 0); /* 버튼 배경색 설정 */
   z-index: 10; /* 다른 요소 위에 표시 */
+  height: 50%;
+  line-height: 200px;
+  font-size: calc(50vh / 2);
+  color: #34227c;
 }
 
-.carousel__prev {
-  left: 20%; /* 왼쪽에서부터의 거리 */
+.carousel__prev1 {
+  left: 15%; /* 왼쪽에서부터의 거리 */
 }
 
-.carousel__next {
-  right: 20%; /* 오른쪽에서부터의 거리 */
+.carousel__next1 {
+  right: 15%; /* 오른쪽에서부터의 거리 */
 }
 
-.carousel__icon {
-  fill: white; /* 아이콘 색상 */
-  width: 24px; /* 아이콘 크기 */
-  height: 24px; /* 아이콘 크기 */
+.categories {
+  padding: 20px 50px 50px 50px;
+}
+.debate-category {
+  font-size: 1.5rem;
+  text-align: center;
+  line-height: 40px;
+  color: #34227c;
+  width: 200px;
+  height: 40px;
 }
 
 .category-container {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
-  gap: 10px;
 }
 
 .category-box {
+  /* flex: 1 0 16%; */
+  font-size: 1.5rem;
   padding: 10px 20px;
   margin: 5px;
-  border: 1px solid blue;
   border-radius: 4px;
-  background-color: #f0f0f0;
+  background-color: #e8ebf9;
+  color: #34227c;
   text-align: center;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  width: calc(100% / 6 - 10px);
+  width: calc((100% / 6) - 10px);
 }
 
 .category-box:hover,
-.category-box.active { /* 클릭 시 박스 스타일 변경 */
-  background-color: #e8e8e8;
+.category-box.active {
+  /* 클릭 시 박스 스타일 변경 */
+  background-color: #34227c;
+  color: #e8e8e8;
 }
 </style>

@@ -3,6 +3,8 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { QDialog, QIcon } from 'quasar';
 import { useAuthStore } from '@/stores/auth';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
 
 // // 로그인 상태를 시뮬레이션하기 위한 ref. 실제 앱에서는 상태 관리 라이브러리나 props를 통해 관리될 수 있습니다.
 // const isLoggedIn = ref(false);
@@ -11,7 +13,7 @@ import { useAuthStore } from '@/stores/auth';
 // const userProfilePic = 'https://cdn.quasar.dev/img/boy-avatar.png';
 
 const authStore = useAuthStore();
-
+const searchQuery = ref('');
 const router = useRouter();
 
 // 모달창 표시 여부 
@@ -23,6 +25,38 @@ const showDialog = ref(false);
  */
 async function fetchSocialLoginUrl(socialType) {
     await authStore.fetchSocialLoginUrl(socialType);
+}
+
+//방 검색
+async function searchRooms(type) {
+    if (!searchQuery.value.trim()) {
+        console.warn('검색어를 입력해주세요.');
+        return;
+    }
+    try {
+        const response = await axios.get(`http://localhost:8080/search/${type}`, {
+            params: { query: searchQuery.value }
+        });
+        router.push({ name: 'SearchResults', query: { type, query: searchQuery.value, rooms: JSON.stringify(response.data) } });
+    } catch (error) {
+        console.error('검색 중 오류 발생:', error);
+    }
+}
+
+//방 검색
+async function searchRooms(type) {
+    if (!searchQuery.value.trim()) {
+        console.warn('검색어를 입력해주세요.');
+        return;
+    }
+    try {
+        const response = await axios.get(`http://localhost:8080/search/${type}`, {
+            params: { query: searchQuery.value }
+        });
+        router.push({ name: 'SearchResults', query: { type, query: searchQuery.value, rooms: JSON.stringify(response.data) } });
+    } catch (error) {
+        console.error('검색 중 오류 발생:', error);
+    }
 }
 
 /**
@@ -41,7 +75,7 @@ const goToMyPage = () => {
 </script>
 
 <template>
-    <q-toolbar class="bg-purple glossy text-white">
+    <q-toolbar class="custom-toolbar">
         <!-- 메뉴 버튼 -->
         <!-- <q-btn flat round dense icon="menu" class="q-mr-sm" /> -->
 
@@ -56,10 +90,11 @@ const goToMyPage = () => {
         <q-space />
 
         <!-- 검색창 -->
-        <div class="search-container">
-            <q-input color="orange-12" bg-color="white" rounded outlined dense v-model="search" placeholder="검색..."
-                class="search-input" light />
-        </div>
+
+        <q-input v-model="searchQuery" placeholder="검색어 입력" />
+        <q-btn @click="searchRooms('title')" color="primary">제목 검색</q-btn>
+        <q-btn @click="searchRooms('keyword')" color="primary">제시어 검색</q-btn>
+
 
         <!-- 로그인 상태에 따른 조건부 렌더링 -->
         <q-space /> <!-- 이것은 나머지 요소들을 오른쪽으로 밀어냅니다 -->
@@ -104,6 +139,12 @@ const goToMyPage = () => {
 </template>
 
 <style scoped>
+.custom-toolbar {
+    background-color: #34227C;
+    color: white;
+    height: 70px;
+}
+
 .search-container {
     flex: 1;
     max-width: 800px;
