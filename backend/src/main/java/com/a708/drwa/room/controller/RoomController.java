@@ -1,5 +1,6 @@
 package com.a708.drwa.room.controller;
 
+import com.a708.drwa.room.data.dto.RoomResponseDto;
 import com.a708.drwa.room.domain.Room;
 import com.a708.drwa.room.service.RoomSearchService;
 import com.a708.drwa.room.service.RoomService;
@@ -26,6 +27,11 @@ public class RoomController {
     public ResponseEntity<List<Room>> searchRoomsByKeyword(@RequestParam String query) {
         List<Room> rooms = roomSearchService.searchRooms("keyword", query);
         return ResponseEntity.ok(rooms);
+    }
+    @GetMapping("/popular")
+    public ResponseEntity<List<RoomResponseDto>> getPopularRooms() {
+        List<RoomResponseDto> popularRooms = roomService.getPopularRooms();
+        return ResponseEntity.ok(popularRooms);
     }
 
     @PostMapping("/rooms/thumbnail")
