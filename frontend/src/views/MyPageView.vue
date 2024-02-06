@@ -17,11 +17,11 @@ import { QPage, QCard, QCardSection, QSeparator, QAvatar } from 'quasar'
                             <img src="https://cdn.quasar.dev/img/avatar.png">
                         </q-avatar>
                         <div class="nickname">
-                            닉네임
+                            닉네임 <q-icon name="edit" class="cursor-pointer" />
                             <div class="text-caption">사용자123</div>
                         </div>
                     </div>
-                    <div>1630p</div>
+                    <div>1630p <q-icon name="arrow_forward_ios" class="cursor-pointer" /></div>
 
                 </q-card-section>
 
