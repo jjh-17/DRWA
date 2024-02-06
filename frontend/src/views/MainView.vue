@@ -1,9 +1,10 @@
 <template>
   <div class="most-viewers-rooms">
     <div class="select-rooms">
-      <div class="select-box" @click="setActiveBox">인기토론방</div>
-      <div class="select-box" @click="setActiveBox">관심 주제</div>
+      <div class="select-box" @click="setActiveBox('pop')">인기토론방</div>
+      <div class="select-box" @click="setActiveBox('categ')">관심 주제</div>
     </div>
+
     <div class="carousel">
       <div class="carousel__prev1" @click="navigateToPrev">&lt;</div>
       <div class="carousel-container">
@@ -31,7 +32,7 @@
     </div>
   </div>
   <div class="roomList">
-    <RoomList v-if="activeCategory" :activeCategory="activeCategory" />
+    <RoomsCategory v-if="activeCategory" :activeCategory="activeCategory" />
   </div>
 </template>
 
@@ -40,7 +41,7 @@ import { ref, reactive, toRefs } from 'vue'
 import { Carousel, Slide } from 'vue3-carousel'
 import { categories } from '@/components/category/Category.js'
 import 'vue3-carousel/dist/carousel.css'
-import RoomList from '@/components/room/RoomList.vue'
+import RoomsCategory from '@/components/room/RoomsCategory.vue'
 
 // Composition API의 ref와 reactive를 사용하여 데이터 정의
 const state = reactive({
@@ -48,11 +49,11 @@ const state = reactive({
     'https://cdn.quasar.dev/img/mountains.jpg',
     'https://cdn.quasar.dev/img/parallax1.jpg',
     'https://cdn.quasar.dev/img/parallax2.jpg'
-    // [임시] 여기에 방 thumbnail이 들어감.
+    // [임시] 여기에 방 thumbnail이 들어감. pinia로
   ],
   activeIndex: 0,
   activeCategory: null,
-  selectedCategory: null
+  activeBox: null
 })
 
 const carousel = ref(null)
@@ -71,9 +72,13 @@ const navigateToNext = () => {
 }
 
 const setActiveCategory = (category) => {
-  state.activeCategory = state.activeCategory === category.name ? null : category.name;
+  state.activeCategory = category.name;
 }
 
+
+const setActiveBox = (boxType) => {
+  state.activeBox = boxType
+}
 
 // toRefs를 사용하여 반응성 있는 데이터를 반환
 const { activeCategory, images } = toRefs(state)
@@ -214,6 +219,6 @@ img {
 }
 
 .roomList {
-  padding:0px 50px 50px 50px;
+  padding: 0px 50px 50px 50px;
 }
 </style>
