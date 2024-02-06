@@ -41,16 +41,4 @@ public class RoomSearchService {
             return Collections.emptyList();
         }
     }
-    private void saveRoomInRedis(Room room) {
-        if (room != null && room.getDebateId() != null) {
-            redisTemplate.opsForValue().set(room.getDebateId(), room);
-        }
-    }
-    private Room fetchRoomFromRedis(String roomId) {
-        Object result = redisTemplate.opsForValue().get(roomId);
-        if (result instanceof Room) {
-            return (Room) result;
-        }
-        return null;
-    }
 }
