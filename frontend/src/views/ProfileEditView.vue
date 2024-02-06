@@ -1,138 +1,94 @@
 <script setup>
-import { ref } from 'vue';
+import { QInput, QBtn, QAvatar, QFile, QChip } from 'quasar';
+import { ref, onMounted } from 'vue';
+import { categories as importedCategories } from '@/components/category/Category';
 
-// 사용자가 입력한 닉네임을 저장할 ref
+// '전체'와 '기타' 카테고리를 제외합니다.
+const filteredCategories = importedCategories.filter(category => category.english !== 'all' && category.english !== 'etc');
+
+// 필터링된 카테고리로 categories 데이터를 반응형으로 만듭니다.
+const categories = ref(filteredCategories.map(category => ({
+    ...category,
+    selected: false
+})));
+
+// 예시 데이터 및 메소드
 const nickname = ref('');
 
-// 관심 카테고리 선택 상태를 관리할 ref
-// 예시로 몇 가지 카테고리를 설정했습니다. 실제 카테고리 목록에 따라 변경해주세요.
-const categories = ref([
-    { name: '기술', selected: false },
-    { name: '예술', selected: false },
-    { name: '과학', selected: false },
-]);
-
-// 프로필 이미지를 관리할 ref
 const profileImage = ref('');
 
-// 닉네임 중복 확인 함수
 function checkNickname() {
-    // 중복 확인 로직 구현
     alert('중복 확인 로직을 구현하세요.');
 }
 
-// 관심 카테고리 선택/해제
 function toggleCategory(category) {
+    console.log("토글!", category)
     category.selected = !category.selected;
+    // 배열 내 객체의 변경을 감지하기 위해 categories를 새로운 배열로 갱신
+    // categories.value = [...categories.value];
 }
 
-// 프로필 이미지 변경 핸들러
-function onFileChange(event) {
-    const files = event.target.files;
-    if (files.length > 0) {
-        const fileReader = new FileReader();
-        fileReader.onload = (e) => {
+function onFileChange(file) {
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
             profileImage.value = e.target.result;
         };
-        fileReader.readAsDataURL(files[0]);
+        reader.readAsDataURL(file);
     }
 }
 
-// 정보 수정 완료 핸들러
 function submitProfile() {
-    // 정보 수정 완료 로직 구현
     alert('정보 수정 완료 로직을 구현하세요.');
 }
 </script>
 
 <template>
-    <div class="profile-edit-container">
-        <div class="title">정보 수정</div>
-        <div class="subtitle">회원 가입에 필요한 정보를 입력해주세요.</div>
+    <div class="q-pa-md" style="max-width: 700px; margin: auto;">
+        <q-card class="q-pa-md" style="background: #f8f8ff; color: purple;">
+            <div class="text-h5 text-center q-mb-md" style="color: purple;">정보 수정</div>
+            <div class="text-subtitle2 text-center q-mb-md" style="color: grey;">회원 가입에 필요한 정보를 입력해주세요.</div>
 
-        <div class="field">이름</div>
-        <div class="value">김싸피</div>
+            <q-separator />
 
-        <div class="field">닉네임</div>
-        <div class="nickname-input">
-            <input v-model="nickname" placeholder="닉네임을 입력해주세요" />
-            <button @click="checkNickname">중복확인</button>
-        </div>
-
-        <div class="field">관심 카테고리</div>
-        <div class="categories">
-            <div v-for="category in categories" :key="category.name" class="category"
-                :class="{ selected: category.selected }" @click="toggleCategory(category)">
-                {{ category.name }}
+            <div class="q-mt-md">
+                <div class="text-bold q-mb-xs">이름</div>
+                <div>김싸피</div>
             </div>
-        </div>
 
-        <div class="field">프로필 이미지(선택)</div>
-        <div class="profile-image">
-            <img v-if="profileImage" :src="profileImage" alt="프로필 이미지" />
-            <input type="file" @change="onFileChange">
-        </div>
+            <div class="q-mt-md">
+                <div class="text-bold q-mb-xs">닉네임</div>
+                <q-input filled v-model="nickname" placeholder="닉네임을 입력해주세요" />
+                <q-btn flat label="중복확인" color="purple" @click="checkNickname" class="q-mt-md" />
+            </div>
 
-        <button class="submit-button" @click="submitProfile">수정 완료</button>
+            <div class="q-mt-md">
+                <div class="text-bold q-mb-xs">관심 카테고리</div>
+                <div class="q-gutter-sm q-mt-xs">
+                    <q-chip v-for="category in categories" :key="category.english" clickable
+                        :color="category.selected ? 'purple' : 'grey'" @click="toggleCategory(category)">
+                        {{ category.name }}
+                    </q-chip>
+                </div>
+            </div>
+
+            <div class="q-mt-md">
+                <div class="text-bold q-mb-xs">프로필 이미지(선택)</div>
+                <div class="q-gutter-sm q-mt-xs">
+                    <q-avatar>
+                        <img v-if="profileImage" :src="profileImage" />
+                    </q-avatar>
+                    <q-file filled label="파일 선택" @update:model-value="onFileChange" class="q-mt-xs" />
+                </div>
+            </div>
+
+            <q-btn color="dark" label="수정 완료" class="full-width q-mt-md" @click="submitProfile" />
+        </q-card>
     </div>
 </template>
 
 <style scoped>
-.profile-edit-container {
-    background-color: white;
-    padding: 20px;
-}
-
-.title {
-    color: purple;
-    font-weight: bold;
-    text-align: center;
-}
-
-.subtitle {
-    color: grey;
-    text-align: center;
-}
-
-.field {
-    margin-top: 20px;
-    font-weight: bold;
-}
-
-.value {
-    margin-bottom: 10px;
-}
-
-.nickname-input,
-.profile-image {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.categories {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.category {
-    padding: 5px 10px;
-    border: 1px solid transparent;
-    cursor: pointer;
-}
-
-.category.selected {
-    border-color: purple;
-}
-
-.submit-button {
-    display: block;
+.full-width {
     width: 100%;
-    background-color: darkgray;
-    color: white;
-    padding: 10px;
-    margin-top: 20px;
-    cursor: pointer;
 }
 </style>

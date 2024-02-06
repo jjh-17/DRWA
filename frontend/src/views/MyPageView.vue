@@ -1,5 +1,13 @@
 <script setup>
 import { QPage, QCard, QCardSection, QSeparator, QAvatar } from 'quasar'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+
+const onEditClick = () => {
+    router.push({ name: 'ProfileEdit' })
+}
 </script>
 
 <template>
@@ -17,7 +25,7 @@ import { QPage, QCard, QCardSection, QSeparator, QAvatar } from 'quasar'
                             <img src="https://cdn.quasar.dev/img/avatar.png">
                         </q-avatar>
                         <div class="nickname">
-                            닉네임 <q-icon name="edit" class="cursor-pointer" />
+                            닉네임 <q-icon name="edit" class="cursor-pointer" @click="onEditClick" />
                             <div class="text-caption">사용자123</div>
                         </div>
                     </div>
