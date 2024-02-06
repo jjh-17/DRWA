@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { QDialog, QIcon } from 'quasar';
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '@/stores/useAuthStore';
 import axios from 'axios';
 
 // // 로그인 상태를 시뮬레이션하기 위한 ref. 실제 앱에서는 상태 관리 라이브러리나 props를 통해 관리될 수 있습니다.
@@ -129,12 +129,11 @@ function onLogoClick() {
 </template>
 
 <style scoped>
-.custom-toolbar {
+.custom-toolbar{
     background-color: #34227C;
     color: white;
-    height: 70px;
+    height:70px;
 }
-
 .search-container {
     flex: 1;
     max-width: 800px;
