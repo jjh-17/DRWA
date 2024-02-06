@@ -35,6 +35,9 @@ function onFileChange(file) {
             profileImage.value = e.target.result;
         };
         reader.readAsDataURL(file);
+    } else {
+        // 프로필 사진이 없을 때 디폴트 이미지로 설정
+        profileImage.value = '/path/to/default/profile/image.png'; // 실제 경로로 대체해야 합니다.
     }
 }
 
@@ -56,10 +59,15 @@ function submitProfile() {
                 <div>김싸피</div>
             </div>
 
+
             <div class="q-mt-md">
                 <div class="text-bold q-mb-xs">닉네임</div>
-                <q-input filled v-model="nickname" placeholder="닉네임을 입력해주세요" />
-                <q-btn flat label="중복확인" color="purple" @click="checkNickname" class="q-mt-md" />
+                <div class="q-input q-ma-none q-pa-none" style="display: flex; align-items: center;">
+                    <q-input rounded outlined v-model="nickname" placeholder="닉네임을 입력해주세요" class="nickname-input"
+                        style="flex-grow: 1; border-right: none;" />
+                    <q-btn flat label="중복확인" color="purple" @click="checkNickname" class="q-ml-md rounded-borders"
+                        style="max-height: 54px;" />
+                </div>
             </div>
 
             <div class="q-mt-md">
@@ -72,17 +80,16 @@ function submitProfile() {
                 </div>
             </div>
 
-            <div class="q-mt-md">
-                <div class="text-bold q-mb-xs">프로필 이미지(선택)</div>
-                <div class="q-gutter-sm q-mt-xs">
-                    <q-avatar>
-                        <img v-if="profileImage" :src="profileImage" />
-                    </q-avatar>
-                    <q-file filled label="파일 선택" @update:model-value="onFileChange" class="q-mt-xs" />
-                </div>
+            <div class="text-bold q-mb-xs">프로필 이미지(선택)</div>
+            <div class="q-mt-md flex items-center profile-section">
+                <q-avatar size="100px" class="q-mr-md">
+                    <img v-if="profileImage" :src="profileImage" />
+                    <img v-else src="/path/to/default/profile/image.png" alt="디폴트 프로필 이미지" />
+                </q-avatar>
+                <q-file filled label="파일 선택" @update:model-value="onFileChange" class="file-input" />
             </div>
 
-            <q-btn color="dark" label="수정 완료" class="full-width q-mt-md" @click="submitProfile" />
+            <q-btn color="dark" label="수정 완료" class="full-width q-mt-md" @click="submitProfile" rounded />
         </q-card>
     </div>
 </template>
@@ -90,5 +97,15 @@ function submitProfile() {
 <style scoped>
 .full-width {
     width: 100%;
+}
+
+.nickname-input {
+    border-color: purple;
+}
+
+.profile-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 </style>
