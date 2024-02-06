@@ -118,12 +118,11 @@ async function searchRooms(type) {
 </template>
 
 <style scoped>
-.custom-toolbar {
+.custom-toolbar{
     background-color: #34227C;
     color: white;
-    height: 70px;
+    height:70px;
 }
-
 .search-container {
     flex: 1;
     max-width: 800px;
