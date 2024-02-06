@@ -39,6 +39,11 @@ const router = createRouter({
       path: '/debate/:debateId',
       name: 'DebateView',
       component: DebateView
+    },
+    {
+      path: '/member/profile-edit',
+      name: 'ProfileEdit',
+      component: () => import('../views/ProfileEditView.vue')
     }
   ]
 })
