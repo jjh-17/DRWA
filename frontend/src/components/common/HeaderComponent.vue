@@ -36,6 +36,13 @@ const logout = () => {
 
 
 //방 검색
+const type = ref('');
+const cond = ref('검색 조건');
+
+const setType = (newType) => {
+  type.value = newType;
+  cond.value = newType==='title'?'방 제목 ' : '방 제시어';
+};
 async function searchRooms(type) {
     if (!searchQuery.value.trim()) {
         console.warn('검색어를 입력해주세요.');
@@ -70,9 +77,27 @@ async function searchRooms(type) {
 
         <!-- 검색창 -->
 
-        <q-input v-model="searchQuery" placeholder="검색어 입력" />
-        <q-btn @click="searchRooms('title')" color="primary">제목 검색</q-btn>
-        <q-btn @click="searchRooms('keyword')" color="primary">제시어 검색</q-btn>
+        <q-btn-dropdown
+        v-model="menu"
+        class="dropdown"
+        :label= "cond"
+        >
+
+        <q-list>
+            <q-item clickable v-close-popup @click="setType('title')">
+            <q-item-section>
+                <q-item-label>방 제목</q-item-label>
+            </q-item-section>
+            </q-item>
+            <q-item clickable v-close-popup @click="setType('keyword')">
+            <q-item-section>
+                <q-item-label>방 제시어</q-item-label>
+            </q-item-section>
+            </q-item>
+        </q-list>
+        </q-btn-dropdown>
+        <q-input class="searchbox" v-model="searchQuery" placeholder="검색어 입력" style="height: 35px;" />
+        <q-btn label="검색" @click="searchRooms(type.value)"/>
 
 
         <!-- 로그인 상태에 따른 조건부 렌더링 -->
@@ -123,16 +148,33 @@ async function searchRooms(type) {
     color: white;
     height:70px;
 }
-.search-container {
-    flex: 1;
+.q-mr-sm{
+    padding: 0px 25px 0px 25px;
+}
+.text-white.q-mr-sm{
+    padding: 0px 25px 0px 25px;
+}
+
+.q-input.searchbox {
+    flex:1;
     max-width: 800px;
-    /* 검색창의 최대 넓이를 조정합니다. */
+    background-color: white;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+  border-radius: 2px; /* 모서리 둥글게 만듦 */
+  height:35px;
 }
 
-.search-input {
-    width: 100%;
+/* placeholder의 위치를 조정합니다. */
+.q-input.searchbox input::placeholder {
+  text-align: center; /* 가운데 정렬 */
+  font-size: 1em;
+  line-height: 35px;
+  /* padding-top: 10px; 위쪽으로 조정 */
 }
-
+.q-btn-dropdown{
+    color: white;
+    width: 120px;
+}
 .login-btn {
     width: 13rem;
     margin-bottom: 10px;
