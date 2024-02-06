@@ -1,8 +1,8 @@
 <template>
   <div class="most-viewers-rooms">
     <div class="select-rooms">
-      <div class="select-box" @click="setActiveBox('pop')">인기토론방</div>
-      <div class="select-box" @click="setActiveBox('categ')">관심 주제</div>
+      <div class="select-box" @click="setActiveBox('pop')">🤍 인기토론방</div>
+      <div class="select-box" @click="setActiveBox('categ')">💛 관심 주제</div>
     </div>
 
     <div class="carousel">
@@ -209,6 +209,7 @@ img {
   cursor: pointer;
   transition: background-color 0.3s ease;
   width: calc((100% / 6) - 10px);
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .category-box:hover,
@@ -220,5 +221,8 @@ img {
 
 .roomList {
   padding: 0px 50px 50px 50px;
+}
+.select-box {
+  padding-right: 10px;;
 }
 </style>
