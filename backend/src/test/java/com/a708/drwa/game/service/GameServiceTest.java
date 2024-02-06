@@ -15,7 +15,9 @@ import com.a708.drwa.profile.repository.ProfileRepository;
 import com.a708.drwa.rank.domain.Rank;
 import com.a708.drwa.rank.enums.RankName;
 import com.a708.drwa.rank.repository.RankRepository;
+import com.a708.drwa.ranking.domain.RankingMember;
 import com.a708.drwa.redis.domain.DebateRedisKey;
+import com.a708.drwa.redis.domain.MemberRedisKey;
 import com.a708.drwa.redis.util.RedisKeyUtil;
 import org.junit.Before;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +27,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
@@ -38,6 +41,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class GameServiceTest {
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
+    @Autowired
+    RedisTemplate<String, RankingMember> rankingMemberRedisTemplate;
     @Autowired DebateRepository debateRepository;
     @Autowired MemberRepository memberRepository;
     @Autowired ProfileRepository profileRepository;
@@ -49,6 +54,10 @@ class GameServiceTest {
 
     @BeforeEach
     void before() {
+        HashOperations<String, DebateRedisKey, Object> debateHashOperations = redisTemplate.opsForHash();
+        HashOperations<String, MemberRedisKey, Object> memberHashOperations = redisTemplate.opsForHash();
+        ZSetOperations<String, RankingMember> rankingMemberZSetOperations = rankingMemberRedisTemplate.opsForZSet();
+
         // Debate 생성 1
         Debate debate = Debate.builder().debateCategory(DebateCategory.ANIMAL).build();
         debateRepository.save(Debate.builder().debateCategory(DebateCategory.ANIMAL).build());
@@ -72,22 +81,47 @@ class GameServiceTest {
         Profile profile1 = Profile.builder()
                 .nickname("nickname1").member(member1).point(1).mvpCount(1).rank(rank).build();
         Profile profile2 = Profile.builder()
-                .nickname("nickname1").member(member2).point(2).mvpCount(2).rank(rank).build();
+                .nickname("nickname2").member(member2).point(2).mvpCount(2).rank(rank).build();
         Profile profile3 = Profile.builder()
-                .nickname("nickname1").member(member3).point(3).mvpCount(3).rank(rank).build();
+                .nickname("nickname3").member(member3).point(3).mvpCount(3).rank(rank).build();
         Profile profile4 = Profile.builder()
-                .nickname("nickname1").member(member4).point(4).mvpCount(4).rank(rank).build();
+                .nickname("nickname4").member(member4).point(4).mvpCount(4).rank(rank).build();
         Profile profile5 = Profile.builder()
-                .nickname("nickname1").member(member5).point(5).mvpCount(5).rank(rank).build();
+                .nickname("nickname5").member(member5).point(5).mvpCount(5).rank(rank).build();
         Profile profile6 = Profile.builder()
-                .nickname("nickname1").member(member6).point(6).mvpCount(6).rank(rank).build();
+                .nickname("nickname6").member(member6).point(6).mvpCount(6).rank(rank).build();
         Profile profile7 = Profile.builder()
-                .nickname("nickname1").member(member7).point(7).mvpCount(7).rank(rank).build();
+                .nickname("nickname7").member(member7).point(7).mvpCount(7).rank(rank).build();
         Profile profile8 = Profile.builder()
-                .nickname("nickname1").member(member8).point(8).mvpCount(8).rank(rank).build();
+                .nickname("nickname8").member(member8).point(8).mvpCount(8).rank(rank).build();
         profileRepository.saveAll(List.of(profile1, profile2, profile3, profile4, profile5, profile6, profile7, profile8));
 
-        // DebateMembers 저장
+        // DebateMembers 생성
+        DebateMember debateMember1 = DebateMember.builder()
+                .memberId(member1.getId()).nickName(profile1.getNickname()).role(Role.A_TEAM).build();
+        DebateMember debateMember2 = DebateMember.builder()
+                .memberId(member2.getId()).nickName(profile2.getNickname()).role(Role.A_TEAM).build();
+        DebateMember debateMember3 = DebateMember.builder()
+                .memberId(member3.getId()).nickName(profile3.getNickname()).role(Role.B_TEAM).build();
+        DebateMember debateMember4 = DebateMember.builder()
+                .memberId(member4.getId()).nickName(profile4.getNickname()).role(Role.B_TEAM).build();
+        DebateMember debateMember5 = DebateMember.builder()
+                .memberId(member5.getId()).nickName(profile5.getNickname()).role(Role.JUROR).build();
+        DebateMember debateMember6 = DebateMember.builder()
+                .memberId(member6.getId()).nickName(profile6.getNickname()).role(Role.JUROR).build();
+        DebateMember debateMember7 = DebateMember.builder()
+                .memberId(member7.getId()).nickName(profile7.getNickname()).role(Role.JUROR).build();
+        DebateMember debateMember8 = DebateMember.builder()
+                .memberId(member8.getId()).nickName(profile8.getNickname()).role(Role.WATCHER).build();
+        DebateMembers debateMembers = DebateMembers.builder()
+                .leftMembers(List.of(debateMember1, debateMember2))
+                .rightMembers(List.of(debateMember3, debateMember4))
+                .jurors(List.of(debateMember5, debateMember6, debateMember7))
+                .watchers(List.of(debateMember8))
+                .build();
+
+
+
 
        HashOperations<String, DebateRedisKey, Object> hashOperations = redisTemplate.opsForHash();
         ListOperations<String, Object> listOperations = redisTemplate.opsForList();
