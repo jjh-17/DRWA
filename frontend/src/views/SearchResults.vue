@@ -1,18 +1,22 @@
 <template>
-  <div>
-    <h1>검색 결과</h1>
-    <p>검색어: {{ query }}</p>
-    <p>검색 타입: {{ type }}</p>
-
-    <div v-if="rooms.length > 0">
-      <div v-for="room in rooms" :key="room.id">
-        <p>방 제목: {{ room.title }}</p>
-        <p>방 제시어: {{ room.keyword }}</p>
-      </div>
-    </div>
-    <div v-else>
-      <p>검색 결과가 없습니다.</p>
-    </div>
+  <div v-for="room in rooms" :key="room.id" class="q-pa-md">
+    <q-card>
+      <q-card-section class="row items-center">
+        <q-avatar>
+          <img :src="room.thumbnailUrl">
+        </q-avatar>
+        <div class="q-ml-md">
+          <div class="text-h6">{{ room.title }}</div>
+          <div class="text-subtitle2">방장: {{ room.host }}</div>
+        </div>
+      </q-card-section>
+      <q-card-section>
+        제시어: {{ room.keyword }}
+      </q-card-section>
+      <q-card-section>
+        총인원수: {{ room.totalMembers }}
+      </q-card-section>
+    </q-card>
   </div>
 </template>
 
@@ -23,14 +27,19 @@ import { useRoute } from 'vue-router';
 
 const route = useRoute();
 const rooms = ref([]);
+const searchQuery = ref(route.query.query || '');
 
-onMounted(async () => {
-    const { type, query } = route.query;
+async function searchRooms() {
+    const type = route.query.type;
     try {
-        const response = await axios.get(`http://localhost:8080/search/${type}`, { params: { query } });
-        rooms.value = response.data;
+        const response = await axios.get(`http://localhost:8080/room/search/${type}`, {
+            params: { query: searchQuery.value }
+        });
+        rooms.value = response.data; 
     } catch (error) {
-        console.error('검색 결과를 불러오는 중 오류 발생:', error);
+        console.error('검색 중 오류 발생:', error);
     }
-});
+}
+
+onMounted(searchRooms);
 </script>
