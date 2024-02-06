@@ -3,10 +3,12 @@ package com.a708.drwa.game.service;
 import com.a708.drwa.debate.data.DebateMember;
 import com.a708.drwa.debate.data.DebateMembers;
 import com.a708.drwa.debate.data.RoomInfo;
+import com.a708.drwa.debate.data.VoteInfo;
 import com.a708.drwa.debate.domain.Debate;
 import com.a708.drwa.debate.enums.DebateCategory;
 import com.a708.drwa.debate.enums.Role;
 import com.a708.drwa.debate.repository.DebateRepository;
+import com.a708.drwa.game.domain.Team;
 import com.a708.drwa.member.domain.Member;
 import com.a708.drwa.member.repository.MemberRepository;
 import com.a708.drwa.member.type.SocialType;
@@ -16,6 +18,7 @@ import com.a708.drwa.rank.domain.Rank;
 import com.a708.drwa.rank.enums.RankName;
 import com.a708.drwa.rank.repository.RankRepository;
 import com.a708.drwa.ranking.domain.RankingMember;
+import com.a708.drwa.redis.constant.Constants;
 import com.a708.drwa.redis.domain.DebateRedisKey;
 import com.a708.drwa.redis.domain.MemberRedisKey;
 import com.a708.drwa.redis.util.RedisKeyUtil;
@@ -33,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -49,7 +53,6 @@ class GameServiceTest {
     @Autowired RankRepository rankRepository;
     @Autowired GameService gameService;
     RedisKeyUtil redisKeyUtil = new RedisKeyUtil();
-    final String debateKey = "1";
 
 
     @BeforeEach
@@ -57,9 +60,11 @@ class GameServiceTest {
         HashOperations<String, DebateRedisKey, Object> debateHashOperations = redisTemplate.opsForHash();
         HashOperations<String, MemberRedisKey, Object> memberHashOperations = redisTemplate.opsForHash();
         ZSetOperations<String, RankingMember> rankingMemberZSetOperations = rankingMemberRedisTemplate.opsForZSet();
+        Constants constants = new Constants();
 
         // Debate 생성 1
         Debate debate = Debate.builder().debateCategory(DebateCategory.ANIMAL).build();
+        String debateRedisKey = debate.getDebateId()+"";
         debateRepository.save(Debate.builder().debateCategory(DebateCategory.ANIMAL).build());
 
         // 멤버 생성 8
@@ -96,6 +101,19 @@ class GameServiceTest {
                 .nickname("nickname8").member(member8).point(8).mvpCount(8).rank(rank).build();
         profileRepository.saveAll(List.of(profile1, profile2, profile3, profile4, profile5, profile6, profile7, profile8));
 
+        // RoomInfo 생성
+        RoomInfo roomInfo = RoomInfo.builder()
+                .debateCategory(debate.getDebateCategory().name())
+                .hostId(member1.getId())
+                .debateTitle("privateTitle")
+                .leftKeyword("privateLeft").rightKeyword("privateRight")
+                .playerNum(4).jurorNum(3)
+//                .isPrivate(true).password("privatePwd")
+                .isPrivate(false).password(null)
+                .speakingTime(100).readyTime(300).qnaTime(200)
+                .build();
+        debateHashOperations.put(debateRedisKey, DebateRedisKey.ROOM_INFO, roomInfo);
+
         // DebateMembers 생성
         DebateMember debateMember1 = DebateMember.builder()
                 .memberId(member1.getId()).nickName(profile1.getNickname()).role(Role.A_TEAM).build();
@@ -119,49 +137,83 @@ class GameServiceTest {
                 .jurors(List.of(debateMember5, debateMember6, debateMember7))
                 .watchers(List.of(debateMember8))
                 .build();
+        debateHashOperations.put(debateRedisKey, DebateRedisKey.DEBATE_MEMBER_LIST, debateMembers);
 
+        // VoteInfo 생성
+        VoteInfo voteInfo = VoteInfo.builder().leftVote(2).rightVote(1).build();
+        debateHashOperations.put(debateRedisKey, DebateRedisKey.VOTE_INFO, voteInfo);
 
-
-
-       HashOperations<String, DebateRedisKey, Object> hashOperations = redisTemplate.opsForHash();
-        ListOperations<String, Object> listOperations = redisTemplate.opsForList();
-
-        Map<Integer, DebateMember> memberDtoHashMap = new HashMap<>();
-        memberDtoHashMap.put(1, DebateMember.builder().memberId(1).nickName("1").role(Role.A_TEAM).build());
-        memberDtoHashMap.put(2, DebateMember.builder().memberId(2).nickName("2").role(Role.B_TEAM).build());
-        memberDtoHashMap.put(3, DebateMember.builder().memberId(3).nickName("3").role(Role.JUROR).build());
-        memberDtoHashMap.put(4, DebateMember.builder().memberId(4).nickName("4").role(Role.WATCHER).build());
-        for(Map.Entry<Integer, DebateMember> member : memberDtoHashMap.entrySet()) {
-            DebateMember memberDto = member.getValue();
-            String teamKey = member.getValue().getRole().string();
-            listOperations.rightPush(redisKeyUtil.getKeyByRoomIdWithKeyword(debateKey, teamKey), memberDto);
-        }
-
+        // MVP_MAP 생성
         Map<String, Integer> mvpMap = new HashMap<>();
-        mvpMap.put("1", 4);
-        mvpMap.put("2", 4);
-        mvpMap.put("3", 4);
-        hashOperations.put(debateKey, DebateRedisKey.MVP, mvpMap);
+        mvpMap.put(member5.getId()+"", member1.getId());
+        mvpMap.put(member6.getId()+"", member1.getId());
+        mvpMap.put(member7.getId()+"", member4.getId());
+        debateHashOperations.put(debateRedisKey, DebateRedisKey.MVP, mvpMap);
 
-        hashOperations.put(debateKey, DebateRedisKey.KEYWORD_A, "test");
+        // 배심원의 VOTE_MAP 생성
+        Map<String, String> voteMap = new HashMap<>();
+        voteMap.put(member5.getId()+"", Team.A.string());
+//        voteMapA.put(member6.getId()+"", Team.A.string());
+        voteMap.put(member7.getId()+"", Team.B.string());
+
+        debateHashOperations.put(debateRedisKey, DebateRedisKey.VOTE_MAP, voteMap);
+
+        // redis_ranking 생성
+        createRankingMember(member1.getId(), profile1.getNickname(), profile1.getPoint(), getWinRate(1, 1, 1),
+                profile1.getRank().getRankName(), constants.getConstantsByCategory(roomInfo.getDebateCategory()));
+        createRankingMember(member2.getId(), profile2.getNickname(), profile2.getPoint(), getWinRate(2, 2, 2),
+                profile2.getRank().getRankName(), constants.getConstantsByCategory(roomInfo.getDebateCategory()));
+        createRankingMember(member3.getId(), profile3.getNickname(), profile3.getPoint(), getWinRate(3, 3, 3),
+                profile3.getRank().getRankName(), constants.getConstantsByCategory(roomInfo.getDebateCategory()));
+        createRankingMember(member4.getId(), profile4.getNickname(), profile4.getPoint(), getWinRate(4, 4, 4),
+                profile4.getRank().getRankName(), constants.getConstantsByCategory(roomInfo.getDebateCategory()));
+        createRankingMember(member5.getId(), profile5.getNickname(), profile5.getPoint(), getWinRate(5, 5, 5),
+                profile5.getRank().getRankName(), constants.getConstantsByCategory(roomInfo.getDebateCategory()));
+        createRankingMember(member6.getId(), profile6.getNickname(), profile6.getPoint(), getWinRate(6, 6, 6),
+                profile6.getRank().getRankName(), constants.getConstantsByCategory(roomInfo.getDebateCategory()));
+        createRankingMember(member7.getId(), profile7.getNickname(), profile7.getPoint(), getWinRate(7, 7, 7),
+                profile7.getRank().getRankName(), constants.getConstantsByCategory(roomInfo.getDebateCategory()));
+        createRankingMember(member8.getId(), profile8.getNickname(), profile8.getPoint(), getWinRate(8, 8, 8),
+                profile8.getRank().getRankName(), constants.getConstantsByCategory(roomInfo.getDebateCategory()));
+
+
+        // redis_user_info 생성
     }
 
     @Test
+    @Transactional
     void redisTest() {
-        HashOperations<String, DebateRedisKey, Object> hashOperations = redisTemplate.opsForHash();
-        ListOperations<String, Object> listOperations = redisTemplate.opsForList();
+        HashOperations<String, String, Object> hashOperations = redisTemplate.opsForHash();
+        String pk = "pk";
+        String mk = "mk";
 
-        // 방 정보 가져오기
-        RoomInfo roomInfo = (RoomInfo) hashOperations.get(debateKey, DebateRedisKey.ROOM_INFO);
+        hashOperations.put(pk, mk, 1);
+        System.out.println(hashOperations.get(pk, mk));
 
-        // 참여자 리스트
-        DebateMembers debateMembers = (DebateMembers) hashOperations.get(debateKey, DebateRedisKey.DEBATE_MEMBER_LIST);
+        Set<String> keys = redisTemplate.keys("*");
+        System.out.println(keys);
+        redisTemplate.delete(keys);
+    }
 
-        // MVP
-        Map<String, Integer> mvpMap = (HashMap<String, Integer>) hashOperations.get(debateKey, DebateRedisKey.MVP);
-        System.out.println(hashOperations.get(debateKey, DebateRedisKey.MVP.toString()));
+    private RankingMember createRankingMember(Integer memberId, String nickname, int point, int winRate,
+                                              RankName rankName, String redisKey){
+        RankingMember rankingMember = RankingMember.builder()
+                .memberId(memberId)
+                .nickname(nickname)
+                .winRate(winRate)
+                .rankName(rankName)
+                .point(point)
+                .build();
 
-        System.out.println(hashOperations.get(debateKey, DebateRedisKey.KEYWORD_A.toString()));
+        rankingMemberRedisTemplate.opsForZSet().add(Constants.RANK_REDIS_KEY, rankingMember, -rankingMember.getPoint());
+        rankingMemberRedisTemplate.opsForZSet().add(redisKey, rankingMember, -rankingMember.getPoint());
 
+        return rankingMember;
+    }
+
+    private int getWinRate(int win, int lose, int tie) {
+        return win+lose==0
+                ? 0
+                : (int) ((double) win / (win + lose + tie) * 100.0);
     }
 }
