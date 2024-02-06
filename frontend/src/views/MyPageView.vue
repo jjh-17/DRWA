@@ -18,34 +18,33 @@ import HeaderComponent from '@/components/common/HeaderComponent.vue'
         <q-card-section class="flex flex-center q-gutter-sm justify-around">
           <div class="flex flex-center justify-between">
             <q-avatar size="100px">
-              <img src="https://cdn.quasar.dev/img/avatar.png" />
+              <img src="https://cdn.quasar.dev/img/avatar.png">
             </q-avatar>
             <div class="nickname">
-              닉네임
+              닉네임 <q-icon name="edit" class="cursor-pointer" />
               <div class="text-caption">사용자123</div>
             </div>
           </div>
-          <div>1630p</div>
-        </q-card-section>
+          <div>1630p <q-icon name="arrow_forward_ios" class="cursor-pointer" /></div>
 
-        <q-card-section class="flex flex-center q-gutter-sm justify-around">
-          <div>
-            전적
-            <div>10승 5패</div>
-          </div>
-          <div>
-            승률
-            <div>66%</div>
-          </div>
-        </q-card-section>
+          <q-card-section class="flex flex-center q-gutter-sm justify-around">
+            <div>
+              전적
+              <div>10승 5패</div>
+            </div>
+            <div>
+              승률
+              <div>66%</div>
+            </div>
+          </q-card-section>
 
-        <q-card-section class="flex flex-center">
-          <div>기록: 최고기록 - 100점</div>
-        </q-card-section>
+          <q-card-section class="flex flex-center">
+            <div>기록: 최고기록 - 100점</div>
+          </q-card-section>
 
-        <q-card-section class="flex flex-center">
-          <div>칭호: 초보 탈출</div>
-        </q-card-section>
+          <q-card-section class="flex flex-center">
+            <div>칭호: 초보 탈출</div>
+          </q-card-section>
       </q-card>
     </q-page>
   </q-page-container>
