@@ -4,7 +4,8 @@ package com.a708.drwa.game.data.dto.response;
 public enum WinnerTeam {
     A("teamA"),
     B("teamB"),
-    TIE("tie");
+    TIE("tie"),
+    ;
 
     private final String string;
 
