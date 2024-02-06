@@ -4,7 +4,6 @@ import com.a708.drwa.debate.data.DebateMember;
 import com.a708.drwa.debate.data.DebateMembers;
 import com.a708.drwa.debate.data.RoomInfo;
 import com.a708.drwa.debate.data.VoteInfo;
-import com.a708.drwa.debate.enums.DebateCategory;
 import com.a708.drwa.debate.enums.Role;
 import com.a708.drwa.debate.exception.DebateErrorCode;
 import com.a708.drwa.debate.exception.DebateException;
@@ -51,21 +50,20 @@ public class GameService {
 
     private static final int MVP_POINT = 60;
     private static final int WINNER_POINT = 100;
+    private static final Random random = new Random();
+    private static final Constants constants = new Constants();
     private final RedisTemplate<String, Object> objectRedisTemplate;
     private final RedisTemplate<String, RankingMember> rankMemberRedisTemplate;
     private final RecordBulkRepository recordBulkRepository;
     private final GameInfoRepository gameInfoRepository;
     private final DebateRepository debateRepository;
     private final ProfileRepository profileRepository;
-    private static final Random random = new Random();
-    private static final Constants constants = new Constants();
 
     // 공개 토론방 종료 시 정산 서비스
     @Transactional
     public AddGameResponseDto addGame(AddGameRequestDto addGameRequestDto) {
         // 인자로 받은 방의 카테고리 확인
-        DebateCategory debateCategory = checkDebateCategory(addGameRequestDto.getDebateId());
-        String redisCategory = constants.getConstantsByDebateCategory(debateCategory);
+        checkDebateCategory(addGameRequestDto.getDebateId());
 
         // redisDebate가 있는지 판단
         HashOperations<String, DebateRedisKey, Object> debateHashOperations = objectRedisTemplate.opsForHash();
@@ -99,6 +97,7 @@ public class GameService {
         GameInfo savedGameInfo = updateDB(roomInfo, debateMembers, profiles, voteMap, mvpMemberId, winnerTeam);
 
         // Map을 순회하며 Redis 통신
+        String redisCategory = constants.getConstantsByCategory(roomInfo.getDebateCategory());
         updateRedis(profiles, winnerTeamList, mvpList, savedGameInfo, winnerTeam, redisCategory,
                 winnerPoint, mvpPoint, mvpMemberId, savedGameInfo.isPrivate());
 
@@ -118,7 +117,7 @@ public class GameService {
     }
 
     // 게임 정보, 전적 저장
-    private GameInfo updateDB(RoomInfo roomInfo, DebateMembers debateMembers, List<Profile> profiles,
+    public GameInfo updateDB(RoomInfo roomInfo, DebateMembers debateMembers, List<Profile> profiles,
                           Map<String, String> voteMap, int mvpMemberId, WinnerTeam winnerTeam) {
         final GameInfo savedGameInfo = addGameInfo(
                 roomInfo.getLeftKeyword(),
@@ -147,7 +146,7 @@ public class GameService {
     }
 
     // Redis 최신화 메서드
-    private void updateRedis(List<Profile> profiles, List<DebateMember> winnerTeamList, List<DebateMember> mvpList,
+    public void updateRedis(List<Profile> profiles, List<DebateMember> winnerTeamList, List<DebateMember> mvpList,
                              GameInfo gameInfo, WinnerTeam winnerTeam, String redisCategory,
                              int winnerPoint, int mvpPoint, int mvpMemberId, boolean isPrivate) {
         HashOperations<String, MemberRedisKey, Object> memberRedisOperations = objectRedisTemplate.opsForHash();
@@ -274,12 +273,12 @@ public class GameService {
 
     // redis_ranking 최신화
     // redis_user_info의 raking 또한 최신화
-    private void updateRedisRanking(RankingMember rankingMember, RankingMember nRankingMember, String redisRankingKey, String redisUserInfoKey) {
+    public void updateRedisRanking(RankingMember rankingMember, RankingMember nRankingMember, String redisRankingKey, String redisUserInfoKey) {
         ZSetOperations<String, RankingMember> rankingMemberZSetOperations = rankMemberRedisTemplate.opsForZSet();
         HashOperations<String, MemberRedisKey, Object> memberHashOperations = objectRedisTemplate.opsForHash();
 
         Long cnt = rankingMemberZSetOperations.remove(redisRankingKey, rankingMember);
-        if(cnt!=1) throw new RedisException(RedisErrorCode.REDIS_DELETE_FAIL);
+        if(cnt==null || cnt!=1) throw new RedisException(RedisErrorCode.REDIS_DELETE_FAIL);
 
         rankingMemberZSetOperations.add(redisRankingKey, nRankingMember, -nRankingMember.getPoint());
 
@@ -291,10 +290,9 @@ public class GameService {
     }
 
     // debateId 검증
-    private DebateCategory checkDebateCategory(int debateId) {
-        return debateRepository.findByDebateId(debateId)
-                .orElseThrow(() -> new DebateException(DebateErrorCode.NOT_EXIST_DEBATE_ROOM_ERROR))
-                .getDebateCategory();
+    private void checkDebateCategory(int debateId) {
+        if(!debateRepository.existsById(debateId))
+            throw new DebateException(DebateErrorCode.NOT_EXIST_DEBATE_ROOM_ERROR);
     }
 
     // DB내 프로필 검색
@@ -303,7 +301,7 @@ public class GameService {
 
         for(DebateMember teamA : teamAList) ids.add(teamA.getMemberId());
         for(DebateMember teamB : teamBList) ids.add(teamB.getMemberId());
-//        for(DebateMember juror : jurorList) ids.add(juror.getMemberId());
+        for(DebateMember juror : jurorList) ids.add(juror.getMemberId());
 
         List<Profile> profiles = profileRepository.findAllByMemberIdIn(ids)
                 .orElseThrow(() -> new ProfileDataException(ProfileErrorCode.PROFILE_NOT_FOUND.getErrorCode()));
