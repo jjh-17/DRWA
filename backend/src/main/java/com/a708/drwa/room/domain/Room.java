@@ -27,5 +27,21 @@ public class Room { // Elasticsearch에 저장되는 방 정보
 
     private String totalNum;
 
+    private String thumbnailUrl;
+
+    private String thumbnailId;
+
+    @Getter
+    @Setter
+    public static class ThumbnailUpdateInfo {
+        private String roomId;
+        private String thumbnailId;
+        private String thumbnailUrl;
+    }
+
+    public void updateThumbnail(ThumbnailUpdateInfo thumbnailUpdateInfo) {
+        this.thumbnailId = thumbnailUpdateInfo.getThumbnailId();
+        this.thumbnailUrl = thumbnailUpdateInfo.getThumbnailUrl();
+    }
 
 }
