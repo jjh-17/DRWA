@@ -15,13 +15,17 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 public class Room { // Elasticsearch에 저장되는 방 정보
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private String debateId;
 
     @Field(type = FieldType.Text, analyzer = "korean")
     private String title;
 
     @Field(type = FieldType.Text, analyzer = "korean")
     private String keyword;
+
+    private String host;
+
+    private String totalNum;
 
 
 }
