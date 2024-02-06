@@ -303,7 +303,7 @@ public class GameService {
 
         for(DebateMember teamA : teamAList) ids.add(teamA.getMemberId());
         for(DebateMember teamB : teamBList) ids.add(teamB.getMemberId());
-        for(DebateMember juror : jurorList) ids.add(juror.getMemberId());
+//        for(DebateMember juror : jurorList) ids.add(juror.getMemberId());
 
         List<Profile> profiles = profileRepository.findAllByMemberIdIn(ids)
                 .orElseThrow(() -> new ProfileDataException(ProfileErrorCode.PROFILE_NOT_FOUND.getErrorCode()));
