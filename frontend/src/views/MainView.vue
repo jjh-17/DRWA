@@ -1,9 +1,10 @@
 <template>
   <div class="most-viewers-rooms">
     <div class="select-rooms">
-      <div class="select-box" @click="setActiveBox">인기토론방</div>
-      <div class="select-box" @click="setActiveBox">관심 주제</div>
+      <div class="select-box" @click="setActiveBox('pop')">인기토론방</div>
+      <div class="select-box" @click="setActiveBox('categ')">관심 주제</div>
     </div>
+
     <div class="carousel">
       <div class="carousel__prev1" @click="navigateToPrev">&lt;</div>
       <div class="carousel-container">
@@ -23,16 +24,15 @@
       <div
         v-for="category in categories"
         :key="category.name"
-        :class="['category-box', { active: activeCategory === category }]"
+        :class="['category-box', { active: activeCategory === category.name }]"
         @click="setActiveCategory(category)"
       >
         {{ category.name }}
       </div>
     </div>
   </div>
-  <div>
-    {{ selectedCategory }}
-    <RoomList v-if="selectedCategory" :selectedCategory="selectedCategory" />
+  <div class="roomList">
+    <RoomsCategory v-if="activeCategory" :activeCategory="activeCategory" />
   </div>
 </template>
 
@@ -41,7 +41,7 @@ import { ref, reactive, toRefs } from 'vue'
 import { Carousel, Slide } from 'vue3-carousel'
 import { categories } from '@/components/category/Category.js'
 import 'vue3-carousel/dist/carousel.css'
-import RoomList from '@/components/room/RoomList.vue'
+import RoomsCategory from '@/components/room/RoomsCategory.vue'
 
 // Composition API의 ref와 reactive를 사용하여 데이터 정의
 const state = reactive({
@@ -49,11 +49,11 @@ const state = reactive({
     'https://cdn.quasar.dev/img/mountains.jpg',
     'https://cdn.quasar.dev/img/parallax1.jpg',
     'https://cdn.quasar.dev/img/parallax2.jpg'
-    // [임시] 여기에 방 thumbnail이 들어감.
+    // [임시] 여기에 방 thumbnail이 들어감. pinia로
   ],
   activeIndex: 0,
   activeCategory: null,
-  selectedCategory: null
+  activeBox: null
 })
 
 const carousel = ref(null)
@@ -72,8 +72,12 @@ const navigateToNext = () => {
 }
 
 const setActiveCategory = (category) => {
-  state.activeCategory = category
-  state.selectedCategory = category.english
+  state.activeCategory = category.name;
+}
+
+
+const setActiveBox = (boxType) => {
+  state.activeBox = boxType
 }
 
 // toRefs를 사용하여 반응성 있는 데이터를 반환
@@ -212,5 +216,9 @@ img {
   /* 클릭 시 박스 스타일 변경 */
   background-color: #34227c;
   color: #e8e8e8;
+}
+
+.roomList {
+  padding: 0px 50px 50px 50px;
 }
 </style>
