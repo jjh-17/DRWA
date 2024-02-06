@@ -65,6 +65,10 @@ async function searchRooms(type) {
     }
 }
 
+function onLogoClick() {
+    router.push("/");
+}
+
 </script>
 
 <template>
@@ -73,7 +77,7 @@ async function searchRooms(type) {
         <!-- <q-btn flat round dense icon="menu" class="q-mr-sm" /> -->
 
         <!-- 로고 및 랭킹 버튼 -->
-        <q-avatar class="q-mr-sm">
+        <q-avatar class="q-mr-sm" @click="onLogoClick" style="cursor: pointer;">
             <img src="@\assets\img\logo.png">
         </q-avatar>
         <q-btn flat label="랭킹" class="text-white q-mr-sm" />
