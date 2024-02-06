@@ -10,6 +10,8 @@ public enum MemberRedisKey {
     SELECTED_ACHIEVEMENT("selected achievement"),
     RANK_NAME("rankName"),
     MVP_COUNT("mvpCount"),
+    LATEST_GAME_RECORD("latestGameRecord"),
+    RANKING("ranking"),
     ;
 
     private final String string;
