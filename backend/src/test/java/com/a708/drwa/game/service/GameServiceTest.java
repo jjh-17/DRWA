@@ -4,8 +4,17 @@ import com.a708.drwa.debate.data.DebateMember;
 import com.a708.drwa.debate.data.DebateMembers;
 import com.a708.drwa.debate.data.RoomInfo;
 import com.a708.drwa.debate.domain.Debate;
+import com.a708.drwa.debate.enums.DebateCategory;
 import com.a708.drwa.debate.enums.Role;
+import com.a708.drwa.debate.repository.DebateRepository;
 import com.a708.drwa.member.domain.Member;
+import com.a708.drwa.member.repository.MemberRepository;
+import com.a708.drwa.member.type.SocialType;
+import com.a708.drwa.profile.domain.Profile;
+import com.a708.drwa.profile.repository.ProfileRepository;
+import com.a708.drwa.rank.domain.Rank;
+import com.a708.drwa.rank.enums.RankName;
+import com.a708.drwa.rank.repository.RankRepository;
 import com.a708.drwa.redis.domain.DebateRedisKey;
 import com.a708.drwa.redis.util.RedisKeyUtil;
 import org.junit.Before;
@@ -29,13 +38,58 @@ import static org.junit.jupiter.api.Assertions.*;
 class GameServiceTest {
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
+    @Autowired DebateRepository debateRepository;
+    @Autowired MemberRepository memberRepository;
+    @Autowired ProfileRepository profileRepository;
+    @Autowired RankRepository rankRepository;
+    @Autowired GameService gameService;
     RedisKeyUtil redisKeyUtil = new RedisKeyUtil();
     final String debateKey = "1";
 
 
     @BeforeEach
     void before() {
-        HashOperations<String, DebateRedisKey, Object> hashOperations = redisTemplate.opsForHash();
+        // Debate 생성 1
+        Debate debate = Debate.builder().debateCategory(DebateCategory.ANIMAL).build();
+        debateRepository.save(Debate.builder().debateCategory(DebateCategory.ANIMAL).build());
+
+        // 멤버 생성 8
+        Member member1 = Member.builder().userId("userId1").socialType(SocialType.KAKAO).build();
+        Member member2 = Member.builder().userId("userId2").socialType(SocialType.KAKAO).build();
+        Member member3 = Member.builder().userId("userId3").socialType(SocialType.KAKAO).build();
+        Member member4 = Member.builder().userId("userId4").socialType(SocialType.KAKAO).build();
+        Member member5 = Member.builder().userId("userId5").socialType(SocialType.KAKAO).build();
+        Member member6 = Member.builder().userId("userId6").socialType(SocialType.KAKAO).build();
+        Member member7 = Member.builder().userId("userId7").socialType(SocialType.KAKAO).build();
+        Member member8 = Member.builder().userId("userId8").socialType(SocialType.KAKAO).build();
+        memberRepository.saveAll(List.of(member1, member2, member3, member4, member5, member6, member7, member8));
+
+        // 랭크 생성 1
+        Rank rank = Rank.builder().rankName(RankName.DIAMOND).pivotPoint(1).build();
+        rankRepository.save(rank);
+
+        // 프로필 생성 8
+        Profile profile1 = Profile.builder()
+                .nickname("nickname1").member(member1).point(1).mvpCount(1).rank(rank).build();
+        Profile profile2 = Profile.builder()
+                .nickname("nickname1").member(member2).point(2).mvpCount(2).rank(rank).build();
+        Profile profile3 = Profile.builder()
+                .nickname("nickname1").member(member3).point(3).mvpCount(3).rank(rank).build();
+        Profile profile4 = Profile.builder()
+                .nickname("nickname1").member(member4).point(4).mvpCount(4).rank(rank).build();
+        Profile profile5 = Profile.builder()
+                .nickname("nickname1").member(member5).point(5).mvpCount(5).rank(rank).build();
+        Profile profile6 = Profile.builder()
+                .nickname("nickname1").member(member6).point(6).mvpCount(6).rank(rank).build();
+        Profile profile7 = Profile.builder()
+                .nickname("nickname1").member(member7).point(7).mvpCount(7).rank(rank).build();
+        Profile profile8 = Profile.builder()
+                .nickname("nickname1").member(member8).point(8).mvpCount(8).rank(rank).build();
+        profileRepository.saveAll(List.of(profile1, profile2, profile3, profile4, profile5, profile6, profile7, profile8));
+
+        // DebateMembers 저장
+
+       HashOperations<String, DebateRedisKey, Object> hashOperations = redisTemplate.opsForHash();
         ListOperations<String, Object> listOperations = redisTemplate.opsForList();
 
         Map<Integer, DebateMember> memberDtoHashMap = new HashMap<>();
