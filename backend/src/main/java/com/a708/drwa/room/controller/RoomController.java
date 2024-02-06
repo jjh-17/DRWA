@@ -18,14 +18,14 @@ public class RoomController {
     private final RoomSearchService roomSearchService;
 
     @GetMapping("/search/title")
-    public ResponseEntity<List<Room>> RoomsByTitle(@RequestParam String query) {
-        List<Room> rooms = roomSearchService.searchRoomsByTitle(query);
+    public ResponseEntity<List<Room>> searchRoomsByTitle(@RequestParam String query) {
+        List<Room> rooms = roomSearchService.searchRooms("title", query);
         return ResponseEntity.ok(rooms);
     }
 
     @GetMapping("/search/keyword")
-    public ResponseEntity<List<Room>> RoomsByKeyword(@RequestParam String query) {
-        List<Room> rooms = roomSearchService.searchRoomsByKeyword(query);
+    public ResponseEntity<List<Room>> searchRoomsByKeyword(@RequestParam String query) {
+        List<Room> rooms = roomSearchService.searchRooms("keyword", query);
         return ResponseEntity.ok(rooms);
     }
 }
