@@ -22,7 +22,7 @@ public class ElasticsearchConfig {
     public ElasticsearchClient elasticsearchClient() {
         ElasticsearchTransport transport = new RestClientTransport(
                 RestClient.builder(
-                        new HttpHost(host, port, "https")
+                        new HttpHost(host, port)
                 ).build(),
                 new JacksonJsonpMapper()
         );

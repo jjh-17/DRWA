@@ -1,83 +1,28 @@
 version: '3.7'
 
 services:
-  redis:
-    image: redis:latest
-    container_name: redis
-    command: redis-server /usr/local/etc/redis/redis.conf
-    volumes:
-      - ../db/redis/data:/data
-      - ../db/redis/redis.conf:/usr/local/etc/redis/redis.conf
-    labels:
-      - "name=redis"
-      - "mode=standalone"
-    networks:
-      - drwa
-      
-  mysql:
-    image: mysql:latest
-    container_name: mysql
-    ports:
-      - ${MYSQL_PORT}
-    environment:
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      TZ: ${TZ}
-    restart: always
-    volumes:
-      - ../db/mysql/data:/var/lib/mysql
-      - ../db/mysql/initdb.d:/docker-entrypoint-initdb.d
-    networks:
-      - drwa
-
   backend:
+    image: lkt9899/drwa:backend
     container_name: drwa-backend
-    build:
-      context: ./backend
-      dockerfile: dockerfile
     ports:
       - 18081:8081
     stdin_open: true
     tty: true
     environment:
-      ON_PROFILE: ${ON_PROFILE}
-      DB_HOST: ${DB_HOST}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      REDIS_PASS: ${REDIS_PASS}
-      JWT_KEY: ${JWT_KEY}
-      KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
-      KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID}
-      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET}
-      OPENVIDU_HOSTNAME: ${OPENVIDU_HOSTNAME}
-      OPENVIDU_SECRET: ${OPENVIDU_SECRET}
-      ELK_USER: ${ELK_USER}
-      ELK_PASS: ${ELK_PASS}
-    depends_on:
-      - mysql
+      USE_PROFILE: ${USE_PROFILE}
     networks:
-      - default
       - drwa
       
   frontend:
+    image: lkt9899/drwa:frontend
     container_name: drwa-frontend
-    build:
-      context: ./frontend
-      dockerfile: dockerfile
     ports:
       - 13030:3000
     stdin_open: true
     tty: true
     networks:
-      - default
       - drwa
-      
+
 networks:
   drwa:
     external: true
