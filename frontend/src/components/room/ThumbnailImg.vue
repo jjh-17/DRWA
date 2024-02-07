@@ -1,3 +1,41 @@
+<!-- <template>
+  <div>
+    <input v-model="searchQuery" @keyup.enter="searchImages" placeholder="Search for images...">
+    <button @click="searchImages">Search</button>
+    <div class="images">
+      <img v-for="image in images" :key="image.id" :src="image.urls.small" :alt="image.alt_description">
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+import axios from 'axios';
+
+const searchQuery = ref('');
+const images = ref([]);
+
+const searchImages = async () => {
+  const accessKey = '2PzjHzjtz_UkTIsvnagcuoQrr18VYgsR4iGUtx_XpF4'; // 여기에 Unsplash API 액세스 키를 넣으세요.
+  const url = `https://api.unsplash.com/search/photos?query=${searchQuery.value}&client_id=${accessKey}`;
+
+  try {
+    const response = await axios.get(url);
+    images.value = response.data.results;
+  } catch (error) {
+    console.error("Error fetching images:", error);
+  }
+};
+</script>
+
+<style>
+.images img {
+  width: 200px;
+  height: auto;
+  margin: 10px;
+}
+</style> -->
+
 <template>
   <div class="img-container">
     <div class="imgSearch">
@@ -26,8 +64,8 @@ const fetchImages = async () => {
     return;
   }
   
-  const accessKey = 'YOUR_UNSPLASH_ACCESS_KEY';
-  const url = `https://api.unsplash.com/search/photos?query=${searchQuery.value}&client_id=${accessKey}`;
+  // const accessKey = 'YOUR_UNSPLASH_ACCESS_KEY';
+  const url = `https://api.unsplash.com/search/photos?query=${searchQuery.value}`;
 
   try {
     const response = await axios.get(url);
