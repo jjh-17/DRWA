@@ -4,6 +4,7 @@ import com.a708.drwa.member.exception.MemberErrorCode;
 import com.a708.drwa.member.exception.MemberException;
 import com.a708.drwa.member.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -26,10 +27,13 @@ public class AuthService {
 
     /**
      * 리프레시 토큰을 받아서 유효성 검증 후, 새로운 액세스 토큰을 발급한다.
-     * @param userId 사용자 아이디
+     * @param token 엑세스토큰
      * @return 새로 발급한 액세스 토큰
      */
-    public String silentRefreshProcess(String userId) {
+    public String silentRefreshProcess(String token) throws ParseException {
+        int memberId = jwtUtil.getMemberId(token);
+        String userId = jwtUtil.getUserId(token);
+
         // 사용자 아이디를 키로 리프레시 토큰을 조회한다.
         String refreshToken = getRefreshToken(userId);
 
@@ -46,10 +50,10 @@ public class AuthService {
         }
 
         // 새로운 액세스 토큰을 발급한다.
-        String newAccessToken = jwtUtil.createAccessToken(userId);
+        String newAccessToken = jwtUtil.createAccessToken(memberId, userId);
 
         // 새로운 리프레시 토큰을 발급한다.
-        String newRefreshToken = jwtUtil.createRefreshToken(userId);
+        String newRefreshToken = jwtUtil.createRefreshToken(memberId, userId);
         // 발급한 리프레시 토큰을 저장한다.
         updateRefreshToken(userId, newRefreshToken, refreshTokenExpireTime);
 
