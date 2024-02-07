@@ -1,4 +1,7 @@
 <template>
+  <header>
+    <HeaderComponent />
+  </header>
   <div class="most-viewers-rooms">
     <div class="select-rooms">
       <div class="select-box" @click="setActiveBox('pop')">🤍 인기토론방</div>
@@ -37,6 +40,7 @@
 </template>
 
 <script setup>
+import HeaderComponent from '@/components/common/HeaderComponent.vue'
 import { ref, reactive, toRefs } from 'vue'
 import { Carousel, Slide } from 'vue3-carousel'
 import { categories } from '@/components/category/Category.js'
@@ -72,9 +76,8 @@ const navigateToNext = () => {
 }
 
 const setActiveCategory = (category) => {
-  state.activeCategory = category.name;
+  state.activeCategory = category.name
 }
-
 
 const setActiveBox = (boxType) => {
   state.activeBox = boxType
