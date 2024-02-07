@@ -103,7 +103,10 @@ public class MemberController {
     @AuthRequired
     @PostMapping("/update/interests")
     public ResponseEntity<?> updateInterests(HttpServletRequest request, @RequestBody List<DebateCategory> categories) throws ParseException {
+        log.info("categories : " + categories);
+
         String authorizationHeader = request.getHeader("Authorization");
+        log.info("authorizationHeader : " + authorizationHeader);
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             return ResponseEntity.badRequest().body("Invalid Authorization header.");
         }
