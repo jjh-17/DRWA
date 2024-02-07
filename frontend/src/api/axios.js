@@ -70,12 +70,9 @@ httpService.interceptors.response.use(
           // (다른 요청을 진행하면, 새로 발급 받은 Token이 유효하지 않게 됨.)
           isTokenRefreshing = true
 
-          // TODO : clientId 가져오기
-          const clientId = localStorage.getItem('clientId')
-
           try {
             // 리프레시 토큰 요청을 서버에 보냅니다.
-            const { data } = await httpService.post('/silent-refresh', { clientId })
+            const { data } = await httpService.post('/silent-refresh')
             // 새 엑세스 토큰을 응답에서 가져옵니다.
             const newAccessToken = data.accessToken
 
