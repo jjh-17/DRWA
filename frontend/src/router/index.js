@@ -1,6 +1,10 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import MainView from '../views/MainView.vue'
-import SearchResults from '@/views/SearchResults.vue'
+import { createRouter, createWebHistory } from 'vue-router';
+import MainView from '../views/MainView.vue';
+import AuthCallback from '../views/AuthCallback.vue';
+import MyPageView from '../views/MyPageView.vue';
+import SearchResults from '@/views/SearchResults.vue';
+import ThumbnailImg from '../components/room/ThumbnailImg.vue';
+import DebateView from '@/views/DebateView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -13,27 +17,30 @@ const router = createRouter({
     {
       path: '/member/login',
       name: 'AuthCallback',
-      component: () => import('../views/AuthCallback.vue')
+      component: AuthCallback
     },
     {
-      path: '/about',
-      name: 'about'
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      // component: () => import('../views/AboutView.vue')
+      path: '/member/mypage',
+      name: 'MyPageView',
+      component: MyPageView
     },
     {
       path: '/search-results/:type/:query',
       name: 'SearchResults',
       component: SearchResults
     },
+    // '/member/mypage' 경로가 중복되어 있으므로, 한 개를 제거합니다.
     {
-      path: '/member/mypage',
-      name: 'MyPageView',
-      component: () => import('../views/MyPageView.vue')
+      path:'/image',
+      name: 'ThumbnailImg', // 라우트에 이름을 추가합니다.
+      component: ThumbnailImg
+    },
+    {
+      path: '/debate/:debateId',
+      name: 'DebateView',
+      component: DebateView
     }
   ]
 })
 
-export default router
+export default router;
