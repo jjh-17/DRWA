@@ -15,7 +15,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 public class Room { // Elasticsearch에 저장되는 방 정보
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private String debateId;
 
     @Field(type = FieldType.Text, analyzer = "korean")
     private String title;
@@ -23,5 +23,25 @@ public class Room { // Elasticsearch에 저장되는 방 정보
     @Field(type = FieldType.Text, analyzer = "korean")
     private String keyword;
 
+    private String host;
+
+    private String totalNum;
+
+    private String thumbnailUrl;
+
+    private String thumbnailId;
+
+    @Getter
+    @Setter
+    public static class ThumbnailUpdateInfo {
+        private String roomId;
+        private String thumbnailId;
+        private String thumbnailUrl;
+    }
+
+    public void updateThumbnail(ThumbnailUpdateInfo thumbnailUpdateInfo) {
+        this.thumbnailId = thumbnailUpdateInfo.getThumbnailId();
+        this.thumbnailUrl = thumbnailUpdateInfo.getThumbnailUrl();
+    }
 
 }
