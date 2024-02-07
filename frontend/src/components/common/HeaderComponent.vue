@@ -33,6 +33,13 @@ const logout = () => {
     authStore.logout()
 }
 
+/**
+ * 마이페이지로 이동하는 함수
+ */
+const goToMyPage = () => {
+    router.push({ name: 'MyPageView' });
+}
+
 
 
 //방 검색
@@ -40,8 +47,8 @@ const type = ref('');
 const cond = ref('검색 조건');
 
 const setType = (newType) => {
-  type.value = newType;
-  cond.value = newType==='title'?'방 제목 ' : '방 제시어';
+    type.value = newType;
+    cond.value = newType === 'title' ? '방 제목 ' : '방 제시어';
 };
 async function searchRooms(type) {
     if (!searchQuery.value.trim()) {
@@ -58,6 +65,10 @@ async function searchRooms(type) {
     }
 }
 
+function onLogoClick() {
+    router.push("/");
+}
+
 </script>
 
 <template>
@@ -66,7 +77,7 @@ async function searchRooms(type) {
         <!-- <q-btn flat round dense icon="menu" class="q-mr-sm" /> -->
 
         <!-- 로고 및 랭킹 버튼 -->
-        <q-avatar class="q-mr-sm">
+        <q-avatar class="q-mr-sm" @click="onLogoClick" style="cursor: pointer;">
             <img src="@\assets\img\logo.png">
         </q-avatar>
         <q-btn flat label="랭킹" class="text-white q-mr-sm" />
@@ -77,27 +88,23 @@ async function searchRooms(type) {
 
         <!-- 검색창 -->
 
-        <q-btn-dropdown
-        v-model="menu"
-        class="dropdown"
-        :label= "cond"
-        >
+        <q-btn-dropdown v-model="menu" class="dropdown" :label="cond">
 
-        <q-list>
-            <q-item clickable v-close-popup @click="setType('title')">
-            <q-item-section>
-                <q-item-label>방 제목</q-item-label>
-            </q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="setType('keyword')">
-            <q-item-section>
-                <q-item-label>방 제시어</q-item-label>
-            </q-item-section>
-            </q-item>
-        </q-list>
+            <q-list>
+                <q-item clickable v-close-popup @click="setType('title')">
+                    <q-item-section>
+                        <q-item-label>방 제목</q-item-label>
+                    </q-item-section>
+                </q-item>
+                <q-item clickable v-close-popup @click="setType('keyword')">
+                    <q-item-section>
+                        <q-item-label>방 제시어</q-item-label>
+                    </q-item-section>
+                </q-item>
+            </q-list>
         </q-btn-dropdown>
         <q-input class="searchbox" v-model="searchQuery" placeholder="검색어 입력" style="height: 35px;" />
-        <q-btn label="검색" @click="searchRooms(type.value)"/>
+        <q-btn label="검색" @click="searchRooms(type.value)" />
 
 
         <!-- 로그인 상태에 따른 조건부 렌더링 -->
@@ -133,9 +140,9 @@ async function searchRooms(type) {
 
                 <q-card-section class="q-pt-none flex flex-center column">
                     <div class="text-h6 text-center q-mb-md">소셜 로그인</div>
-                    <img class="login-btn" src="src\assets\img\google_login_btn.png" @click="fetchSocialLoginUrl('google')">
-                    <img class="login-btn" src="src\assets\img\naver_login_btn.png" @click="fetchSocialLoginUrl('naver')">
-                    <img class="login-btn" src="src\assets\img\kakao_login_btn.png" @click="fetchSocialLoginUrl('kakao')">
+                    <img class="login-btn" src="@\assets\img\google_login_btn.png" @click="fetchSocialLoginUrl('google')">
+                    <img class="login-btn" src="@\assets\img\naver_login_btn.png" @click="fetchSocialLoginUrl('naver')">
+                    <img class="login-btn" src="@\assets\img\kakao_login_btn.png" @click="fetchSocialLoginUrl('kakao')">
                 </q-card-section>
             </q-card>
         </q-dialog>
@@ -143,38 +150,49 @@ async function searchRooms(type) {
 </template>
 
 <style scoped>
-.custom-toolbar{
+.custom-toolbar {
     background-color: #34227C;
     color: white;
-    height:70px;
+    height: 70px;
 }
-.q-mr-sm{
+
+.q-mr-sm {
     padding: 0px 25px 0px 25px;
 }
-.text-white.q-mr-sm{
+
+.text-white.q-mr-sm {
     padding: 0px 25px 0px 25px;
 }
 
 .q-input.searchbox {
-    flex:1;
+    flex: 1;
+}
+
+.search-container {
+    flex: 1;
     max-width: 800px;
     background-color: white;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
-  border-radius: 2px; /* 모서리 둥글게 만듦 */
-  height:35px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    /* 그림자 효과 */
+    border-radius: 2px;
+    /* 모서리 둥글게 만듦 */
+    height: 35px;
 }
 
 /* placeholder의 위치를 조정합니다. */
 .q-input.searchbox input::placeholder {
-  text-align: center; /* 가운데 정렬 */
-  font-size: 1em;
-  line-height: 35px;
-  /* padding-top: 10px; 위쪽으로 조정 */
+    text-align: center;
+    /* 가운데 정렬 */
+    font-size: 1em;
+    line-height: 35px;
+    /* padding-top: 10px; 위쪽으로 조정 */
 }
-.q-btn-dropdown{
+
+.q-btn-dropdown {
     color: white;
     width: 120px;
 }
+
 .login-btn {
     width: 13rem;
     margin-bottom: 10px;
