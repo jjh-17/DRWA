@@ -13,35 +13,36 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ElasticsearchConfig {
 
-    @Value("${spring.data.elasticsearch.client.rest.uris}")
-    private String url;
+    @Value("${spring.elasticsearch.host}")
+    private String host;
 
-    @Value("${spring.data.elasticsearch.client.rest.port}")
+    @Value("${spring.elasticsearch.port}")
     private int port;
     @Bean
-    public ElasticsearchClient elasticsearchClient() { // Elasticsearch 서버와의 통신
-        // ElasticsearchTransport를 사용하여 ElasticsearchClient 생성
+    public ElasticsearchClient elasticsearchClient() {
         ElasticsearchTransport transport = new RestClientTransport(
-                RestClient.builder(new HttpHost(url, port)).build(),
+                RestClient.builder(
+                        new HttpHost(host, port)
+                ).build(),
                 new JacksonJsonpMapper()
         );
+
         return new ElasticsearchClient(transport);
     }
 
     @Bean
-    public boolean createIndex(ElasticsearchClient elasticsearchClient) { // 인덱스 생성 (+ 한국어 텍스트 분석을 위한 매핑)
+    public boolean createIndex(ElasticsearchClient elasticsearchClient) {
         try {
             boolean exists = elasticsearchClient.indices().exists(e -> e.index("room_index")).value();
             if (!exists) {
-                // 인덱스 생성 요청
                 var response = elasticsearchClient.indices().create(c -> c
                         .index("room_index")
                         .mappings(m -> m
                                 .properties("title", p -> p
-                                        .text(t -> t.analyzer("korean"))
+                                        .text(t -> t.analyzer("nori"))
                                 )
                                 .properties("keyword", p -> p
-                                        .text(t -> t.analyzer("korean"))
+                                        .text(t -> t.analyzer("nori"))
                                 )
                         )
                 );
