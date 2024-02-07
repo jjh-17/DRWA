@@ -2,12 +2,10 @@ package com.a708.drwa.member.service;
 
 import com.a708.drwa.debate.enums.DebateCategory;
 import com.a708.drwa.member.domain.Member;
-import com.a708.drwa.member.domain.MemberInterest;
 import com.a708.drwa.member.dto.response.SocialLoginResponse;
 import com.a708.drwa.member.dto.response.SocialUserInfoResponse;
 import com.a708.drwa.member.exception.MemberErrorCode;
 import com.a708.drwa.member.exception.MemberException;
-import com.a708.drwa.member.repository.MemberInterestRepository;
 import com.a708.drwa.member.repository.MemberRepository;
 import com.a708.drwa.member.service.Impl.GoogleLoginServiceImpl;
 import com.a708.drwa.member.service.Impl.KakaoLoginServiceImpl;
@@ -29,7 +27,6 @@ import java.util.List;
 @Slf4j
 public class MemberService {
     private final MemberRepository memberRepository;
-    private final MemberInterestRepository memberInterestRepository;
     private final GoogleLoginServiceImpl googleLoginService;
     private final NaverLoginServiceImpl naverLoginService;
     private final KakaoLoginServiceImpl kakaoLoginService;
@@ -110,18 +107,7 @@ public class MemberService {
                 .socialType(socialUserInfoResponse.getSocialType())
                 .build();
 
-         // 멤버 저장
-        Member savedMember = memberRepository.save(member);
-
-        // 새 멤버의 ID로 MemberInterest 엔티티 생성하지만, 관심사는 설정하지 않음
-        MemberInterest memberInterest = new MemberInterest();
-        memberInterest.setMember(savedMember);
-        // 여기서는 관심사를 null로 설정하거나, MemberInterest 엔티티에서 관심사 필드를 옵셔널로 처리해야 함
-        // 이 예제에서는 관심사 필드를 명시적으로 설정하지 않음
-        memberInterestRepository.save(memberInterest);
-
-
-        return savedMember;
+        return memberRepository.save(member);
     }
 
     /**
