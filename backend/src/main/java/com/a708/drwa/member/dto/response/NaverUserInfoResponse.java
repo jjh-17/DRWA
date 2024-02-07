@@ -1,11 +1,8 @@
-package com.a708.drwa.member.dto;
+package com.a708.drwa.member.dto.response;
 
-import com.a708.drwa.member.type.SocialType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.util.Map;

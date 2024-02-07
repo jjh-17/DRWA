@@ -1,4 +1,4 @@
-package com.a708.drwa.member.dto;
+package com.a708.drwa.member.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
