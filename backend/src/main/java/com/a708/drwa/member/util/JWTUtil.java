@@ -88,7 +88,8 @@ public class JWTUtil {
         JSONObject obj = (JSONObject) parser.parse(payload);
 
         // memberId를 추출한다.
-        int memberId = (int) obj.get("memberId");
+        Long memberIdLong = (Long) obj.get("memberId");
+        int memberId = memberIdLong.intValue();
 
         // memberId를 반환한다.
         return memberId;
