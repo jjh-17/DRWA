@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/debate")
+@RequestMapping("/api/debate")
 public class DebateController {
     private final DebateService debateService;
     private final OpenViduService openViduService;

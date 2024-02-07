@@ -4,6 +4,7 @@ import com.a708.drwa.achievement.domain.Achievement;
 import com.a708.drwa.achievement.domain.MemberAchievement;
 import com.a708.drwa.game.domain.Record;
 import com.a708.drwa.game.domain.Team;
+import com.a708.drwa.game.repository.GameInfoRepository;
 import com.a708.drwa.game.repository.RecordRepository;
 import com.a708.drwa.global.exception.GlobalException;
 import com.a708.drwa.member.domain.Member;
@@ -30,6 +31,7 @@ public class AchievementService {
     private final MemberRepository memberRepository;
     private final MemberAchievementRepository memberAchievementRepository;
     private final RecordRepository recordRepository;
+    private final GameInfoRepository gameInfoRepository;
 
     @Transactional
     public void initAllTitle(){
@@ -122,7 +124,7 @@ public class AchievementService {
 
         List<Record> records = recordRepository.findByMemberId(member.getId());
         long totalJurorCount = records.stream()
-                .filter(record -> record.getTeam().equals(Team.JUROR))
+                .filter(record -> record.getTeam().equals(Team.JUROR) && !record.getGameInfo().isPrivate())
                 .count();
 
         if(totalJurorCount >= 100){

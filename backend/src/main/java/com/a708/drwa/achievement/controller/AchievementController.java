@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/achievement")
+@RequestMapping("/api/achievement")
 public class AchievementController {
     private final AchievementService achievementService;
 

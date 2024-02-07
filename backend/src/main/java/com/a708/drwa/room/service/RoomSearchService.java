@@ -6,7 +6,6 @@ import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import com.a708.drwa.room.domain.Room;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import java.util.Collections;
@@ -15,44 +14,31 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class RoomSearchService { // redis에서 방 검색하는 서비스
+public class RoomSearchService {
     private ElasticsearchClient elasticsearchClient;
     private RedisTemplate<String, Room> redisTemplate;
 
-    public List<Room> searchRoomsByTitle(String query) {
-        return searchRoomsByField("title", query);
-    }
-
-    public List<Room> searchRoomsByKeyword(String query) {
-        return searchRoomsByField("keyword", query);
-    }
-
-    private List<Room> searchRoomsByField(String field, String query) {
+    public List<Room> searchRooms(String field, String query) {
         SearchRequest request = new SearchRequest.Builder()
                 .index("room_index")
-                .query(q -> q
-                        .bool(b -> b
-                                .should(s -> s
-                                        .match(m -> m
-                                                .field(field)
-                                                .query(query)
-                                                .analyzer("nori")
-                                        )
-                                )
-                        )
-                )
+                .query(q -> q.match(m -> m.field(field).query(query)))
                 .build();
 
         try {
             SearchResponse<Room> response = elasticsearchClient.search(request, Room.class);
             return response.hits().hits().stream()
-                    .map(hit -> redisTemplate.opsForValue().get(hit.id()))
-                    .filter(room -> room != null)
+                    .map(hit -> {
+                        Room room = hit.source();
+                        room.setTotalNum(hit.source().getTotalNum());
+                        room.setHost(hit.source().getHost());
+                        room.setTitle(hit.source().getTitle());
+                        room.setKeyword(hit.source().getKeyword());
+                        return room;
+                    })
                     .collect(Collectors.toList());
         } catch (Exception e) {
+            e.printStackTrace();
             return Collections.emptyList();
         }
     }
 }
-
-

@@ -1,5 +1,6 @@
 package com.a708.drwa.debate.data;
 
+import com.a708.drwa.debate.enums.DebateCategory;
 import com.a708.drwa.debate.enums.Role;
 import lombok.*;
 
