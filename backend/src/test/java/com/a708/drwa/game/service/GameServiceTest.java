@@ -11,6 +11,7 @@ import com.a708.drwa.debate.repository.DebateRepository;
 import com.a708.drwa.game.data.dto.request.AddGameRequestDto;
 import com.a708.drwa.game.domain.GameInfo;
 import com.a708.drwa.game.domain.Record;
+import com.a708.drwa.game.domain.Result;
 import com.a708.drwa.game.domain.Team;
 import com.a708.drwa.game.repository.GameInfoRepository;
 import com.a708.drwa.game.repository.RecordRepository;
@@ -59,6 +60,10 @@ class GameServiceTest {
         redisTemplate.delete(redisTemplate.keys("*"));
 
         HashOperations<String, DebateRedisKey, Object> debateHashOperations = redisTemplate.opsForHash();
+
+        // GameInfo 생성
+        GameInfo gameInfo = GameInfo.builder().isPrivate(true).keyword("testKeyword").mvpMemberId(-1).build();
+        gameInfo = gameInfoRepository.save(gameInfo);
 
         // Debate 생성 1
         Debate debate = Debate.builder().debateCategory(DebateCategory.ANIMAL).build();
@@ -156,60 +161,98 @@ class GameServiceTest {
         debateHashOperations.put(debateRedisKey, DebateRedisKey.DEBATE_MEMBER_LIST, debateMembers);
 
         // VoteInfo 생성
-        VoteInfo voteInfo = VoteInfo.builder().leftVote(2).rightVote(1).build();
+        VoteInfo voteInfo = VoteInfo.builder().leftVote(1).rightVote(1).build();
         debateHashOperations.put(debateRedisKey, DebateRedisKey.VOTE_INFO, voteInfo);
 
         // MVP_MAP 생성
         Map<String, Integer> mvpMap = new HashMap<>();
-        mvpMap.put(member5.getId()+"", member1.getId());
-//        mvpMap.put(member6.getId()+"", member1.getId());
-//        mvpMap.put(member7.getId()+"", member4.getId());
+//        mvpMap.put(member5.getId()+"", member1.getId());
+        mvpMap.put(member6.getId()+"", member1.getId());
+        mvpMap.put(member7.getId()+"", member4.getId());
         debateHashOperations.put(debateRedisKey, DebateRedisKey.MVP, mvpMap);
 
         // 배심원의 VOTE_MAP 생성
         Map<String, String> voteMap = new HashMap<>();
         voteMap.put(member5.getId()+"", Team.A.string());
 //        voteMap.put(member6.getId()+"", Team.B.string());
-//        voteMap.put(member7.getId()+"", Team.B.string());
+        voteMap.put(member7.getId()+"", Team.B.string());
         debateHashOperations.put(debateRedisKey, DebateRedisKey.VOTE_MAP, voteMap);
 
         // redis_ranking 생성
-        long ranking1[] = createRankingMember(member1.getId(), profile1.getNickname(), profile1.getPoint(), getWinRate(0, 0, 0),
-                profile1.getRank().getRankName(), redisCategory);
-        long ranking2[] = createRankingMember(member2.getId(), profile2.getNickname(), profile2.getPoint(), getWinRate(0, 0, 0),
-                profile2.getRank().getRankName(), redisCategory);
-        long ranking3[] = createRankingMember(member3.getId(), profile3.getNickname(), profile3.getPoint(), getWinRate(0, 0, 0),
-                profile3.getRank().getRankName(), redisCategory);
-        long ranking4[] = createRankingMember(member4.getId(), profile4.getNickname(), profile4.getPoint(), getWinRate(0, 0, 0),
-                profile4.getRank().getRankName(), redisCategory);
-        long ranking5[] = createRankingMember(member5.getId(), profile5.getNickname(), profile5.getPoint(), getWinRate(0, 0, 0),
-                profile5.getRank().getRankName(), redisCategory);
-        long ranking6[] = createRankingMember(member6.getId(), profile6.getNickname(), profile6.getPoint(), getWinRate(0, 0, 0),
-                profile6.getRank().getRankName(), redisCategory);
-        long ranking7[] = createRankingMember(member7.getId(), profile7.getNickname(), profile7.getPoint(), getWinRate(0, 0, 0),
-                profile7.getRank().getRankName(), redisCategory);
-        long ranking8[] = createRankingMember(member8.getId(), profile8.getNickname(), profile8.getPoint(), getWinRate(0, 0, 0),
-                profile8.getRank().getRankName(), redisCategory);
+        String selectedAchievement = "testAchievement";
+        RankingMember rankingMember1 = RankingMember.builder().rankName(rank.getRankName()).memberId(member1.getId())
+                .nickname(profile1.getNickname()).winRate(getWinRate(0, 0, 0)).point(0).achievement(selectedAchievement).build();
+        RankingMember rankingMember2 = RankingMember.builder().rankName(rank.getRankName()).memberId(member2.getId())
+                .nickname(profile2.getNickname()).winRate(getWinRate(0, 0, 0)).point(0).achievement(selectedAchievement).build();
+        RankingMember rankingMember3 = RankingMember.builder().rankName(rank.getRankName()).memberId(member3.getId())
+                .nickname(profile3.getNickname()).winRate(getWinRate(0, 0, 0)).point(0).achievement(selectedAchievement).build();
+        RankingMember rankingMember4 = RankingMember.builder().rankName(rank.getRankName()).memberId(member4.getId())
+                .nickname(profile4.getNickname()).winRate(getWinRate(0, 0, 0)).point(0).achievement(selectedAchievement).build();
+        RankingMember rankingMember5 = RankingMember.builder().rankName(rank.getRankName()).memberId(member5.getId())
+                .nickname(profile5.getNickname()).winRate(getWinRate(0, 0, 0)).point(0).achievement(selectedAchievement).build();
+        RankingMember rankingMember6 = RankingMember.builder().rankName(rank.getRankName()).memberId(member6.getId())
+                .nickname(profile6.getNickname()).winRate(getWinRate(0, 0, 0)).point(0).achievement(selectedAchievement).build();
+        RankingMember rankingMember7 = RankingMember.builder().rankName(rank.getRankName()).memberId(member7.getId())
+                .nickname(profile7.getNickname()).winRate(getWinRate(0, 0, 0)).point(0).achievement(selectedAchievement).build();
+        RankingMember rankingMember8 = RankingMember.builder().rankName(rank.getRankName()).memberId(member8.getId())
+                .nickname(profile8.getNickname()).winRate(getWinRate(0, 0, 0)).point(0).achievement(selectedAchievement).build();
+        createRankingMember(rankingMember1, redisCategory);
+        createRankingMember(rankingMember2, redisCategory);
+        createRankingMember(rankingMember3, redisCategory);
+        createRankingMember(rankingMember4, redisCategory);
+        createRankingMember(rankingMember5, redisCategory);
+        createRankingMember(rankingMember6, redisCategory);
+        createRankingMember(rankingMember7, redisCategory);
+        createRankingMember(rankingMember8, redisCategory);
 
         // redis_user_info 생성
-        String selectedAchievement = "selectedAchievement";
-        List<String> achievements = List.of(selectedAchievement);
-        createRedisUserInfo(profile1, selectedAchievement, redisCategory,
-                ranking1, achievements, new ArrayList<>());
-        createRedisUserInfo(profile2, selectedAchievement, redisCategory,
-                ranking2, achievements, new ArrayList<>());
-        createRedisUserInfo(profile3, selectedAchievement, redisCategory,
-                ranking3, achievements, new ArrayList<>());
-        createRedisUserInfo(profile4, selectedAchievement, redisCategory,
-                ranking4, achievements, new ArrayList<>());
-        createRedisUserInfo(profile5, selectedAchievement, redisCategory,
-                ranking5, achievements, new ArrayList<>());
-        createRedisUserInfo(profile6, selectedAchievement, redisCategory,
-                ranking6, achievements, new ArrayList<>());
-        createRedisUserInfo(profile7, selectedAchievement, redisCategory,
-                ranking7, achievements, new ArrayList<>());
-        createRedisUserInfo(profile8, selectedAchievement, redisCategory,
-                ranking8, achievements, new ArrayList<>());
+        List<String> achievements = new ArrayList<>();
+        List<Record> records = new ArrayList<>();
+        achievements.add(selectedAchievement);
+
+        records.add(Record.builder().team(Team.A).result(Result.WIN).gameInfo(gameInfo).member(member1).build());
+
+        createRedisUserInfo(profile1, rankingMember1, selectedAchievement, redisCategory, achievements, records);
+        createRedisUserInfo(profile2, rankingMember2, selectedAchievement, redisCategory, achievements, records);
+        createRedisUserInfo(profile3, rankingMember3, selectedAchievement, redisCategory, achievements, records);
+        createRedisUserInfo(profile4, rankingMember4, selectedAchievement, redisCategory, achievements, records);
+        createRedisUserInfo(profile5, rankingMember5, selectedAchievement, redisCategory, achievements, records);
+        createRedisUserInfo(profile6, rankingMember6, selectedAchievement, redisCategory, achievements, records);
+        createRedisUserInfo(profile7, rankingMember7, selectedAchievement, redisCategory, achievements, records);
+        createRedisUserInfo(profile8, rankingMember8, selectedAchievement, redisCategory, achievements, records);
+    }
+
+    @Test
+    void simpleRedisTest() {
+        HashOperations<String, String, Object> hashOperations = redisTemplate.opsForHash();
+
+        List<String> list = new ArrayList<>();
+        String str = "test";
+        list.add(str);
+        list.add(str);
+
+        List<Record> records = new ArrayList<>();
+        records.add(Record.builder().build());
+        records.add(Record.builder().build());
+
+
+        hashOperations.put("test", "list", list);
+        hashOperations.put("test", "records", records);
+        System.out.println(hashOperations.hasKey("test", "list"));
+        System.out.println(hashOperations.hasKey("test", "records"));
+        list = (List<String>) hashOperations.get("test", "list");
+        records = (List<Record>) hashOperations.get("test", "records");
+        System.out.println(list);
+        System.out.println(records);
+
+        list.add(str);
+        records.add(Record.builder().build());
+        hashOperations.put("test", "list", list);
+        hashOperations.put("test", "records", records);
+        list = (List<String>) hashOperations.get("test", "list");
+        records = (List<Record>) hashOperations.get("test", "records");
+        System.out.println(list);
+        System.out.println(records);
     }
 
     @Test
@@ -228,41 +271,15 @@ class GameServiceTest {
 
     @Test
     void redisTest() {
-        List<Profile> profiles = profileRepository.findAll();
-        List<Member> members = memberRepository.findAll();
-        HashOperations<String, DebateRedisKey, Object> debateHashOperations = redisTemplate.opsForHash();
-        final String REDIS_PK = savedDebate.getDebateId() + "";
-
-        DebateMembers debateMembers = (DebateMembers) debateHashOperations.get(REDIS_PK, DebateRedisKey.DEBATE_MEMBER_LIST);
-
-        for(DebateMember debateMember : debateMembers.getLeftMembers()) {
-            System.out.println(debateMember.getMemberId());
-            assertThat(memberRepository.existsById(debateMember.getMemberId()));
-        }
-        for(DebateMember debateMember : debateMembers.getRightMembers()) {
-            System.out.println(debateMember.getMemberId());
-            assertThat(memberRepository.existsById(debateMember.getMemberId()));
-        }
-        for(DebateMember debateMember : debateMembers.getJurors()) {
-            System.out.println(debateMember.getMemberId());
-            assertThat(memberRepository.existsById(debateMember.getMemberId()));
-        }
-        for(DebateMember debateMember : debateMembers.getWatchers()) {
-            System.out.println(debateMember.getMemberId());
-            assertThat(memberRepository.existsById(debateMember.getMemberId()));
-        }
-
-        //========================================================================================================
-        Profile profile = profiles.get(0);
+        Profile profile = savedProfiles.get(0);
         Member member = profile.getMember();
 
-        System.out.println(member.getId());
         HashOperations<String, MemberRedisKey, Object> memberHashOperations = redisTemplate.opsForHash();
         String redisUserInfoRankKey = member.getUserId() + ":" + Constants.RANK_REDIS_KEY;
         String redisUserInfoCategoryKey = member.getUserId() + ":" + constants.getConstantsByCategory(savedDebate.getDebateCategory().getValue());
-//        List<String> achievements = (List<String>) memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.ACHIEVEMENTS);
-        List<Record> records = (List<Record>) memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.LATEST_GAME_RECORD);
 
+        List<String> achievements = (List<String>) memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.ACHIEVEMENTS);
+        List<Record> records = (List<Record>) memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.LATEST_GAME_RECORD);
     }
 
     @Test
@@ -281,11 +298,10 @@ class GameServiceTest {
             System.out.println(record);
 
         // redis_user_info
-//        System.out.println("\n[Redis_User_Info]");
-//        HashOperations<String, MemberRedisKey, Object> memberHashOperations = redisTemplate.opsForHash();
-//        for(Profile profile : savedProfiles) {
-//            showRedisUserInfo(profile);
-//        }
+        System.out.println("\n[Redis_User_Info]");
+        for(Profile profile : savedProfiles) {
+            showRedisUserInfo(profile);
+        }
 
         // redis_ranking
         System.out.println("\n[Redis_Ranking]");
@@ -293,10 +309,10 @@ class GameServiceTest {
         Set<RankingMember> range = rankingMemberZSetOperations.range(Constants.RANK_REDIS_KEY, 0, -1);
         Set<RankingMember> range2 = rankingMemberZSetOperations.range(Constants.RANK_ANIMAL_REDIS_KEY, 0, -1);
         for(RankingMember rankingMember : range)
-            System.out.println(rankingMember);
+            System.out.println(rankingMember + " " + rankingMemberZSetOperations.rank(Constants.RANK_REDIS_KEY, rankingMember));
         System.out.println("================================================");
         for(RankingMember rankingMember : range2)
-            System.out.println(rankingMember);
+            System.out.println(rankingMember + " " + rankingMemberZSetOperations.rank(Constants.RANK_ANIMAL_REDIS_KEY, rankingMember));
 
 
         // Re
@@ -310,48 +326,52 @@ class GameServiceTest {
         String redisUserInfoCategoryKey = member.getUserId() + ":" + constants.getConstantsByCategory(savedDebate.getDebateCategory().getValue());
         StringBuilder sb = new StringBuilder();
 
-        sb.append("<전체 UserInfo>");
-        sb.append("REFRESH_TOKEN : " + memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.REFRESH_TOKEN) + ", ");
-        sb.append("SELECTED_ACHIEVEMENT : " + memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.SELECTED_ACHIEVEMENT) + ", ");
-        sb.append("RANK_NAME : " + memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.RANK_NAME) + ", ");
-        sb.append("POINT : " + memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.POINT) + ", ");
-        sb.append("WIN_COUNT : " + memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.WIN_COUNT) + ", ");
-        sb.append("LOSE_COUNT : " + memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.LOSE_COUNT) + ", ");
-        sb.append("TIE_COUNT : " + memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.TIE_COUNT) + ", ");
-        sb.append("MVP_COUNT : " + memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.MVP_COUNT) + ", ");
-        sb.append("RANKING : " + memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.RANKING) + ", ");
+        sb.append("<전체 UserInfo>\n");
+        sb.append("REFRESH_TOKEN : " + memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.REFRESH_TOKEN) + "\n");
+        sb.append("SELECTED_ACHIEVEMENT : " + memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.SELECTED_ACHIEVEMENT) + "\n");
+        sb.append("RANK_NAME : " + memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.RANK_NAME) + "\n");
+        sb.append("POINT : " + memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.POINT) + "\n");
+        sb.append("WIN_COUNT : " + memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.WIN_COUNT) + "\n");
+        sb.append("LOSE_COUNT : " + memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.LOSE_COUNT) + "\n");
+        sb.append("TIE_COUNT : " + memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.TIE_COUNT) + "\n");
+        sb.append("MVP_COUNT : " + memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.MVP_COUNT) + "\n");
+        sb.append("RANKING : " + memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.RANKING) + "\n");
         List<String> achievements = (List<String>) memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.ACHIEVEMENTS);
-        sb.append("ACHIEVEMENTS : " + achievements + ", ");
+        sb.append("ACHIEVEMENTS : " + achievements + "\n");
         List<Record> records = (List<Record>) memberHashOperations.get(redisUserInfoRankKey, MemberRedisKey.LATEST_GAME_RECORD);
-        sb.append("LATEST_GAME_RECORD : " + records + ", ");
+        sb.append("LATEST_GAME_RECORD : " + records + "\n");
 
-        sb.append("\n<카테고리 UserInfo>");
-        sb.append("REFRESH_TOKEN : " + memberHashOperations.get(redisUserInfoCategoryKey, MemberRedisKey.REFRESH_TOKEN) + ", ");
-        sb.append("SELECTED_ACHIEVEMENT : " + memberHashOperations.get(redisUserInfoCategoryKey, MemberRedisKey.SELECTED_ACHIEVEMENT) + ", ");
-        sb.append("RANK_NAME : " + memberHashOperations.get(redisUserInfoCategoryKey, MemberRedisKey.RANK_NAME) + ", ");
-        sb.append("POINT : " + memberHashOperations.get(redisUserInfoCategoryKey, MemberRedisKey.POINT) + ", ");
-        sb.append("WIN_COUNT : " + memberHashOperations.get(redisUserInfoCategoryKey, MemberRedisKey.WIN_COUNT) + ", ");
-        sb.append("LOSE_COUNT : " + memberHashOperations.get(redisUserInfoCategoryKey, MemberRedisKey.LOSE_COUNT) + ", ");
-        sb.append("TIE_COUNT : " + memberHashOperations.get(redisUserInfoCategoryKey, MemberRedisKey.TIE_COUNT) + ", ");
-        sb.append("MVP_COUNT : " + memberHashOperations.get(redisUserInfoCategoryKey, MemberRedisKey.MVP_COUNT) + ", ");
-        sb.append("RANKING : " + memberHashOperations.get(redisUserInfoCategoryKey, MemberRedisKey.RANKING) + ", ");
+        sb.append("\n<카테고리 UserInfo>\n");
+        sb.append("REFRESH_TOKEN : " + memberHashOperations.get(redisUserInfoCategoryKey, MemberRedisKey.REFRESH_TOKEN) + "\n");
+        sb.append("SELECTED_ACHIEVEMENT : " + memberHashOperations.get(redisUserInfoCategoryKey, MemberRedisKey.SELECTED_ACHIEVEMENT) + "\n");
+        sb.append("RANK_NAME : " + memberHashOperations.get(redisUserInfoCategoryKey, MemberRedisKey.RANK_NAME) + "\n");
+        sb.append("POINT : " + memberHashOperations.get(redisUserInfoCategoryKey, MemberRedisKey.POINT) + "\n");
+        sb.append("WIN_COUNT : " + memberHashOperations.get(redisUserInfoCategoryKey, MemberRedisKey.WIN_COUNT) + "\n");
+        sb.append("LOSE_COUNT : " + memberHashOperations.get(redisUserInfoCategoryKey, MemberRedisKey.LOSE_COUNT) + "\n");
+        sb.append("TIE_COUNT : " + memberHashOperations.get(redisUserInfoCategoryKey, MemberRedisKey.TIE_COUNT) + "\n");
+        sb.append("MVP_COUNT : " + memberHashOperations.get(redisUserInfoCategoryKey, MemberRedisKey.MVP_COUNT) + "\n");
+        sb.append("RANKING : " + memberHashOperations.get(redisUserInfoCategoryKey, MemberRedisKey.RANKING) + "\n");
         List<String> achievements2 = (List<String>) memberHashOperations.get(redisUserInfoCategoryKey, MemberRedisKey.ACHIEVEMENTS);
-        sb.append("ACHIEVEMENTS : " + achievements2 + ", ");
+        sb.append("ACHIEVEMENTS : " + achievements2 + "\n");
         List<Record> records2 = (List<Record>) memberHashOperations.get(redisUserInfoCategoryKey, MemberRedisKey.LATEST_GAME_RECORD);
-        sb.append("LATEST_GAME_RECORD : " + records2 + ", ");
+        sb.append("LATEST_GAME_RECORD : " + records2 + "\n");
 
 
         System.out.println(sb);
     }
 
-    void createRedisUserInfo(Profile profile, String selectedAchievement, String redisCategory,
-                             long[] ranking, List<String> achievements, List<Record> latestGameRecord) {
+    void createRedisUserInfo(Profile profile, RankingMember rankingMember,
+                             String selectedAchievement, String redisCategory,
+                             List<String> achievements, List<Record> latestGameRecord) {
         HashOperations<String, MemberRedisKey, Object> memberHashOperations = redisTemplate.opsForHash();
+        ZSetOperations<String, RankingMember> rankingMemberZSetOperations = rankingMemberRedisTemplate.opsForZSet();
 
         Member member = profile.getMember();
         String redisUserInfoRankKey = member.getUserId() + ":" + Constants.RANK_REDIS_KEY;
         String redisUserInfoCategoryKey = member.getUserId() + ":" + redisCategory;
 
+
+        Long ranking = rankingMemberZSetOperations.rank(Constants.RANK_REDIS_KEY, rankingMember);
         memberHashOperations.put(redisUserInfoRankKey, MemberRedisKey.REFRESH_TOKEN, member.getUserId());
         memberHashOperations.put(redisUserInfoRankKey, MemberRedisKey.SELECTED_ACHIEVEMENT, selectedAchievement);
         memberHashOperations.put(redisUserInfoRankKey, MemberRedisKey.RANK_NAME, profile.getRank().getRankName().getName());
@@ -360,10 +380,11 @@ class GameServiceTest {
         memberHashOperations.put(redisUserInfoRankKey, MemberRedisKey.LOSE_COUNT, 0);
         memberHashOperations.put(redisUserInfoRankKey, MemberRedisKey.TIE_COUNT, 0);
         memberHashOperations.put(redisUserInfoRankKey, MemberRedisKey.MVP_COUNT, 0);
-        memberHashOperations.put(redisUserInfoRankKey, MemberRedisKey.RANKING, ranking[0]+1);
+        memberHashOperations.put(redisUserInfoRankKey, MemberRedisKey.RANKING, ranking+1);
         memberHashOperations.put(redisUserInfoRankKey, MemberRedisKey.ACHIEVEMENTS, achievements);
         memberHashOperations.put(redisUserInfoRankKey, MemberRedisKey.LATEST_GAME_RECORD, latestGameRecord);
 
+        Long ranking2 = rankingMemberZSetOperations.rank(Constants.RANK_ANIMAL_REDIS_KEY, rankingMember);
         memberHashOperations.put(redisUserInfoCategoryKey, MemberRedisKey.REFRESH_TOKEN, member.getUserId());
         memberHashOperations.put(redisUserInfoCategoryKey, MemberRedisKey.SELECTED_ACHIEVEMENT, selectedAchievement);
         memberHashOperations.put(redisUserInfoCategoryKey, MemberRedisKey.RANK_NAME, profile.getRank().getRankName().getName());
@@ -372,31 +393,15 @@ class GameServiceTest {
         memberHashOperations.put(redisUserInfoCategoryKey, MemberRedisKey.LOSE_COUNT, 0);
         memberHashOperations.put(redisUserInfoCategoryKey, MemberRedisKey.TIE_COUNT, 0);
         memberHashOperations.put(redisUserInfoCategoryKey, MemberRedisKey.MVP_COUNT, 0);
-        memberHashOperations.put(redisUserInfoCategoryKey, MemberRedisKey.RANKING, ranking[1]+1);
+        memberHashOperations.put(redisUserInfoCategoryKey, MemberRedisKey.RANKING, ranking2+1);
         memberHashOperations.put(redisUserInfoCategoryKey, MemberRedisKey.ACHIEVEMENTS, achievements);
         memberHashOperations.put(redisUserInfoCategoryKey, MemberRedisKey.LATEST_GAME_RECORD, latestGameRecord);
     }
 
-    long[] createRankingMember(Integer memberId, String nickname, int point, int winRate,
-                                              RankName rankName, String redisKey){
+    void createRankingMember(RankingMember rankingMember, String categoryKey){
         ZSetOperations<String, RankingMember> rankingMemberZSetOperations = rankingMemberRedisTemplate.opsForZSet();
-
-        RankingMember rankingMember = RankingMember.builder()
-                .memberId(memberId)
-                .nickname(nickname)
-                .winRate(winRate)
-                .rankName(rankName)
-                .achievement("selectedAchievement")
-                .point(point)
-                .build();
-
         rankingMemberZSetOperations.add(Constants.RANK_REDIS_KEY, rankingMember, -rankingMember.getPoint());
-        rankingMemberZSetOperations.add(redisKey, rankingMember, -rankingMember.getPoint());
-
-        Long redisRank = rankingMemberZSetOperations.rank(Constants.RANK_REDIS_KEY, rankingMember);
-        Long redisCategoryRank = rankingMemberZSetOperations.rank(redisKey, rankingMember);
-
-        return new long[] {redisRank, redisCategoryRank};
+        rankingMemberZSetOperations.add(categoryKey, rankingMember, -rankingMember.getPoint());
     }
 
     private int getWinRate(int win, int lose, int tie) {
