@@ -71,8 +71,8 @@ public class MemberService {
                 .orElseGet(() -> registerNewUser(socialUserInfoResponse));
 
         // JWT 토큰 생성
-        String jwtAccessToken = jwtUtil.createAccessToken(member.getUserId());
-        String jwtRefreshToken = jwtUtil.createRefreshToken(member.getUserId());
+        String jwtAccessToken = jwtUtil.createAccessToken(member.getId(), member.getUserId());
+        String jwtRefreshToken = jwtUtil.createRefreshToken(member.getId(), member.getUserId());
 
         // Redis에 리프레시 토큰 저장
         redisTemplate.opsForValue().set(member.getUserId(), jwtRefreshToken, refreshTokenExpireTime);
