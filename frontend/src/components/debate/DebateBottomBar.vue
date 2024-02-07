@@ -34,6 +34,11 @@
 </script>
 
 <style scoped>
+.custom-toolbar {
+  background-color: #34227c;
+  color: white;
+  height: 70px;
+}
 .q-avatar {
   margin-left: 30px;
   margin-right: 0px;

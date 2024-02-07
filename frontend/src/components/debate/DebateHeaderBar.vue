@@ -34,7 +34,7 @@ const props = defineProps({
 const headerBarTitle = props.headerBarTitle
 </script>
 
-<style>
+<style scoped>
 .custom-toolbar {
   background-color: #34227c;
   color: white;
