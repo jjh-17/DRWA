@@ -119,9 +119,9 @@ function onLogoClick() {
 
                 <q-card-section class="q-pt-none flex flex-center column">
                     <div class="text-h6 text-center q-mb-md">소셜 로그인</div>
-                    <img class="login-btn" src="src\assets\img\google_login_btn.png" @click="fetchSocialLoginUrl('google')">
-                    <img class="login-btn" src="src\assets\img\naver_login_btn.png" @click="fetchSocialLoginUrl('naver')">
-                    <img class="login-btn" src="src\assets\img\kakao_login_btn.png" @click="fetchSocialLoginUrl('kakao')">
+                    <img class="login-btn" src="@\assets\img\google_login_btn.png" @click="fetchSocialLoginUrl('google')">
+                    <img class="login-btn" src="@\assets\img\naver_login_btn.png" @click="fetchSocialLoginUrl('naver')">
+                    <img class="login-btn" src="@\assets\img\kakao_login_btn.png" @click="fetchSocialLoginUrl('kakao')">
                 </q-card-section>
             </q-card>
         </q-dialog>
@@ -129,11 +129,12 @@ function onLogoClick() {
 </template>
 
 <style scoped>
-.custom-toolbar{
+.custom-toolbar {
     background-color: #34227C;
     color: white;
-    height:70px;
+    height: 70px;
 }
+
 .search-container {
     flex: 1;
     max-width: 800px;
