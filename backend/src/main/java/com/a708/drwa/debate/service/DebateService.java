@@ -14,7 +14,10 @@ import com.a708.drwa.redis.domain.DebateRedisKey;
 import com.a708.drwa.redis.exception.RedisErrorCode;
 import com.a708.drwa.redis.exception.RedisException;
 import com.a708.drwa.redis.util.RedisKeyUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -72,6 +75,14 @@ public class DebateService {
             DebateMember memberDto = member.getValue();
             String teamKey = member.getValue().getRole().string();
             listOperations.rightPush(redisKeyUtil.getKeyByRoomIdWithKeyword(debateKey, teamKey), memberDto);
+        }
+
+        // Redis에 방 정보 저장을 위한 saveDebateRoomInfo 호출
+        try {
+            saveDebateRoomInfo(debateStartRequestDto);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            // JSON 변환 실패 처리 로직 (예외 로깅, 사용자에게 오류 응답 등)
         }
 
         // 준비 단계로 PHASE 진행
@@ -211,5 +222,14 @@ public class DebateService {
         if(!debateRepository.existsById(debateJoinRequestDto.getDebateId()))
             throw new DebateException(DebateErrorCode.NOT_EXIST_DEBATE_ROOM_ERROR);
         return true;
+    }
+
+    @Autowired
+    private ObjectMapper objectMapper; // Jackson ObjectMapper
+
+    public void saveDebateRoomInfo(DebateStartRequestDto debateStartRequestDto) throws JsonProcessingException {
+        RoomInfo roomInfo = debateStartRequestDto.getRoomInfo();
+        String roomJson = objectMapper.writeValueAsString(roomInfo); // RoomInfo 객체를 JSON 문자열로 변환
+        redisTemplate.opsForList().rightPush("room_updates", roomJson); // JSON 문자열을 Object로 캐스팅하여 저장
     }
 }
