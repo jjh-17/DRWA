@@ -1,5 +1,6 @@
 package com.a708.drwa.game.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -7,6 +8,7 @@ import lombok.*;
 @Entity
 @Getter
 @ToString
+@JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class GameInfo {
 
