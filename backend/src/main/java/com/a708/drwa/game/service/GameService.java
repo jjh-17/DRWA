@@ -134,9 +134,7 @@ public class GameService {
             DebateMember debateMember = checkIdInDebateMembers(debateMembers.getLeftMembers(), member.getId());
             if(debateMember==null) debateMember = checkIdInDebateMembers(debateMembers.getRightMembers(), member.getId());
             if(debateMember==null) debateMember = checkIdInDebateMembers(debateMembers.getJurors(), member.getId());
-            if(debateMember==null) {
-                throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
-            }
+            if(debateMember==null) throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
 
             records.add(Record.builder()
                     .member(profile.getMember())
@@ -215,6 +213,7 @@ public class GameService {
         RankingMember[] rankingMembers = new RankingMember[2];
 
         // 'redis_user_info'내 데이터를 이용하여 'redis_ranking' 내
+        List<String> achievements = (List<String>) memberHashOperations.get(key, MemberRedisKey.ACHIEVEMENTS);
         List<Record> records = (List<Record>) memberHashOperations.get(key, MemberRedisKey.LATEST_GAME_RECORD);
         String rankName = (String) memberHashOperations.get(key, MemberRedisKey.RANK_NAME);
         String selectedAchievement = (String) memberHashOperations.get(key, MemberRedisKey.SELECTED_ACHIEVEMENT);
@@ -227,6 +226,9 @@ public class GameService {
                 ? 0
                 : (int) ((double) winCount / (winCount + loseCount + tieCount) * 100.0);
         Member member = profile.getMember();
+
+        log.info(achievements.toString());
+        log.info(records.get(0).getGameInfo().toString());
 
         // 랭킹 멤버 생성
         rankingMembers[0] = RankingMember.builder()
@@ -252,11 +254,9 @@ public class GameService {
 
         // 배심원
         if(role == Role.JUROR) {
-            team = Team.JUROR;
-
             // 미투표자, 비김, 이김, 짐
             if(voteTeam == null)
-                result = null;
+                result = Result.NO_VOTE;
             else if(winnerTeam == WinnerTeam.TIE) {
                 result = Result.TIE;
                 memberHashOperations.put(key, MemberRedisKey.TIE_COUNT, ++tieCount);
@@ -287,6 +287,7 @@ public class GameService {
                 memberHashOperations.put(key, MemberRedisKey.LOSE_COUNT, ++loseCount);
             }
         }
+
         record = Record.builder()
                 .gameInfo(gameInfo)
                 .member(member)
@@ -334,8 +335,9 @@ public class GameService {
         Long cnt = rankingMemberZSetOperations.remove(redisRankingKey, rankingMember);
         if(cnt==null || cnt!=1) {
             Set<RankingMember> rankingMembers = rankingMemberZSetOperations.range(redisRankingKey, 0, -1);
-//            for(RankingMember rm : rankingMembers)
-
+            log.error(rankingMember.toString());
+            for(RankingMember rm : rankingMembers)
+                log.error(rm.toString());
             throw new RedisException(RedisErrorCode.REDIS_DELETE_FAIL);
         }
 
@@ -388,26 +390,35 @@ public class GameService {
 
     // === 편의 메서드 ===
     private Result getResult(DebateMember debateMember, WinnerTeam winnerTeam, Map<String, String> voteMap) {
+        // === 배심원 ===
+        if(debateMember.getRole() == Role.JUROR){
+            // 비투표자
+            if(!voteMap.containsKey(debateMember.getMemberId()+""))
+                return Result.NO_VOTE;
+
+            // 비김
+            if(winnerTeam == WinnerTeam.TIE)
+                return Result.TIE;
+
+            // 승리팀과 동일한 팀 투표자
+            if(voteMap.get(debateMember.getMemberId()+"").equals(winnerTeam.string()))
+                return Result.WIN;
+
+            // 승리팀과 다른 팀 투표자
+            return Result.LOSE;
+        }
+
+        // === 참여자 ===
         // 비김
         if(winnerTeam == WinnerTeam.TIE)
             return Result.TIE;
 
-        // 배심원
-        if(debateMember.getRole() == Role.JUROR) {
-            // 미투표 배심원
-            if(!voteMap.containsKey(debateMember.getMemberId()+""))
-                return Result.NO_VOTE;
+        // 이김
+        if(debateMember.getRole().string().equals(winnerTeam.string()))
+            return Result.WIN;
 
-            // 투표를 한 배심원
-            if(winnerTeam.string().equals(voteMap.get(debateMember.getMemberId()+"")))
-                return Result.WIN;
-            return Result.LOSE;
-        }
-
-        // Left, Right
-        return debateMember.getRole().string().equals(winnerTeam.string())
-                ? Result.WIN
-                : Result.LOSE;
+        // 짐
+        return Result.TIE;
     }
 
     // MVP 도출
@@ -471,7 +482,8 @@ public class GameService {
         if(winnerTeam == WinnerTeam.A)      return teamAList;
         else if(winnerTeam == WinnerTeam.B) return teamBList;
         else {
-            List<DebateMember> mergedList = List.copyOf(teamAList);
+            List<DebateMember> mergedList = new ArrayList<>();
+            mergedList.addAll(teamAList);
             mergedList.addAll(teamBList);
             return mergedList;
         }
