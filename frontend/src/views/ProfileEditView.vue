@@ -3,6 +3,7 @@ import { QInput, QBtn, QAvatar, QFile, QChip } from 'quasar';
 import { ref, onMounted } from 'vue';
 import { categories as importedCategories } from '@/components/category/Category';
 import { httpService } from '@/api/axios';
+import HeaderComponent from '@/components/common/HeaderComponent.vue'
 
 // '전체'와 '기타' 카테고리를 제외합니다.
 const filteredCategories = importedCategories.filter(category => category.english !== 'all' && category.english !== 'etc');
@@ -76,6 +77,9 @@ async function submitProfile() {
 </script>
 
 <template>
+    <header>
+        <HeaderComponent />
+    </header>
     <div class="q-pa-md" style="max-width: 700px; margin: auto;">
         <q-card class="q-pa-md" style="background: #f8f8ff; color: purple;">
             <div class="text-h5 text-center q-mb-md" style="color: purple;">정보 수정</div>

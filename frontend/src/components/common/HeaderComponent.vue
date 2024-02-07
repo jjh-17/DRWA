@@ -196,4 +196,5 @@ function onLogoClick() {
 .login-btn {
     width: 13rem;
     margin-bottom: 10px;
-}</style>
+}
+</style>

@@ -8,10 +8,19 @@ const router = useRouter()
 
 // 예시 기록 데이터
 const gameRecords = ref([
-  { word1: '치킨', word2: '피자', result: '승', points: '10p', img1: '치킨이미지URL', img2: '피자이미지URL' },
-  { word1: '고양이', word2: '강아지', result: '패', points: '5p', img1: '고양이이미지URL', img2: '강아지이미지URL' },
-  { word1: '커피', word2: '차', result: '승', points: '15p', img1: '커피이미지URL', img2: '차이미지URL' },
-  // 추가 기록들...
+  { word1: '초콜릿', word2: '사탕', result: '승', points: '10p', img1: '/images/chocolate.png', img2: '/images/candy.png' },
+  { word1: '책', word2: '영화', result: '패', points: '10p', img1: '/images/book.png', img2: '/images/movie.png' },
+  { word1: '커피', word2: '녹차', result: '승', points: '10p', img1: '/images/coffee.png', img2: '/images/greentea.png' },
+  { word1: '바다', word2: '산', result: '패', points: '10p', img1: '/images/sea.png', img2: '/images/mountain.png' },
+  { word1: '고양이', word2: '강아지', result: '승', points: '10p', img1: '/images/cat.png', img2: '/images/dog.png' },
+]);
+
+// 예시 칭호 데이터, 실제로는 DB에서 받아온 데이터를 사용하기
+const titles = ref([
+  { name: '논리왕' },
+  { name: '청렴한 배심원' },
+  { name: '매너왕' },
+  // 추가 칭호들...
 ]);
 
 const state = reactive({
@@ -51,48 +60,56 @@ const onEditClick = () => {
             </div>
           </div>
           <div>1630p <q-icon name="arrow_forward_ios" class="cursor-pointer" /></div>
+        </q-card-section>
 
-          <q-card-section class="flex flex-center q-gutter-sm justify-around">
-            <div>
-              전적
-              <div>10승 5패</div>
-            </div>
-            <div>
-              승률
-              <div>66%</div>
-            </div>
-          </q-card-section>
+        <q-card-section class="flex flex-center q-gutter-sm justify-around">
+          <div>
+            전적
+            <div>10승 5패</div>
+          </div>
+          <div>
+            승률
+            <div>66%</div>
+          </div>
+        </q-card-section>
 
-          <q-card-section>
-            <div class="text-left">
-              <q-btn flat label="기록" />
+        <q-card-section>
+          <div class="game-records">
+            <div class="buttons-container">
+              <q-btn flat label="기록" class="record-button" />
+              <q-btn flat label="더보기" @click="onViewMore" class="view-more-button" />
             </div>
-            <div class="text-right">
-              <q-btn flat label="더보기" @click="onViewMore" />
-            </div>
-            <div v-for="(record, index) in gameRecords.slice(0, state.visibleCount)" :key="index" class="q-my-md">
-              <div class="flex justify-between items-center">
-                <div class="flex items-center">
-                  <q-avatar>
-                    <img :src="record.img1" alt="제시어 1 이미지">
-                  </q-avatar>
-                  <span class="q-ml-md">{{ record.word1 }}</span>
-                </div>
-                vs
-                <div class="flex items-center">
-                  <span class="q-mr-md">{{ record.word2 }}</span>
-                  <q-avatar>
-                    <img :src="record.img2" alt="제시어 2 이미지">
-                  </q-avatar>
-                </div>
+            <div v-for="(record, index) in gameRecords.slice(0, state.visibleCount)" :key="index" class="record-item">
+              <div class="record-box">
+                <q-avatar class="record-avatar">
+                  <img :src="record.img1" alt="제시어 1 이미지">
+                </q-avatar>
+                <div class="record-text">{{ record.word1 }}</div>
+              </div>
+              <div class="vs">vs</div>
+              <div class="record-box">
+                <div class="record-text">{{ record.word2 }}</div>
+                <q-avatar class="record-avatar">
+                  <img :src="record.img2" alt="제시어 2 이미지">
+                </q-avatar>
+              </div>
+              <div :class="{ 'result-win': record.result === '승', 'result-lose': record.result === '패' }"
+                class="record-result">
                 <strong>{{ record.result }}</strong> {{ record.points }}
               </div>
             </div>
-          </q-card-section>
+          </div>
+        </q-card-section>
 
-          <q-card-section class="flex flex-center">
-            <div>칭호: 초보 탈출</div>
-          </q-card-section>
+        <q-card-section class="titles-section">
+          <div class="titles-header">칭호</div>
+          <div class="titles-container">
+            <q-chip v-for="title in titles" :key="title.name" class="title-chip">
+              {{ title.name }}
+            </q-chip>
+          </div>
+        </q-card-section>
+
       </q-card>
     </q-page>
   </q-page-container>
