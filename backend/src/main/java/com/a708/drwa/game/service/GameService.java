@@ -64,25 +64,27 @@ public class GameService {
     public AddGameResponseDto addGame(AddGameRequestDto addGameRequestDto) {
         // 인자로 받은 방의 카테고리 확인
         checkDebateCategory(addGameRequestDto.getDebateId());
+        final String REDIS_DEBATE_KEY = addGameRequestDto.getDebateId()+"";
 
-        // redisDebate가 있는지 판단
+        // redis_debate에서 데이터 가져옴 통신
         HashOperations<String, DebateRedisKey, Object> debateHashOperations = objectRedisTemplate.opsForHash();
-        Map<DebateRedisKey, Object> redisDebate = debateHashOperations.entries(addGameRequestDto.getDebateId() + "");
-        if(redisDebate.isEmpty()) throw new RedisException(RedisErrorCode.REDIS_READ_FAIL);
+        if(Boolean.FALSE.equals(objectRedisTemplate.hasKey(REDIS_DEBATE_KEY)))
+            throw new RedisException(RedisErrorCode.REDIS_READ_FAIL);
 
-        // 변수 선언
-        RoomInfo roomInfo = (RoomInfo) redisDebate.get(DebateRedisKey.ROOM_INFO);
-        DebateMembers debateMembers = (DebateMembers) redisDebate.get(DebateRedisKey.DEBATE_MEMBER_LIST);
-        VoteInfo voteInfo = (VoteInfo) redisDebate.get(DebateRedisKey.VOTE_INFO);
-        Map<String, Integer> mvpMap = (HashMap<String, Integer>) redisDebate.get(DebateRedisKey.MVP);
-        Map<String, String> voteMap = (HashMap<String, String>) redisDebate.get(DebateRedisKey.VOTE_MAP);
+        RoomInfo roomInfo = (RoomInfo) debateHashOperations.get(REDIS_DEBATE_KEY, DebateRedisKey.ROOM_INFO);
+        DebateMembers debateMembers = (DebateMembers) debateHashOperations.get(REDIS_DEBATE_KEY, DebateRedisKey.DEBATE_MEMBER_LIST);
+        VoteInfo voteInfo = (VoteInfo) debateHashOperations.get(REDIS_DEBATE_KEY, DebateRedisKey.VOTE_INFO);
+        Map<String, Integer> mvpMap = (HashMap<String, Integer>) debateHashOperations.get(REDIS_DEBATE_KEY, DebateRedisKey.MVP);
+        Map<String, String> voteMap = (HashMap<String, String>) debateHashOperations.get(REDIS_DEBATE_KEY, DebateRedisKey.VOTE_MAP);
+        if(roomInfo==null || debateMembers==null || voteInfo==null || mvpMap==null || voteMap==null)
+            throw new RedisException(RedisErrorCode.REDIS_READ_FAIL);
 
         // DB에 게임 정보, 전적을 저장하기 위해 필요한 데이터 도출
         List<Profile> profiles = findProfiles(debateMembers.getLeftMembers(), debateMembers.getRightMembers(), debateMembers.getJurors());
         List<DebateMember> mvpList = getMvpList(mvpMap, debateMembers.getLeftMembers(), debateMembers.getRightMembers());
         int mvpMemberId = mvpList.isEmpty()
                 ? -1
-                : mvpList.get(random.nextInt(mvpList.size()-1)).getMemberId();
+                : mvpList.get(random.nextInt(mvpList.size())).getMemberId();
         WinnerTeam winnerTeam = getWinnerTeam(voteInfo);
         List<DebateMember> winnerTeamList = getWinnerTeamList(
                 debateMembers.getLeftMembers(),
@@ -95,12 +97,12 @@ public class GameService {
 
         // Db에 게임정보, 전적 저장
         GameInfo savedGameInfo = updateDB(roomInfo, debateMembers, profiles, voteMap, mvpMemberId, winnerTeam);
-
-        // Map을 순회하며 Redis 통신
+        
+        // REDIS 데이터 수정
         String redisCategory = constants.getConstantsByCategory(roomInfo.getDebateCategory());
-        updateRedis(profiles, winnerTeamList, mvpList, savedGameInfo, winnerTeam, redisCategory,
+        updateRedis(voteMap, profiles, winnerTeamList, mvpList, debateMembers, savedGameInfo, winnerTeam, redisCategory,
                 winnerPoint, mvpPoint, mvpMemberId, savedGameInfo.isPrivate());
-
+        
         // 전적 저장 이후 클라이언트에게 전달할 데이터
         return AddGameResponseDto.builder()
                 .teamAVoteNum(voteInfo.getLeftVote())
@@ -130,38 +132,51 @@ public class GameService {
         for(Profile profile : profiles) {
             Member member = profile.getMember();
             DebateMember debateMember = checkIdInDebateMembers(debateMembers.getLeftMembers(), member.getId());
-            if(debateMember==null) checkIdInDebateMembers(debateMembers.getRightMembers(), member.getId());
-            if(debateMember==null) checkIdInDebateMembers(debateMembers.getJurors(), member.getId());
-            if(debateMember==null) throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
+            if(debateMember==null) debateMember = checkIdInDebateMembers(debateMembers.getRightMembers(), member.getId());
+            if(debateMember==null) debateMember = checkIdInDebateMembers(debateMembers.getJurors(), member.getId());
+            if(debateMember==null) {
+                throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
+            }
 
             records.add(Record.builder()
                     .member(profile.getMember())
                     .gameInfo(savedGameInfo)
                     .result(getResult(debateMember, winnerTeam, voteMap))
-                    .team(Team.valueOf(debateMember.getRole().string())).build());
+                    .team(getTeam(debateMember.getRole()))
+                    .build());
         }
         recordBulkRepository.saveAll(records);
 
         return savedGameInfo;
     }
 
+    private Team getTeam(Role role) {
+        if(role == Role.A_TEAM)         return Team.A;
+        else if(role == Role.B_TEAM)    return Team.B;
+        return Team.JUROR;
+    }
+
     // Redis 최신화 메서드
-    public void updateRedis(List<Profile> profiles, List<DebateMember> winnerTeamList, List<DebateMember> mvpList,
-                             GameInfo gameInfo, WinnerTeam winnerTeam, String redisCategory,
-                             int winnerPoint, int mvpPoint, int mvpMemberId, boolean isPrivate) {
-        HashOperations<String, MemberRedisKey, Object> memberRedisOperations = objectRedisTemplate.opsForHash();
+    public void updateRedis(Map<String, String> voteMap, List<Profile> profiles, List<DebateMember> winnerTeamList, List<DebateMember> mvpList,
+                            DebateMembers debateMembers, GameInfo gameInfo, WinnerTeam winnerTeam,
+                            String redisCategory, int winnerPoint, int mvpPoint, int mvpMemberId, boolean isPrivate) {
         Map<Integer, Integer> addPointMap = new HashMap<>();
         Map<Integer, Role> roleMap = new HashMap<>();
 
-        for(DebateMember winner : winnerTeamList) {
-            addPointMap.put(winner.getMemberId(), addPointMap.getOrDefault(winner.getMemberId(), 0)+winnerPoint);
-            roleMap.put(winner.getMemberId(), winner.getRole());
-        }
+        // id - Role Map 초기화
+        for(DebateMember left : debateMembers.getLeftMembers())
+            roleMap.put(left.getMemberId(), left.getRole());
+        for(DebateMember right : debateMembers.getRightMembers())
+            roleMap.put(right.getMemberId(), right.getRole());
+        for(DebateMember juror : debateMembers.getJurors())
+            roleMap.put(juror.getMemberId(), juror.getRole());
 
-        for(DebateMember mvp : mvpList) {
+        // 점수에 변동이 있는 멤버들의 획득 포인트와 Role 도출
+        for(DebateMember winner : winnerTeamList)
+            addPointMap.put(winner.getMemberId(), addPointMap.getOrDefault(winner.getMemberId(), 0)+winnerPoint);
+        for(DebateMember mvp : mvpList)
             addPointMap.put(mvp.getMemberId(), addPointMap.getOrDefault(mvp.getMemberId(), 0)+mvpPoint);
-            roleMap.put(mvp.getMemberId(), mvp.getRole());
-        }
+
 
         for(Profile profile : profiles) {
             Member member = profile.getMember();
@@ -169,14 +184,23 @@ public class GameService {
             String redisUserInfoCategoryKey = member.getUserId() + ":" + redisCategory;
 
             // member의 userId를 이용하여 'redis_user_info' 검색
-            Map<MemberRedisKey, Object> redisRankUserInfo = memberRedisOperations.entries(redisUserInfoRankKey);
-            Map<MemberRedisKey, Object> redisCategoryUserInfo = memberRedisOperations.entries(redisUserInfoCategoryKey);
+            if(Boolean.FALSE.equals(objectRedisTemplate.hasKey(redisUserInfoCategoryKey))
+                    || Boolean.FALSE.equals(objectRedisTemplate.hasKey(redisUserInfoCategoryKey)))
+                throw new RedisException(RedisErrorCode.REDIS_READ_FAIL);
 
-            RankingMember[] rankRankingMembers = updateRedisUserInfo(profile, redisRankUserInfo, addPointMap, roleMap,
-                    gameInfo, winnerTeam, redisUserInfoRankKey, mvpMemberId);
-            RankingMember[] categoryRankingMembers = updateRedisUserInfo(profile, redisCategoryUserInfo, addPointMap, roleMap,
-                    gameInfo, winnerTeam, redisUserInfoCategoryKey, mvpMemberId);
+            // 사설방이여도 redis_user_info는 최신화를 한다.
+            RankingMember[] rankRankingMembers = updateRedisUserInfo(
+                    voteMap.getOrDefault(member.getId()+"", null),
+                    addPointMap.getOrDefault(member.getId(), 0),
+                    roleMap.get(member.getId()),
+                    profile, gameInfo, winnerTeam, redisUserInfoRankKey, mvpMemberId);
+            RankingMember[] categoryRankingMembers = updateRedisUserInfo(
+                    voteMap.getOrDefault(member.getId()+"", null),
+                    addPointMap.getOrDefault(member.getId(), 0),
+                    roleMap.get(member.getId()),
+                    profile, gameInfo, winnerTeam, redisUserInfoCategoryKey, mvpMemberId);
 
+            // 공개방일 때만 redis_ranking에 영향을 준다.
             if(!isPrivate) {
                 updateRedisRanking(rankRankingMembers[0], rankRankingMembers[1], Constants.RANK_REDIS_KEY, redisUserInfoRankKey);
                 updateRedisRanking(categoryRankingMembers[0], categoryRankingMembers[1], redisCategory, redisUserInfoCategoryKey);
@@ -185,20 +209,20 @@ public class GameService {
     }
 
     // 'redis_user_info' 업데이트
-    private RankingMember[] updateRedisUserInfo(Profile profile, Map<MemberRedisKey, Object> redisUserInfo,
-                                                Map<Integer, Integer> addPointMap, Map<Integer, Role> roleMap,
-                                                GameInfo gameInfo, WinnerTeam winnerTeam, String key, int mvpMemberId) {
+    private RankingMember[] updateRedisUserInfo(String voteTeam, int addPoint, Role role,
+                                                Profile profile, GameInfo gameInfo, WinnerTeam winnerTeam, String key, int mvpMemberId) {
+        HashOperations<String, MemberRedisKey, Object> memberHashOperations = objectRedisTemplate.opsForHash();
         RankingMember[] rankingMembers = new RankingMember[2];
 
         // 'redis_user_info'내 데이터를 이용하여 'redis_ranking' 내
-        List<Record> records = (List<Record>) redisUserInfo.get(MemberRedisKey.LATEST_GAME_RECORD);
-        String rankName = (String) redisUserInfo.get(MemberRedisKey.RANK_NAME);
-        String selectedAchievement = (String) redisUserInfo.get(MemberRedisKey.SELECTED_ACHIEVEMENT);
-        int point = (int) redisUserInfo.get(MemberRedisKey.POINT);
-        int winCount = (int) redisUserInfo.get(MemberRedisKey.WIN_COUNT);
-        int loseCount = (int) redisUserInfo.get(MemberRedisKey.LOSE_COUNT);
-        int tieCount = (int) redisUserInfo.get(MemberRedisKey.TIE_COUNT);
-        int mvpCount = (int) redisUserInfo.get(MemberRedisKey.MVP_COUNT);
+        List<Record> records = (List<Record>) memberHashOperations.get(key, MemberRedisKey.LATEST_GAME_RECORD);
+        String rankName = (String) memberHashOperations.get(key, MemberRedisKey.RANK_NAME);
+        String selectedAchievement = (String) memberHashOperations.get(key, MemberRedisKey.SELECTED_ACHIEVEMENT);
+        int point = (int) memberHashOperations.get(key, MemberRedisKey.POINT);
+        int winCount = (int) memberHashOperations.get(key, MemberRedisKey.WIN_COUNT);
+        int loseCount = (int) memberHashOperations.get(key, MemberRedisKey.LOSE_COUNT);
+        int tieCount = (int) memberHashOperations.get(key, MemberRedisKey.TIE_COUNT);
+        int mvpCount = (int) memberHashOperations.get(key, MemberRedisKey.MVP_COUNT);
         int winRate = winCount+loseCount==0
                 ? 0
                 : (int) ((double) winCount / (winCount + loseCount + tieCount) * 100.0);
@@ -211,41 +235,64 @@ public class GameService {
                 .winRate(winRate)
                 .rankName(RankName.valueOf(rankName))
                 .achievement(selectedAchievement)
+                .point(point)
                 .build();
 
         // === 'redis_user_info' 최신화 ===
-        HashOperations<String, MemberRedisKey, Object> memberHashOperations = objectRedisTemplate.opsForHash();
-
         // 포인트 최신화
-        point += addPointMap.getOrDefault(member.getId(), 0);
-        memberHashOperations.put(key, MemberRedisKey.POINT, point);
+        if(addPoint>0) {
+            point += addPoint;
+            memberHashOperations.put(key, MemberRedisKey.POINT, point);
+        }
 
-        // 승, 패, 무, 전적 저장 및 최신화
+        // === 승, 패, 무, 전적 저장 및 최신화 ===
         Record record;
-        if(winnerTeam == WinnerTeam.TIE) {
-            memberHashOperations.put(key, MemberRedisKey.TIE_COUNT, ++tieCount);
-            record = Record.builder()
-                    .gameInfo(gameInfo)
-                    .member(member)
-                    .result(Result.TIE)
-                    .build();
+        Result result;
+        Team team = getTeamByRole(role);
+
+        // 배심원
+        if(role == Role.JUROR) {
+            team = Team.JUROR;
+
+            // 미투표자, 비김, 이김, 짐
+            if(voteTeam == null)
+                result = null;
+            else if(winnerTeam == WinnerTeam.TIE) {
+                result = Result.TIE;
+                memberHashOperations.put(key, MemberRedisKey.TIE_COUNT, ++tieCount);
+            }
+            else if(voteTeam.equals(winnerTeam.string())) {
+                result = Result.WIN;
+                memberHashOperations.put(key, MemberRedisKey.WIN_COUNT, ++winCount);
+            }
+            else {
+                result = Result.LOSE;
+                memberHashOperations.put(key, MemberRedisKey.LOSE_COUNT, ++loseCount);
+            }
+        } 
+        
+        // 플레이어
+        else{
+            // 비김, 이김, 짐
+            if(winnerTeam == WinnerTeam.TIE) {
+                result = Result.TIE;
+                memberHashOperations.put(key, MemberRedisKey.TIE_COUNT, ++tieCount);
+            }
+            else if(role.string().equals(winnerTeam.string())) {
+                result = Result.WIN;
+                memberHashOperations.put(key, MemberRedisKey.WIN_COUNT, ++winCount);
+            }
+            else {
+                result = Result.LOSE;
+                memberHashOperations.put(key, MemberRedisKey.LOSE_COUNT, ++loseCount);
+            }
         }
-        else if(winnerTeam.string().equals(roleMap.get(member.getId()).string())){
-            memberHashOperations.put(key, MemberRedisKey.WIN_COUNT, ++winCount);
-            record = Record.builder()
-                    .gameInfo(gameInfo)
-                    .member(member)
-                    .result(Result.WIN)
-                    .build();
-        }
-        else {
-            memberHashOperations.put(key, MemberRedisKey.LOSE_COUNT, ++loseCount);
-            record = Record.builder()
-                    .gameInfo(gameInfo)
-                    .member(member)
-                    .result(Result.LOSE)
-                    .build();
-        }
+        record = Record.builder()
+                .gameInfo(gameInfo)
+                .member(member)
+                .result(result)
+                .team(team)
+                .build();
         records.add(record);
         memberHashOperations.put(key, MemberRedisKey.LATEST_GAME_RECORD, records);
 
@@ -264,11 +311,18 @@ public class GameService {
                 .winRate(winRate)
                 .rankName(RankName.valueOf(rankName))
                 .achievement(selectedAchievement)
+                .point(point)
                 .build();
 
         // 칭호, 대표 칭호, 티어는 어떻게 업데이트 해야할지 잘 모르겠음
 
         return rankingMembers;
+    }
+
+    private Team getTeamByRole(Role role) {
+        if(role == Role.A_TEAM)         return Team.A;
+        else if(role == Role.B_TEAM)    return Team.B;
+        return Team.JUROR;
     }
 
     // redis_ranking 최신화
@@ -278,15 +332,20 @@ public class GameService {
         HashOperations<String, MemberRedisKey, Object> memberHashOperations = objectRedisTemplate.opsForHash();
 
         Long cnt = rankingMemberZSetOperations.remove(redisRankingKey, rankingMember);
-        if(cnt==null || cnt!=1) throw new RedisException(RedisErrorCode.REDIS_DELETE_FAIL);
+        if(cnt==null || cnt!=1) {
+            Set<RankingMember> rankingMembers = rankingMemberZSetOperations.range(redisRankingKey, 0, -1);
+//            for(RankingMember rm : rankingMembers)
+
+            throw new RedisException(RedisErrorCode.REDIS_DELETE_FAIL);
+        }
 
         rankingMemberZSetOperations.add(redisRankingKey, nRankingMember, -nRankingMember.getPoint());
 
         // redis_user_info의 rakning 최신화
-        Long ranking = rankingMemberZSetOperations.rank(redisUserInfoKey, nRankingMember);
+        Long ranking = rankingMemberZSetOperations.rank(redisRankingKey, nRankingMember);
         if(ranking==null) throw new RedisException(RedisErrorCode.REDIS_UPDATE_FAIL);
+        memberHashOperations.put(redisUserInfoKey, MemberRedisKey.RANKING, ranking+1);
 
-        memberHashOperations.put(redisUserInfoKey, MemberRedisKey.RANKING, ranking);
     }
 
     // debateId 검증
@@ -335,6 +394,11 @@ public class GameService {
 
         // 배심원
         if(debateMember.getRole() == Role.JUROR) {
+            // 미투표 배심원
+            if(!voteMap.containsKey(debateMember.getMemberId()+""))
+                return Result.NO_VOTE;
+
+            // 투표를 한 배심원
             if(winnerTeam.string().equals(voteMap.get(debateMember.getMemberId()+"")))
                 return Result.WIN;
             return Result.LOSE;
@@ -381,9 +445,11 @@ public class GameService {
     }
 
     DebateMember checkIdInDebateMembers(List<DebateMember> debateMembers, int memberId) {
+//        log.info(debateMembers + " : " + memberId);
         for(DebateMember debateMember : debateMembers) {
             if(debateMember.getMemberId() == memberId) return debateMember;
         }
+
         return null;
     }
 
