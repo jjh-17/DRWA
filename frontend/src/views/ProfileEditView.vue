@@ -2,6 +2,7 @@
 import { QInput, QBtn, QAvatar, QFile, QChip } from 'quasar';
 import { ref, onMounted } from 'vue';
 import { categories as importedCategories } from '@/components/category/Category';
+import { httpService } from '@/api/axios';
 
 // '전체'와 '기타' 카테고리를 제외합니다.
 const filteredCategories = importedCategories.filter(category => category.english !== 'all' && category.english !== 'etc');
@@ -21,11 +22,17 @@ function checkNickname() {
     alert('중복 확인 로직을 구현하세요.');
 }
 
+/**
+ * 카테고리 선택/해제 토글
+ * @param {*} category 선택한 카테고리
+ */
 function toggleCategory(category) {
-    console.log("토글!", category)
+    const selectedCount = categories.value.filter(cat => cat.selected).length;
+    if (!category.selected && selectedCount >= 3) {
+        alert('관심 카테고리는 최대 3개까지 선택 가능합니다.');
+        return;
+    }
     category.selected = !category.selected;
-    // 배열 내 객체의 변경을 감지하기 위해 categories를 새로운 배열로 갱신
-    // categories.value = [...categories.value];
 }
 
 function onFileChange(file) {
@@ -41,8 +48,30 @@ function onFileChange(file) {
     }
 }
 
-function submitProfile() {
-    alert('정보 수정 완료 로직을 구현하세요.');
+/**
+ * 프로필 수정 완료 버튼 클릭 시 실행되는 메소드
+ */
+async function submitProfile() {
+    const selectedCategories = categories.value
+        .filter(category => category.selected)
+        .map(category => category.english);
+
+    // 예시: 닉네임, 프로필 이미지, 선택된 관심 카테고리 데이터를 서버로 전송
+    const profileData = {
+        nickname: nickname.value,
+        profileImage: profileImage.value,
+        categories: selectedCategories,
+    };
+
+    try {
+        // 여기서 실제로 API 요청을 보냅니다. 예시로는 console.log로 대체합니다.
+        console.log('보낼 데이터:', selectedCategories);
+        await httpService.post('/member/update/interests', selectedCategories);
+        alert('정보 수정이 완료되었습니다.');
+    } catch (error) {
+        console.error('정보 수정 실패:', error);
+        alert('정보 수정에 실패하였습니다.');
+    }
 }
 </script>
 
