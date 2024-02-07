@@ -20,7 +20,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public OpenVidu vidu(@Value("${OPENVIDU_URL") String OPENVIDU_URL,
+    public OpenVidu openVidu(@Value("${OPENVIDU_HOSTNAME}") String OPENVIDU_URL,
                          @Value("${OPENVIDU_SECRET}") String OPENVIDU_SECRET) {
         return new OpenVidu(OPENVIDU_URL, OPENVIDU_SECRET);
     }

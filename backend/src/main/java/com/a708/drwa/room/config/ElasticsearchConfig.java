@@ -13,17 +13,20 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ElasticsearchConfig {
 
-    @Value("${spring.data.elasticsearch.client.rest.uris}")
-    private String url;
+    @Value("${spring.elasticsearch.host}")
+    private String host;
 
-    @Value("${spring.data.elasticsearch.client.rest.port}")
+    @Value("${spring.elasticsearch.port}")
     private int port;
     @Bean
     public ElasticsearchClient elasticsearchClient() {
         ElasticsearchTransport transport = new RestClientTransport(
-                RestClient.builder(new HttpHost(url, port)).build(),
+                RestClient.builder(
+                        new HttpHost(host, port, "https")
+                ).build(),
                 new JacksonJsonpMapper()
         );
+
         return new ElasticsearchClient(transport);
     }
 
