@@ -169,11 +169,13 @@ public class GameService {
         for(DebateMember juror : debateMembers.getJurors())
             roleMap.put(juror.getMemberId(), juror.getRole());
 
-        // 점수에 변동이 있는 멤버들의 획득 포인트와 Role 도출
-        for(DebateMember winner : winnerTeamList)
-            addPointMap.put(winner.getMemberId(), addPointMap.getOrDefault(winner.getMemberId(), 0)+winnerPoint);
-        for(DebateMember mvp : mvpList)
-            addPointMap.put(mvp.getMemberId(), addPointMap.getOrDefault(mvp.getMemberId(), 0)+mvpPoint);
+        // 점수에 변동이 있는 멤버들의 획득 포인트 MAP
+        if(!isPrivate) {
+            for(DebateMember winner : winnerTeamList)
+                addPointMap.put(winner.getMemberId(), addPointMap.getOrDefault(winner.getMemberId(), 0)+winnerPoint);
+            for(DebateMember mvp : mvpList)
+                addPointMap.put(mvp.getMemberId(), addPointMap.getOrDefault(mvp.getMemberId(), 0)+mvpPoint);
+        }
 
 
         for(Profile profile : profiles) {
@@ -186,7 +188,7 @@ public class GameService {
                     || Boolean.FALSE.equals(objectRedisTemplate.hasKey(redisUserInfoCategoryKey)))
                 throw new RedisException(RedisErrorCode.REDIS_READ_FAIL);
 
-            // 사설방이여도 redis_user_info는 최신화를 한다.
+            // redis_user_info 업데이트
             RankingMember[] rankRankingMembers = updateRedisUserInfo(
                     voteMap.getOrDefault(member.getId()+"", null),
                     addPointMap.getOrDefault(member.getId(), 0),
@@ -242,7 +244,7 @@ public class GameService {
 
         // === 'redis_user_info' 최신화 ===
         // 포인트 최신화
-        if(addPoint>0) {
+        if(addPoint>0 && !gameInfo.isPrivate()) {
             point += addPoint;
             memberHashOperations.put(key, MemberRedisKey.POINT, point);
         }
@@ -259,15 +261,18 @@ public class GameService {
                 result = Result.NO_VOTE;
             else if(winnerTeam == WinnerTeam.TIE) {
                 result = Result.TIE;
-                memberHashOperations.put(key, MemberRedisKey.TIE_COUNT, ++tieCount);
+                if(!gameInfo.isPrivate())
+                    memberHashOperations.put(key, MemberRedisKey.TIE_COUNT, ++tieCount);
             }
             else if(voteTeam.equals(winnerTeam.string())) {
                 result = Result.WIN;
-                memberHashOperations.put(key, MemberRedisKey.WIN_COUNT, ++winCount);
+                if(!gameInfo.isPrivate())
+                    memberHashOperations.put(key, MemberRedisKey.WIN_COUNT, ++winCount);
             }
             else {
                 result = Result.LOSE;
-                memberHashOperations.put(key, MemberRedisKey.LOSE_COUNT, ++loseCount);
+                if(!gameInfo.isPrivate())
+                    memberHashOperations.put(key, MemberRedisKey.LOSE_COUNT, ++loseCount);
             }
         } 
         
@@ -276,15 +281,18 @@ public class GameService {
             // 비김, 이김, 짐
             if(winnerTeam == WinnerTeam.TIE) {
                 result = Result.TIE;
-                memberHashOperations.put(key, MemberRedisKey.TIE_COUNT, ++tieCount);
+                if(!gameInfo.isPrivate())
+                    memberHashOperations.put(key, MemberRedisKey.TIE_COUNT, ++tieCount);
             }
             else if(role.string().equals(winnerTeam.string())) {
                 result = Result.WIN;
-                memberHashOperations.put(key, MemberRedisKey.WIN_COUNT, ++winCount);
+                if(!gameInfo.isPrivate())
+                    memberHashOperations.put(key, MemberRedisKey.WIN_COUNT, ++winCount);
             }
             else {
                 result = Result.LOSE;
-                memberHashOperations.put(key, MemberRedisKey.LOSE_COUNT, ++loseCount);
+                if(!gameInfo.isPrivate())
+                    memberHashOperations.put(key, MemberRedisKey.LOSE_COUNT, ++loseCount);
             }
         }
 

@@ -129,8 +129,8 @@ class GameServiceTest {
                 .debateTitle("privateTitle")
                 .leftKeyword("privateLeft").rightKeyword("privateRight")
                 .playerNum(4).jurorNum(3)
-//                .isPrivate(true).password("privatePwd")
-                .isPrivate(false).password(null)
+                .isPrivate(true).password("privatePwd")
+//                .isPrivate(false).password(null)
                 .speakingTime(100).readyTime(300).qnaTime(200)
                 .build();
         debateHashOperations.put(debateRedisKey, DebateRedisKey.ROOM_INFO, roomInfo);
