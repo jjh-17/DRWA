@@ -16,7 +16,7 @@ const router = createRouter({
       component: MainView
     },
     {
-      path: '/api/member/login',
+      path: '/member/login',
       name: 'AuthCallback',
       component: AuthCallback
     },
