@@ -40,6 +40,9 @@ const goToMyPage = () => {
     router.push({ name: 'MyPageView' });
 }
 
+const goToRanking = () => {
+    router.push({ name: 'RankingView' });
+}
 
 
 //방 검색
@@ -80,7 +83,7 @@ function onLogoClick() {
         <q-avatar class="q-mr-sm" @click="onLogoClick" style="cursor: pointer;">
             <img src="@\assets\img\logo.png">
         </q-avatar>
-        <q-btn flat label="랭킹" class="text-white q-mr-sm" />
+        <q-btn flat label="랭킹" class="ranking" @click="goToRanking" />
 
 
         <!-- 가운데 정렬을 위한 공간 배분 -->
@@ -88,8 +91,8 @@ function onLogoClick() {
 
         <!-- 검색창 -->
 
+        <div class="search">
         <q-btn-dropdown v-model="menu" class="dropdown" :label="cond">
-
             <q-list>
                 <q-item clickable v-close-popup @click="setType('title')">
                     <q-item-section>
@@ -103,9 +106,9 @@ function onLogoClick() {
                 </q-item>
             </q-list>
         </q-btn-dropdown>
-        <q-input class="searchbox" v-model="searchQuery" placeholder="검색어 입력" style="height: 35px;" />
+        <input v-model="text" placeholder="검색어를 입력하세요">
         <q-btn label="검색" @click="searchRooms(type.value)" />
-
+        </div>
 
         <!-- 로그인 상태에 따른 조건부 렌더링 -->
         <q-space /> <!-- 이것은 나머지 요소들을 오른쪽으로 밀어냅니다 -->
@@ -129,7 +132,7 @@ function onLogoClick() {
                 </q-list>
             </q-menu>
         </div>
-        <q-btn v-else flat label="로그인" class="text-white" @click="showDialog = true" />
+        <q-btn v-else flat label="로그인" class="login" @click="showDialog = true" />
         <!--로그인 모달 -->
         <q-dialog v-model="showDialog">
             <q-card class="q-pa-md bg-indigo-1 " style="width: 400px; max-width: 80vw; height: 35erd0px;">
@@ -157,17 +160,24 @@ function onLogoClick() {
 }
 
 .q-mr-sm {
-    padding: 0px 25px 0px 25px;
+    padding: 0px 25px 0px 0px;
 }
-
+.ranking{
+    font-color: white;
+    margin-left: 30px;
+}
 .text-white.q-mr-sm {
     padding: 0px 25px 0px 25px;
 }
 
 .q-input.searchbox {
-    flex: 1;
+    flex:1;
+    text-align: center;
+    background-color: white;
 }
-
+.search{
+    display:flex;
+}
 .search-container {
     flex: 1;
     max-width: 800px;
@@ -196,5 +206,10 @@ function onLogoClick() {
 .login-btn {
     width: 13rem;
     margin-bottom: 10px;
+}
+.login{
+    color: white;
+    padding: 0 25px 0 25px;
+    margin: 20px;
 }
 </style>
