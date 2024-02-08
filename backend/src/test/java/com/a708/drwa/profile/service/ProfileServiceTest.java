@@ -50,6 +50,32 @@ class ProfileServiceTest {
     }
 
     @Test
+    void findAllByMemberIdIn() {
+        Member member = Member.builder()
+                .userId("1")
+                .socialType(SocialType.KAKAO)
+                .build();
+        Member member2 = Member.builder()
+                .userId("2")
+                .socialType(SocialType.KAKAO)
+                .build();
+        memberRepository.saveAll(List.of(member, member2));
+
+        AddProfileRequest request = AddProfileRequest.builder()
+                .nickname("testNickname")
+                .memberId(member.getId())
+                .build();
+        AddProfileRequest request2 = AddProfileRequest.builder()
+                .nickname("testNickname2")
+                .memberId(member2.getId())
+                .build();
+        profileService.addProfile(request);
+        profileService.addProfile(request2);
+
+        profileRepository.findAllByMemberIdIn(List.of(member.getId(), member2.getId()));
+    }
+
+    @Test
     void addProfile() {
         // given
         Member member = Member.builder()

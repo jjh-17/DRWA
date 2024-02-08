@@ -1,15 +1,13 @@
 package com.a708.drwa.ranking.domain;
 
 import com.a708.drwa.rank.enums.RankName;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serializable;
 
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 public class RankingMember implements Serializable {
     private Integer memberId;
