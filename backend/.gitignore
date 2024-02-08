@@ -44,6 +44,7 @@ out/
 /src/main/resources/security/application-key.yml
 /src/main/resources/security/application-database.yml
 /src/main/resources/security/application-security.yml
+/src/main/resources/security/application-aws.yml
 
 ### generated QueryDSL files ###
 /src/main/generated/*
