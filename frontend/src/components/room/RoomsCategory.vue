@@ -7,7 +7,6 @@
         </li> -->
     </ul>
   </div>
-  
 </template>
 
 <script setup>
@@ -39,9 +38,7 @@ watch(
   background-color: #e8ebf9;
   width: 100%;
   height: 500px;
-  position: relative; /* 상대 위치 설정 */
+  position: relative;
+  /* 상대 위치 설정 */
 }
-
-
-
 </style>

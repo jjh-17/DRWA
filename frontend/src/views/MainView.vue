@@ -24,12 +24,8 @@
     <div class="debate-category">토론 카테고리</div>
 
     <div class="category-container">
-      <div
-        v-for="category in categories"
-        :key="category.name"
-        :class="['category-box', { active: activeCategory === category.name }]"
-        @click="setActiveCategory(category)"
-      >
+      <div v-for="category in categories" :key="category.name"
+        :class="['category-box', { active: activeCategory === category.name }]" @click="setActiveCategory(category)">
         {{ category.name }}
       </div>
     </div>
@@ -53,7 +49,7 @@ import { Carousel, Slide } from 'vue3-carousel'
 import { categories } from '@/components/category/Category.js'
 import 'vue3-carousel/dist/carousel.css'
 import RoomsCategory from '@/components/room/RoomsCategory.vue'
-import DebateCreateModal from  '@/components/modal/DebateCreateModal.vue'
+import DebateCreateModal from '@/components/modal/DebateCreateModal.vue'
 
 
 // Composition API의 ref와 reactive를 사용하여 데이터 정의
@@ -98,7 +94,7 @@ const { activeCategory, images } = toRefs(state)
 const isModalVisible = ref(false);
 
 const openModal = () => {
-  isModalVisible.value = true; 
+  isModalVisible.value = true;
 };
 
 const scrollToTop = () => {
@@ -114,12 +110,14 @@ const scrollToTop = () => {
   background-color: rgba(47, 41, 73, 0.5);
   padding: 10px 30px 30px 30px;
 }
+
 .select-rooms {
   display: flex;
   gap: 20px;
   padding: 5px;
   height: 50px;
 }
+
 .select-box {
   font-size: 15px;
   background-color: #34227c;
@@ -130,12 +128,15 @@ const scrollToTop = () => {
   width: 150px;
   height: 40px;
 }
-.carousel {
-}
+
+.carousel {}
+
 .carousel-container {
   padding: 20px;
-  position: relative; /* 내부 절대 위치 요소의 기준이 됨 */
+  position: relative;
+  /* 내부 절대 위치 요소의 기준이 됨 */
 }
+
 .carousel__slide {
   padding: 5px;
 }
@@ -157,7 +158,7 @@ const scrollToTop = () => {
   transform: rotateY(-20deg) scale(0.8);
 }
 
-.carousel__slide--active ~ .carousel__slide {
+.carousel__slide--active~.carousel__slide {
   transform: rotateY(20deg) scale(0.8);
 }
 
@@ -182,14 +183,20 @@ const scrollToTop = () => {
 .carousel-item img {
   width: 35rem;
 }
+
 .carousel__prev1,
 .carousel__next1 {
   cursor: pointer;
-  position: absolute; /* 절대 위치 설정 */
-  top: 50%; /* 상위 요소의 중앙에 위치 */
-  transform: translateY(-50%); /* Y축 기준 중앙 정렬 */
-  background-color: rgba(0, 0, 0, 0); /* 버튼 배경색 설정 */
-  z-index: 10; /* 다른 요소 위에 표시 */
+  position: absolute;
+  /* 절대 위치 설정 */
+  top: 50%;
+  /* 상위 요소의 중앙에 위치 */
+  transform: translateY(-50%);
+  /* Y축 기준 중앙 정렬 */
+  background-color: rgba(0, 0, 0, 0);
+  /* 버튼 배경색 설정 */
+  z-index: 10;
+  /* 다른 요소 위에 표시 */
   height: 50%;
   line-height: 200px;
   font-size: calc(50vh / 2);
@@ -197,16 +204,19 @@ const scrollToTop = () => {
 }
 
 .carousel__prev1 {
-  left: 15%; /* 왼쪽에서부터의 거리 */
+  left: 15%;
+  /* 왼쪽에서부터의 거리 */
 }
 
 .carousel__next1 {
-  right: 15%; /* 오른쪽에서부터의 거리 */
+  right: 15%;
+  /* 오른쪽에서부터의 거리 */
 }
 
 .categories {
   padding: 20px 50px 50px 50px;
 }
+
 .debate-category {
   font-size: 1.5rem;
   text-align: center;
@@ -247,34 +257,38 @@ const scrollToTop = () => {
 .roomList {
   padding: 0px 50px 50px 50px;
 }
+
 .select-box {
-  padding-right: 10px;;
+  padding-right: 10px;
+  ;
 }
 
 .room-create {
   position: fixed;
-  bottom: 80px; 
+  bottom: 80px;
   right: 50px;
   z-index: 100;
 }
+
 .goto-top {
   position: fixed;
-  bottom: 20px; 
+  bottom: 20px;
   right: 50px;
   z-index: 100;
 }
+
 .goto-top button,
 .room-create button {
-  border: none; 
-  background: none; 
+  border: none;
+  background: none;
   padding: 0;
   cursor: pointer;
 }
 
 .goto-top button img,
 .room-create button img {
-  display: block; /* 이미지 주위의 공간 제거 */
-  width:60px;
-  height:60px;
-}
-</style>
+  display: block;
+  /* 이미지 주위의 공간 제거 */
+  width: 60px;
+  height: 60px;
+}</style>

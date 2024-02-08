@@ -1,6 +1,8 @@
 package com.a708.drwa.profile.service;
 
-import com.a708.drwa.achievement.domain.MemberAchievement;
+import com.a708.drwa.game.domain.Record;
+import com.a708.drwa.game.domain.Result;
+import com.a708.drwa.game.repository.RecordRepository;
 import com.a708.drwa.global.exception.GlobalException;
 import com.a708.drwa.member.domain.Member;
 import com.a708.drwa.member.exception.MemberErrorCode;
@@ -15,17 +17,15 @@ import com.a708.drwa.rank.domain.Rank;
 import com.a708.drwa.rank.enums.RankName;
 import com.a708.drwa.ranking.domain.RankingMember;
 import com.a708.drwa.rank.service.RankService;
-import com.a708.drwa.achievement.exception.AchievementErrorCode;
-import com.a708.drwa.achievement.repository.MemberAchievementRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.a708.drwa.redis.constant.Constants.*;
 
@@ -35,7 +35,7 @@ import static com.a708.drwa.redis.constant.Constants.*;
 public class ProfileService {
     private final ProfileRepository profileRepository;
     private final MemberRepository memberRepository;
-    private final MemberAchievementRepository memberAchievementRepository;
+    private final RecordRepository recordRepository;
     private final RankService rankService;
     private final RedisTemplate<String, RankingMember> rankMemberRedisTemplate;
     private static final int INIT_POINT = 1000;
@@ -56,21 +56,15 @@ public class ProfileService {
                 .mvpCount(INIT_MVP_COUNT)
                 .rank(INIT_RANK_BRONZE)
                 .build();
-        MemberAchievement title = memberAchievementRepository.findByMemberId(addProfileRequest.getMemberId())
-                .stream()
-                .filter(memberAchievement -> memberAchievement.isSelected())
-                .findFirst()
-                .orElseThrow(() -> new GlobalException(AchievementErrorCode.TITLE_REPRESENTATIVE_NOT_FOUND));
 
         RankingMember rankingMember = RankingMember.builder()
                 .memberId(member.getId())
                 .nickname(profile.getNickname())
-                .title(title.getAchievement().getName())
-                //.winRate()
+                .achievement("뉴비")
+                .winRate(0)
                 .point(profile.getPoint())
                 .build();
-
-        // Save Points with each category
+        
         savePointsInRedis(rankingMember, profile);
 
         profileRepository.save(profile);
@@ -90,10 +84,19 @@ public class ProfileService {
                 .orElseThrow(() -> new GlobalException(ProfileErrorCode.PROFILE_NOT_FOUND));
 
         Set<RankingMember> members = rankMemberRedisTemplate.opsForZSet().range(RANK_REDIS_KEY, 0, -1);
-
         if(members == null) {
             throw new GlobalException(ProfileErrorCode.PROFILE_NOT_FOUND);
         }
+
+        List<Record> records = recordRepository.findByMemberId(memberId);
+
+        int winCount = getCount(records, Result.WIN);
+        int loseCount = getCount(records, Result.LOSE);
+        int tieCount = getCount(records, Result.TIE);
+
+        int winRate = 0;
+        if(winCount + loseCount != 0)
+            winRate = (int) ((double) winCount / (winCount + loseCount + tieCount) * 100.0);
 
         RankingMember memberRankInfo = members
                 .stream()
@@ -107,6 +110,10 @@ public class ProfileService {
                 .nickname(profile.getNickname())
                 .point(memberRankInfo.getPoint())
                 .rankName(profile.getRank().getRankName())
+                .winCount(winCount)
+                .loseCount(loseCount)
+                .tieCount(tieCount)
+                .winRate(winRate)
                 .build();
     }
 
@@ -120,32 +127,58 @@ public class ProfileService {
     }
 
     public List<ProfileResponse> findAllWithDto(){
+        List<ProfileResponse> results = new ArrayList<>();
+
         Set<RankingMember> rankingMembers = rankMemberRedisTemplate.opsForZSet().range(RANK_REDIS_KEY, 0, -1);
         if(rankingMembers == null){
-            new GlobalException(MemberErrorCode.MEMBER_NOT_FOUND);
+            throw new GlobalException(MemberErrorCode.MEMBER_NOT_FOUND);
         }
 
         List<Profile> profiles = profileRepository.findAll();
 
-        for(RankingMember rankingMember : rankingMembers){
+        for(RankingMember rankingMember : rankingMembers){ // SortedSet
             Optional<Profile> matchingProfile = profiles.stream()
                     .filter(p -> p.getMember().getId().equals(rankingMember.getMemberId()))
-                    .findFirst();
-            matchingProfile.ifPresent(profile -> profile.updatePoint(rankingMember.getPoint()));
+                    .findFirst(); // SortedSet에 들어있는 각 Member에 해당하는 Profile
+            matchingProfile.ifPresent(profile -> {
+                profile.updatePoint(rankingMember.getPoint()); // SortedSet에 있는 포인트 반영
+
+                // 승,패, 승률 가져옴
+                List<Record> records = recordRepository.findByMemberId(rankingMember.getMemberId());
+
+                int winCount = getCount(records, Result.WIN);
+                int loseCount = getCount(records, Result.LOSE);
+                int tieCount = getCount(records, Result.TIE);
+
+                int winRate = 0;
+                if(winCount + loseCount != 0)
+                    winRate = (int) ((double) winCount / (winCount + loseCount + tieCount) * 100.0);
+
+                ProfileResponse profileResponse = ProfileResponse.builder()
+                        .profileId(profile.getId())
+                        .memberId(profile.getMember().getId())
+                        .point(profile.getPoint())
+                        .mvpCount(profile.getMvpCount())
+                        .nickname(profile.getNickname())
+                        .rankName(profile.getRank().getRankName())
+                        .winCount(winCount)
+                        .loseCount(loseCount)
+                        .tieCount(tieCount)
+                        .winRate(winRate)
+                        .build();
+                results.add(profileResponse);
+            });
         }
 
-        return profiles
-                .stream()
-                .map(p -> ProfileResponse.builder()
-                        .profileId(p.getId())
-                        .memberId(p.getMember().getId())
-                        .point(p.getPoint())
-                        .mvpCount(p.getMvpCount())
-                        .nickname(p.getNickname())
-                        .rankName(p.getRank().getRankName())
-                        .build())
-                .collect(Collectors.toList());
+        return results;
     }
+
+    private int getCount(List<Record> records, Result result) {
+        return (int) records.stream()
+                .filter(record -> record.getResult().equals(result) && !record.getGameInfo().isPrivate())
+                .count();
+    }
+
     private void savePointsInRedis(RankingMember rankingMember, Profile profile) {
         // Total Point
         rankMemberRedisTemplate.opsForZSet().add(RANK_REDIS_KEY, rankingMember, -profile.getPoint());

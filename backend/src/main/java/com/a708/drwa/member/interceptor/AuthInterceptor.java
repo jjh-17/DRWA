@@ -43,7 +43,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             String accessToken = request.getHeader(ACCESSTOKEN_HEADER);
 
             if(accessToken != null) {
-                if(jwtUtil.vaildCheck(accessToken)) {
+                if(jwtUtil.validCheck(accessToken)) {
                     return true;
                 }
             }

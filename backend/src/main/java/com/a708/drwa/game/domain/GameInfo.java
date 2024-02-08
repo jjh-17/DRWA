@@ -25,23 +25,18 @@ public class GameInfo {
     // mvp로 선정된 멤버 아이디
     @Column(name = "mvp_member_id")
     private int mvpMemberId;
-    
+
+    @Column(name = "is_private")
+    private boolean isPrivate;
+
     @Builder
     public GameInfo(
             String keyword,
-            int mvpMemberId
+            int mvpMemberId,
+            boolean isPrivate
     ) {
         this.keyword = keyword;
         this.mvpMemberId = mvpMemberId;
-    }
-
-    // 키워드 수정
-    public void setKeyword(String keyword) {
-        this.keyword = keyword;
-    }
-
-    // MVP 선정 멤버 ID 수정
-    public void setMvpMemberId(int mvpMemberId) {
-        this.mvpMemberId = mvpMemberId;
+        this.isPrivate = isPrivate;
     }
 }

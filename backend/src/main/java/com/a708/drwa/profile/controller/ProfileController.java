@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/profile")
+@RequestMapping("/api/profile")
 public class ProfileController {
     private final ProfileService profileService;
 
