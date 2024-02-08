@@ -28,9 +28,6 @@ dependencies {
 	// Spring Boot Starter Data Elasticsearch
 	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 
-	// Elasticsearch Java Client
-	implementation 'co.elastic.clients:elasticsearch-java:8.11.3'
-
 	// websocket
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
@@ -49,7 +46,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
 	// JWT
-	implementation 'com.auth0:java-jwt:4.4.0'
+//	implementation 'com.auth0:java-jwt:4.4.0'
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
 	implementation 'com.googlecode.json-simple:json-simple:1.1.1'
 	implementation 'javax.xml.bind:jaxb-api:2.3.1'

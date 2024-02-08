@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/ranking")
+@RequestMapping("/api/ranking")
 public class RankingController {
     private final RankingService rankingService;
     @GetMapping("/top20")

@@ -1,0 +1,31 @@
+version: '3.7'
+
+services:
+  backend:
+    image: lkt9899/drwa:backend
+    container_name: drwa-backend
+    ports:
+      - 18081:8081
+    stdin_open: true
+    tty: true
+    environment:
+      USE_PROFILE: ${USE_PROFILE}
+    networks:
+      - drwa
+      
+  frontend:
+    image: lkt9899/drwa:frontend
+    container_name: drwa-frontend
+    ports:
+      - 13030:3000
+    stdin_open: true
+    tty: true
+    networks:
+      - drwa
+
+networks:
+  drwa:
+    external: true
+
+volumes:
+  drwa:
