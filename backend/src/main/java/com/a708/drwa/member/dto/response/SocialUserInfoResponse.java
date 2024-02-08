@@ -1,4 +1,4 @@
-package com.a708.drwa.member.dto;
+package com.a708.drwa.member.dto.response;
 
 import com.a708.drwa.member.type.SocialType;
 import com.fasterxml.jackson.annotation.JsonCreator;

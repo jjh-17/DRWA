@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/room")
@@ -18,14 +19,21 @@ public class RoomController {
 
     @GetMapping("/search/title")
     public ResponseEntity<List<Room>> searchRoomsByTitle(@RequestParam String query) {
-        List<Room> rooms = roomSearchService.searchRooms("title", query);
-        return ResponseEntity.ok(rooms);
+        List<Room> rooms = roomSearchService.searchRooms("title", query); // Elasticsearch에서 제목으로 방 검색
+        List<Room> fullRoomDetails = rooms.stream()
+                .map(room -> roomService.findRoomById(room.getDebateId())) // 각 Room 객체의 debateId를 사용하여 Redis에서 방 정보 조회
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(fullRoomDetails);
     }
+
 
     @GetMapping("/search/keyword")
     public ResponseEntity<List<Room>> searchRoomsByKeyword(@RequestParam String query) {
-        List<Room> rooms = roomSearchService.searchRooms("keyword", query);
-        return ResponseEntity.ok(rooms);
+        List<Room> rooms = roomSearchService.searchRooms("keyword", query); // Elasticsearch에서 제목으로 방 검색
+        List<Room> fullRoomDetails = rooms.stream()
+                .map(room -> roomService.findRoomById(room.getDebateId())) // 각 Room 객체의 debateId를 사용하여 Redis에서 방 정보 조회
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(fullRoomDetails);
     }
 
     @PostMapping("/rooms/thumbnail")
