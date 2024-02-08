@@ -5,6 +5,7 @@ import MyPageView from '../views/MyPageView.vue'
 import SearchResults from '@/views/SearchResults.vue'
 import ThumbnailImg from '../components/room/ThumbnailImg.vue'
 import DebateView from '@/views/DebateView.vue'
+import RankingView from '@/views/RankingView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,6 +45,11 @@ const router = createRouter({
       path: '/member/profile-edit',
       name: 'ProfileEdit',
       component: () => import('../views/ProfileEditView.vue')
+    },
+    {
+      path: '/ranking',
+      name: 'RankingView',
+      component: RankingView
     }
   ]
 })
