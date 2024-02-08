@@ -166,10 +166,6 @@ function onLogoClick() {
 
 .q-input.searchbox {
     flex: 1;
-}
-
-.search-container {
-    flex: 1;
     max-width: 800px;
     background-color: white;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
@@ -178,6 +174,7 @@ function onLogoClick() {
     /* 모서리 둥글게 만듦 */
     height: 35px;
 }
+
 
 /* placeholder의 위치를 조정합니다. */
 .q-input.searchbox input::placeholder {
