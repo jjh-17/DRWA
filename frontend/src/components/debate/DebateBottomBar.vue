@@ -34,12 +34,20 @@
 </script>
 
 <style scoped>
+.custom-toolbar {
+  background-color: #34227c;
+  color: white;
+  height: 70px;
+}
+
 .q-avatar {
   margin-left: 30px;
   margin-right: 0px;
 }
+
 .avatar-img {
-  height: 100%; /* 이미지 높이를 부모 요소 높이에 맞춤 */
+  height: 100%;
+  /* 이미지 높이를 부모 요소 높이에 맞춤 */
 }
 
 .end-speech {
@@ -51,12 +59,13 @@
   font-size: 20px;
   margin-right: 30px;
 }
+
 .vote-container {
-  text-align:center;
+  text-align: center;
   background-color: #34227c;
   color: white;
   padding: 10px;
-  height:100%;
+  height: 100%;
   width: 50%;
 }
 
@@ -74,6 +83,7 @@
   color: white;
   text-align: center;
   padding: 5px;
-  margin-right: 2px; /* 바 사이의 간격 */
+  margin-right: 2px;
+  /* 바 사이의 간격 */
 }
 </style>
