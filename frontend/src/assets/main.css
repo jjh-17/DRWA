@@ -1,0 +1,25 @@
+@charset "UTF-8";
+
+* {
+    margin: 0px;
+    padding: 0px;
+}
+
+ul, ol {
+    list-style: none;
+}
+
+a {
+    text-decoration: none
+}
+
+/* @font-face {
+  font-family: 'EASTARJET-Medium';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_231029@1.1/EASTARJET-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+}
+
+* {
+  font-family: 'EASTARJET-Medium', 'Noto Sans KR', sans-serif;
+} */
