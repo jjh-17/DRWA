@@ -37,6 +37,13 @@
   <div class="roomList">
     <RoomsCategory v-if="activeCategory" :activeCategory="activeCategory" />
   </div>
+  <div class="room-create">
+    <button @click="openModal"><img src="@/assets/img/create.png" /></button>
+    <DebateCreateModal :isVisible="isModalVisible" @update:isVisible="isModalVisible = $event" />
+  </div>
+  <div class="goto-top">
+    <button @click="scrollToTop"><img src="@/assets/img/top.png" /></button>
+  </div>
 </template>
 
 <script setup>
@@ -46,6 +53,8 @@ import { Carousel, Slide } from 'vue3-carousel'
 import { categories } from '@/components/category/Category.js'
 import 'vue3-carousel/dist/carousel.css'
 import RoomsCategory from '@/components/room/RoomsCategory.vue'
+import DebateCreateModal from  '@/components/modal/DebateCreateModal.vue'
+
 
 // Composition API의 ref와 reactive를 사용하여 데이터 정의
 const state = reactive({
@@ -85,6 +94,19 @@ const setActiveBox = (boxType) => {
 
 // toRefs를 사용하여 반응성 있는 데이터를 반환
 const { activeCategory, images } = toRefs(state)
+
+const isModalVisible = ref(false);
+
+const openModal = () => {
+  isModalVisible.value = true; 
+};
+
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth' // 부드러운 스크롤 효과
+  });
+};
 </script>
 
 <style scoped>
@@ -157,7 +179,7 @@ const { activeCategory, images } = toRefs(state)
   transform: rotateY(0) scale(1.3);
 }
 
-img {
+.carousel-item img {
   width: 35rem;
 }
 .carousel__prev1,
@@ -227,5 +249,32 @@ img {
 }
 .select-box {
   padding-right: 10px;;
+}
+
+.room-create {
+  position: fixed;
+  bottom: 80px; 
+  right: 50px;
+  z-index: 100;
+}
+.goto-top {
+  position: fixed;
+  bottom: 20px; 
+  right: 50px;
+  z-index: 100;
+}
+.goto-top button,
+.room-create button {
+  border: none; 
+  background: none; 
+  padding: 0;
+  cursor: pointer;
+}
+
+.goto-top button img,
+.room-create button img {
+  display: block; /* 이미지 주위의 공간 제거 */
+  width:60px;
+  height:60px;
 }
 </style>
