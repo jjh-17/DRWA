@@ -35,6 +35,7 @@ public class MemberService {
     private final KakaoLoginServiceImpl kakaoLoginService;
     private final RedisTemplate<String, Object> redisTemplate;
     private final MemberInterestService memberInterestService;
+    private final JWTUtil jwtUtil;
 
     @Value("${jwt.refreshtoken.expiretime}")
     private Long refreshTokenExpireTime;

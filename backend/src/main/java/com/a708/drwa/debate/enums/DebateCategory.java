@@ -17,6 +17,7 @@ public enum DebateCategory {
     CHARACTER("CHARACTER"),
     CULTURE("CULTURE"),
     MUSIC("MUSIC"),
+    SHOPPING("SHOPPING"),
     ETC("ETC"),
     ;
 
