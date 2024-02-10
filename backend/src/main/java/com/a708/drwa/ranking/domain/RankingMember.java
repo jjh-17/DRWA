@@ -16,16 +16,16 @@ public class RankingMember implements Serializable {
     private String nickname;
     private RankName rankName;
     private int point;
-    private String title;
+    private String achievement;
     private int winRate;
 
     @Builder
-    private RankingMember(Integer memberId, String nickname, RankName rankName, int point, String title, int winRate) {
+    private RankingMember(Integer memberId, String nickname, RankName rankName, int point, String achievement, int winRate) {
         this.memberId = memberId;
         this.nickname = nickname;
         this.rankName = rankName;
         this.point = point;
-        this.title = title;
+        this.achievement = achievement;
         this.winRate = winRate;
     }
 

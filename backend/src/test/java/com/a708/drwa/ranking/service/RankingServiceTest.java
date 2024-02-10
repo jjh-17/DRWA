@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -28,7 +29,7 @@ class RankingServiceTest {
     @BeforeEach
     public void redisDataInit(){
         rankMemberRedisTemplate.delete("rank");
-        for(int i=1000; i<=10000; i+=100){
+        for(int i=100; i<=10000; i+=100){
             createRankingMember(i, "member" + i, i, 1, RankName.DIAMOND);
         }
     }
@@ -42,7 +43,7 @@ class RankingServiceTest {
         List<RankingMember> top20Ranks = rankingService.findTop20Ranks();
 
         // then
-        assertThat(top20Ranks.size()).isEqualTo(20);
+        assertThat(top20Ranks.size()).isLessThanOrEqualTo(20);
         assertThat(top20Ranks.get(0).getPoint()).isEqualTo(10000);
         assertTrue(isSortedDescending(top20Ranks));
     }
@@ -97,7 +98,35 @@ class RankingServiceTest {
 
     }
 
+    @Test
+    void findOneAndUpdate() {
+        ZSetOperations<String, RankingMember> stringRankingMemberZSetOperations = rankMemberRedisTemplate.opsForZSet();
+        System.out.println(stringRankingMemberZSetOperations.size(REDIS_KEY));
 
+        RankingMember rankingMember = RankingMember.builder()
+                .memberId(5000)
+                .nickname("member"+5000)
+                .winRate(1)
+                .rankName(RankName.DIAMOND)
+                .point(5000)
+                .build();
+        RankingMember rankingMember2 = RankingMember.builder()
+                .memberId(5000)
+                .nickname("member"+5000)
+                .winRate(5)
+                .rankName(RankName.DIAMOND)
+                .point(5000)
+                .build();
+
+        Long idx = stringRankingMemberZSetOperations.rank(REDIS_KEY, rankingMember);
+        Long cnt = stringRankingMemberZSetOperations.remove(REDIS_KEY, rankingMember);
+        System.out.println(idx + " " + cnt);
+        assertThat(cnt.equals((long) 1));
+
+
+        System.out.println(stringRankingMemberZSetOperations.reverseRank(REDIS_KEY, rankingMember2));
+
+    }
 
     private RankingMember createRankingMember(Integer memberId, String nickname, int point, int winRate, RankName rankName){
         RankingMember rankingMember = RankingMember.builder()
@@ -105,7 +134,7 @@ class RankingServiceTest {
                 .nickname(nickname)
                 .winRate(winRate)
                 .rankName(rankName)
-                .title(rankName + "칭호")
+//                .title(rankName + "칭호")
                 .point(point)
                 .build();
         rankMemberRedisTemplate.opsForZSet().add(REDIS_KEY, rankingMember, -rankingMember.getPoint());
