@@ -7,7 +7,8 @@ export const useAuthStore = defineStore('auth', {
     isLoggedIn: false,
     userProfilePic: null,
     accessToken: null,
-    userId: null
+    userId: null,
+    interests: [] // 사용자의 관심 카테고리 목록
   }),
   actions: {
     /**
@@ -57,13 +58,14 @@ export const useAuthStore = defineStore('auth', {
       this.isLoggedIn = true
       this.accessToken = loginData.accessToken
       this.userId = loginData.userId
+      this.interests = loginData.interests // 관심 카테고리 목록 저장
       // userProfilePic 업데이트 로직이 필요하다면 여기에 추가
       // 예: this.userProfilePic = `https://.../${loginData.userId}.png`
 
       // HTTP 서비스의 헤더에 토큰을 설정합니다.
       httpService.defaults.headers.common['Authorization'] = `Bearer ${this.accessToken}`
 
-      console.log('Logged in:', this.accessToken, this.userId)
+      console.log('Logged in:', this.accessToken, this.userId, this.interests)
       console.log(httpService.defaults.headers.common['Authorization'])
 
       // 로그인 후 원하는 라우트로 리다이렉트. 예를 들어 홈으로 리다이렉트
