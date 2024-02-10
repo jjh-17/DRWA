@@ -1,6 +1,7 @@
 package com.a708.drwa.global.exception;
 
 import com.a708.drwa.global.exception.dto.GlobalExceptionResponse;
+import com.a708.drwa.member.exception.MemberException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

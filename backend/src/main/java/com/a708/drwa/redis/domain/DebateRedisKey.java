@@ -1,29 +1,32 @@
 package com.a708.drwa.redis.domain;
 
-
 public enum DebateRedisKey {
-    TITLE(":title"),
-    HOST(":host"),
-    IS_PRIVATE(":isPrivate"),
-    PASSWORD(":password"),
-    PLAYER_NUM(":playerNum"),
-    JUROR_NUM(":jurorNum"),
-    TOTAL_NUM(":totalNum"),
-    OPINION_TIME(":opinionTime"),
-    READY_TIME(":readyTime"),
-    QUESTION_TIME(":questionTime"),
-    DEBATE_USER_LIST(":debateUserList"),
-    TEAM_A_LIST(":teamAList"),
-    TEAM_B_LIST(":teamBList"),
-    JUROR_LIST(":jurorList"),
-    VIEWER_LIST(":viewerList"),
-    KEY_WORD_A(":keywordA"),
-    KEY_WORD_B(":keywordB"),
-    PHASE(":phase"),
-    CURRENT_SPEAKER(":currentSpeaker"),
-    MVP(":mvp"),
-    VOTE_TEAM_A(":voteTeamA"),
-    VOTE_TEAM_B(":voteTeamB"),
+    // 방 설정
+    ROOM_INFO("roomInfo"),
+    // 전체 유저 리스트
+    DEBATE_MEMBER_LIST("debateMember"),
+    // 팀 별 유저리스트
+    TEAM_A("teamA"),
+    TEAM_B("teamB"),
+    JUROR("juror"),
+    VIEWER("viewer"),
+    // 페이즈
+    PHASE("phase"),
+    // 현재 발언자
+    CURRENT_SPEAKER("currentSpeaker"),
+    // MVP
+    MVP("mvp"),
+    // A팀 투표율
+    VOTE_TEAM_A("voteTeamA"),
+    // B팀 투표율
+    VOTE_TEAM_B("voteTeamB"),
+    // 시작 시간
+    START_TIME("startTime"),
+    // 키워드
+    KEYWORD_A("keywordA"),
+    KEYWORD_B("keywordB"),
+    // 투표 정보
+    VOTE_INFO("voteInfo"),
     ;
 
     private final String string;
@@ -36,3 +39,4 @@ public enum DebateRedisKey {
         return string;
     }
 }
+

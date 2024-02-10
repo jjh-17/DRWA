@@ -1,11 +1,11 @@
 package com.a708.drwa.debate.data.dto.request;
 
-import com.a708.drwa.debate.domain.DebateCategory;
-import lombok.Data;
+import com.a708.drwa.debate.enums.DebateCategory;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-@Data
+@Getter
 public class DebateCreateRequestDto {
-    private int debateCategoryId;
+    private DebateCategory debateCategory;
 }

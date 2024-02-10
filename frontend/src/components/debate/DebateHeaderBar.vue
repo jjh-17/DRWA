@@ -21,7 +21,7 @@
     <q-avatar class="q-mr-lg" fit>
       <img src="@/assets/img/settingmark.png" style="height: 100%" class="avatar-img" />
     </q-avatar>
-    <q-avatar class="exit" >
+    <q-avatar class="exit">
       <img src="@/assets/img/exit.png" style="height: 100%" class="avatar-img" />
     </q-avatar>
   </q-toolbar>
@@ -40,14 +40,17 @@ const headerBarTitle = props.headerBarTitle
   color: white;
   height: 70px;
 }
+
 .exit {
-    margin-right:30px;
+  margin-right: 30px;
 }
+
 .q-avatar {
-  margin-left:30px;
+  margin-left: 30px;
   margin-right: 0px;
 }
+
 .avatar-img {
-  height: 100%; /* 이미지 높이를 부모 요소 높이에 맞춤 */
-}
-</style>
+  height: 100%;
+  /* 이미지 높이를 부모 요소 높이에 맞춤 */
+}</style>
