@@ -2,12 +2,11 @@
   <div class="roomList-container">
     <ul>
       <li v-for="room in rooms.slice(0, displayCount)" :key="room.name">
-        <!-- <RoomCard :img1="room.img1" :img2="room.img2" /> -->
         <RoomCard :room=room />
       </li>
     </ul>
     <div class="see-more" v-if="isMoreAvailable" @click="loadMoreRooms">
-      더보기
+      &#11167; 더보기 &#11167;
     </div>
   </div>
 </template>
@@ -226,15 +225,20 @@ const isMoreAvailable = computed(() => {
 .roomList-container ul {
   display: flex;
   flex-wrap: wrap;
-  list-style-type: none; /* 기본 목록 스타일 제거 */
-  padding: 0; /* 기본 패딩 제거 */
+  list-style-type: none;
+
 }
 
 .roomList-container li {
-  width: calc(25%); /* 한 줄에 4개씩 배치 (20px는 마진을 고려한 값) */
+  width: calc(25%); 
 }
 .see-more {
   width: 100%;
-  background-color: 
+  height:30px;
+  text-align:center;
+  color:#34227C;
+  font-size: 100%;
+  font-weight:bold;
+  cursor:pointer;
 }
 </style>
