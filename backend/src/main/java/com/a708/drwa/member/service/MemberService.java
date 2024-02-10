@@ -92,7 +92,7 @@ public class MemberService {
 
 
         // 응답 DTO 반환
-        return new SocialLoginResponse(userId, jwtAccessToken, interests);
+        return new SocialLoginResponse(memberId, userId, jwtAccessToken, interests);
     }
 
     /**
