@@ -97,6 +97,9 @@ export const useAuthStore = defineStore('auth', {
       if (authLocalStorage) {
         // accessToken이 있다면 상태에 저장하고 HTTP 서비스의 헤더에 설정합니다.
         const accessToken = JSON.parse(authLocalStorage).accessToken
+        if (!accessToken) {
+          return
+        }
         this.accessToken = accessToken
         this.isLoggedIn = true // 토큰이 있으므로 로그인 상태로 간주합니다.
         httpService.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
