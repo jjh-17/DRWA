@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 public class SocialLoginResponse {
+    private int memberId;
     private String userId;
     private String accessToken;
     private List<DebateCategory> interests; // 사용자의 관심 카테고리 목록
