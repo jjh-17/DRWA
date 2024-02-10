@@ -12,6 +12,8 @@ import com.a708.drwa.member.service.Impl.KakaoLoginServiceImpl;
 import com.a708.drwa.member.service.Impl.NaverLoginServiceImpl;
 import com.a708.drwa.member.type.SocialType;
 import com.a708.drwa.member.util.JWTUtil;
+import com.a708.drwa.profile.dto.request.AddProfileRequest;
+import com.a708.drwa.profile.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +35,7 @@ public class MemberService {
     private final JWTUtil jwtUtil;
     private final RedisTemplate<String, Object> redisTemplate;
     private final MemberInterestService memberInterestService;
+    private final ProfileService profileService;
 
     @Value("${jwt.refreshtoken.expiretime}")
     private Long refreshTokenExpireTime;
@@ -107,7 +110,13 @@ public class MemberService {
                 .socialType(socialUserInfoResponse.getSocialType())
                 .build();
 
-        return memberRepository.save(member);
+        memberRepository.save(member);
+
+        // 프로필 초기화 로직
+        AddProfileRequest addProfileRequest = new AddProfileRequest(member.getId(), member.getUserId());
+        profileService.addProfile(addProfileRequest); // 프로필 생성
+
+        return member;
     }
 
     /**
