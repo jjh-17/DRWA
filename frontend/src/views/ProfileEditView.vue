@@ -87,10 +87,6 @@ async function submitProfile() {
 
             <q-separator />
 
-            <div class="q-mt-md">
-                <div class="text-bold q-mb-xs">이름</div>
-                <div>김싸피</div>
-            </div>
 
 
             <div class="q-mt-md">
