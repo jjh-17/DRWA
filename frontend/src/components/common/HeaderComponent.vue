@@ -114,6 +114,7 @@ function onLogoClick() {
 
         <!-- 로그인 상태에 따른 조건부 렌더링 -->
         <q-space /> <!-- 이것은 나머지 요소들을 오른쪽으로 밀어냅니다 -->
+
         <div v-if="authStore.isLoggedIn">
             <q-btn flat round @click="profileMenu = !profileMenu">
                 <q-avatar>
@@ -123,7 +124,7 @@ function onLogoClick() {
             <q-menu auto-close>
                 <q-list>
                     <q-item clickable v-close-popup>
-                        <q-item-section>UserID: {{ authStore.userId }}</q-item-section>
+                        <q-item-section>{{ authStore.nickname }}</q-item-section>
                     </q-item>
                     <q-item clickable v-close-popup @click="goToMyPage">
                         <q-item-section>마이페이지</q-item-section>
