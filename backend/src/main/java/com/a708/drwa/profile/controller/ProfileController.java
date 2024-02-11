@@ -46,5 +46,16 @@ public class ProfileController {
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
+    /**
+     * 닉네임 중복체크
+     * @param nickname
+     * @return
+     */
+    @GetMapping("/check-nickname")
+    public ResponseEntity<Boolean> checkNickname(@RequestParam String nickname) {
+        boolean isAvailable = profileService.isNicknameAvailable(nickname);
+        return ResponseEntity.ok(isAvailable);
+    }
+
 
 }
