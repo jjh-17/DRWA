@@ -4,6 +4,9 @@ import { ref, onMounted } from 'vue';
 import { categories as importedCategories } from '@/components/category/Category';
 import { httpService } from '@/api/axios';
 import HeaderComponent from '@/components/common/HeaderComponent.vue'
+import { useAuthStore } from '@/stores/useAuthStore'; // authStore 가져오기
+
+const authStore = useAuthStore();
 
 // '전체'와 '기타' 카테고리를 제외합니다.
 const filteredCategories = importedCategories.filter(category => category.english !== 'all' && category.english !== 'etc');
@@ -18,6 +21,15 @@ const categories = ref(filteredCategories.map(category => ({
 const nickname = ref('');
 
 const profileImage = ref('');
+
+// 컴포넌트 마운트 시 관심 카테고리를 확인하여 선택 상태 업데이트
+onMounted(() => {
+    categories.value.forEach(category => {
+        if (authStore.interests.map(interest => interest.toLowerCase()).includes(category.english)) {
+            category.selected = true;
+        }
+    });
+});
 
 function checkNickname() {
     alert('중복 확인 로직을 구현하세요.');
@@ -67,7 +79,11 @@ async function submitProfile() {
     try {
         // 여기서 실제로 API 요청을 보냅니다. 예시로는 console.log로 대체합니다.
         console.log('보낼 데이터:', selectedCategories);
-        await httpService.post('/member/update/interests', selectedCategories);
+        const response = await httpService.post('/member/update/interests', selectedCategories);
+        if (response.status === 200) {
+            // 성공적으로 관심 카테고리가 업데이트되면 Pinia 스토어의 상태를 직접 업데이트
+            authStore.interests = selectedCategories;
+        }
         alert('정보 수정이 완료되었습니다.');
     } catch (error) {
         console.error('정보 수정 실패:', error);
