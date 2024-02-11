@@ -20,8 +20,8 @@
       <div class="option">
         <div class="top20">Top 20</div>
         <div class="search">
-          <input v-model="text" placeholder="검색어를 입력하세요">
-          <q-btn label="검색" @click="searchUserRank(text)" />
+          <input v-model="text" placeholder="   닉네임을 입력하세요">
+          <q-btn label="검색" class="sbtn" @click="searchUserRank(text)" />
         </div>
       </div>
       <div class="ranking-card">
@@ -29,15 +29,15 @@
           <div class="ranking-header">
             <span>순위</span>
             <span>닉네임</span>
-            <span>칭호</span>
+            <span>티어</span>
             <span>포인트</span>
             <span>승률</span>
           </div>
-          <div v-for="(member, index) in rankings" :key="member.memberId" class="ranking-item">
+          <div v-for="(member, index) in rankStore.rankings" :key="member.memberId" class="ranking-item">
             <span>{{ index + 1 }}</span>
             <span>{{ member.nickname }}</span>
             <span>{{ member.rankName }}</span>
-            <span>{{ member.point }}</span>
+            <span>{{ member.pivotPoint }}</span>
             <span>{{ member.winRate }}%</span>
           </div>
         </div>
@@ -48,31 +48,22 @@
 
 <script setup>
 import { ref } from 'vue';
-import axios from 'axios';
-import { categories } from '@/components/category/Category.js';
+import { useRankStore } from '@/stores/useRankStore';
 import HeaderComponent from '@/components/common/HeaderComponent.vue';
+import { categories } from '@/components/category/Category.js';
 
-const rankings = ref([]);
+const rankStore = useRankStore();
 const text = ref('');
 
-const fetchRankings = async (category) => {
-  try {
-    const response = await axios.get(`/api/ranking/top20/${category}`);
-    rankings.value = response.data;
-  } catch (error) {
-    console.error("Error fetching rankings:", error);
-  }
+const fetchRankings = (category) => {
+  rankStore.fetchRankings(category);
 };
 
-const searchUserRank = async (nickname) => {
-  try {
-    const response = await axios.get(`/api/ranking/${nickname}`);
-    rankings.value = response.data;
-  } catch (error) {
-    console.error("Error searching user rank:", error);
-  }
+const searchUserRank = (nickname) => {
+  rankStore.searchUserRank(nickname);
 };
 </script>
+
 <style scoped>
 
 .categories {
@@ -94,12 +85,12 @@ height: 40px;
 }
 .top20{
     font-size: 1.5rem;
-    font-weight: bold;
-    padding: 10px 20px;
-    margin: 15px 0 15px 0;
+    font-weight: 800;
+    padding: 10px 20px 45px 20px;
+    margin: 10px 0 50px 0;
     border-radius: 4px;
-    background-color: #e8ebf9;
-    color: #34227c;
+    background-color: #34227c;
+    color: #e8ebf9;
     text-align: center;
     cursor: pointer;
     transition: background-color 0.3s ease;
@@ -108,16 +99,23 @@ height: 40px;
 }
 .search{
     display:flex;
-    margin: 15px 0 15px 0;
+    margin: 25px 0 5px 0;
+    height: 40px;
 }
 
 input{
-  border:none;
+  border: none;
+  background-color: white;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
-/* .searchbox{
-    padding: 10px 0 10px 0;
-} */
+input.placeholder{
+  font-color: gray;
+}
+.sbtn{
+  background-color:#34227cf9;
+  color:#e8ebf9;
+  font-weight: bold;
+}
 .category-container {
 display: flex;
 flex-wrap: wrap;
