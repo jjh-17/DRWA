@@ -1,5 +1,6 @@
 <template>
-    <div class="room-card">
+  <div class="room-card">
+      <div class="top-container"></div>
       <div class="thumbnail-part">
         <div class="image-container">
           <img :src="room.img1" alt="Image 1" />
@@ -9,9 +10,9 @@
           <img :src="room.img2" alt="Image 2" />
         </div>
       </div>
-      <div>제목 : {{ room.title }}</div>
-      <div>제시어 : {{ room.keyword1 }} vs {{ room.keyword2 }}</div>
-      <div>방장 : {{ room.name }}</div>
+      <div class="title">제목 : {{ room.title }}</div>
+      <div class="keyword">제시어 : {{ room.keyword1 }} vs {{ room.keyword2 }}</div>
+      <div class="host">방장 : {{ room.name }}</div>
     </div>
   </template>
   
@@ -25,23 +26,36 @@
   </script>
   
   <style scoped>
+  .top-container {
+    height:10px;
+    background-color:#34227C;
+  }
   .room-card {
     margin: 30px;
     display: flex;
     flex-direction: column; /* 카드 내용을 세로로 배치 */
-    align-items: center;
-    padding: 16px;
+    align-items: left;
+    /* padding: 16px; */
     border: 1px solid #ccc;
     border-radius: 8px;
-    background-color: #f9f9f9;
+    background-color: #34227C;
   }
   
   .thumbnail-part {
+    background-color:#f9f9f9;
+    margin-bottom:10px;
+    padding:10px;
     display: flex; /* 이미지를 가로로 배치 */
     justify-content: center; /* 이미지를 중앙 정렬 */
     width: 100%; /* 썸네일 부분의 너비를 room-card의 너비에 맞춤 */
   }
-  
+  .title,.keyword,.host {
+    color:#f9f9f9;
+    text-align:left;
+    font-weight: bold;
+    padding-left:16px;
+    padding-bottom:5px;
+  }
   .image-container img {
     max-width: 100%;
     height: auto;
