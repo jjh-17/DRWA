@@ -5,7 +5,7 @@
       <div class="line1">정말로 나가시겠습니까?</div>
       <div class="line2">방 이탈시 페널티가 부여됩니다.</div>
       <div class="btn">
-        <button class="btn-yes" @click="closeModal">예</button>
+        <button class="btn-yes" @click="exitDebate">예</button>
         <button class="btn-no" @click="closeModal">아니요</button>
       </div>
     </div>
@@ -14,11 +14,16 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const showModal = ref(true);
+const router = useRouter();
 
 const closeModal = () => {
   showModal.value = false;
+};
+const exitDebate = () => {
+  router.push('/');
 };
 </script>
 
