@@ -17,10 +17,13 @@ const categories = ref(filteredCategories.map(category => ({
     selected: false
 })));
 
-// 예시 데이터 및 메소드
+
 const nickname = ref(authStore.nickname);
 
+// 프로필 이미지의 데이터 URL을 저장하는 ref
 const profileImage = ref('');
+// 선택된 파일 객체를 저장하는 ref
+const selectedFile = ref(null);
 
 // 컴포넌트 마운트 시 관심 카테고리를 확인하여 선택 상태 업데이트
 onMounted(() => {
@@ -64,6 +67,8 @@ function toggleCategory(category) {
 
 function onFileChange(file) {
     if (file) {
+        // 파일 객체 저장
+        selectedFile.value = file;
         const reader = new FileReader();
         reader.onload = (e) => {
             profileImage.value = e.target.result;
@@ -72,6 +77,8 @@ function onFileChange(file) {
     } else {
         // 프로필 사진이 없을 때 디폴트 이미지로 설정
         profileImage.value = '/path/to/default/profile/image.png'; // 실제 경로로 대체해야 합니다.
+        selectedFile.value = null; // 파일 선택 취소 시 null로 설정
+
     }
 }
 
@@ -145,13 +152,14 @@ async function submitProfile() {
                 </div>
             </div>
 
+
             <div class="text-bold q-mb-xs">프로필 이미지(선택)</div>
             <div class="q-mt-md flex items-center profile-section">
                 <q-avatar size="100px" class="q-mr-md">
                     <img v-if="profileImage" :src="profileImage" />
-                    <img v-else src="/path/to/default/profile/image.png" alt="디폴트 프로필 이미지" />
+                    <img v-else src="https://cdn.quasar.dev/img/avatar.png" alt=" 디폴트 프로필 이미지" />
                 </q-avatar>
-                <q-file filled label="파일 선택" @update:model-value="onFileChange" class="file-input" />
+                <q-file filled label="파일 선택" accept="image/*" @update:model-value="onFileChange" class="file-input" />
             </div>
 
             <q-btn color="dark" label="수정 완료" class="full-width q-mt-md" @click="submitProfile" rounded />
