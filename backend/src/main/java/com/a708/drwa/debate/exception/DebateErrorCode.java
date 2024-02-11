@@ -9,6 +9,7 @@ public enum DebateErrorCode implements ErrorCode {
     ALREADY_EXIST_DEBATE_ROOM_ERROR(400, "DEBATE_02", "이미 존재하는 방입니다."),
     OPENVIDU_INTERNAL_ERROR(404, "DEBATE_03", "서버 에러"),
     INTERNAL_ERROR(500, "DEBATE_04", "내부 에러"),
+    CATEGORY_NOT_FOUND(400, "DEBATE_05", "존재하지 않는 카테고리입니다"),
     ;
 
     private final int statusCode;

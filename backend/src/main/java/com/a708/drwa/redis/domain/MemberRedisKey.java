@@ -1,12 +1,17 @@
 package com.a708.drwa.redis.domain;
 
 public enum MemberRedisKey {
-    POINT(":point"),
-    REFRESH_TOKEN(":refreshToken"),
-    winCount(":winCount"),
-    LOSE_COUNT(":loseCount"),
-    ACHIEVEMENTS(":achievement"),
-    MVP_COUNT(":mvpCount"),
+    POINT("point"),
+    REFRESH_TOKEN("refreshToken"),
+    WIN_COUNT("winCount"),
+    LOSE_COUNT("loseCount"),
+    TIE_COUNT("tieCount"),
+    ACHIEVEMENTS("achievement"),
+    SELECTED_ACHIEVEMENT("selected achievement"),
+    RANK_NAME("rankName"),
+    MVP_COUNT("mvpCount"),
+    LATEST_GAME_RECORD("latestGameRecord"),
+    RANKING("ranking"),
     ;
 
     private final String string;
