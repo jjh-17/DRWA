@@ -51,7 +51,7 @@ public class ProfileController {
      * @param nickname
      * @return
      */
-    @GetMapping("/check-nickname")
+    @GetMapping("/check/nickname")
     public ResponseEntity<Boolean> checkNickname(@RequestParam String nickname) {
         boolean isAvailable = profileService.isNicknameAvailable(nickname);
         return ResponseEntity.ok(isAvailable);
