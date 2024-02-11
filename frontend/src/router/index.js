@@ -51,6 +51,36 @@ const router = createRouter({
       name: 'RankingView',
       component: RankingView
     }
+    // {
+    //   path: '/modal1',
+    //   name: 'VotingResult',
+    //   component: VotingResult
+    // },
+    // {
+    //   path: '/modal2',
+    //   name: 'EncourageModal',
+    //   component: EncourageModal
+    // },
+    // {
+    //   path: '/modal3',
+    //   name: 'ExitModal',
+    //   component: ExitModal
+    // },
+    // {
+    //   path: '/modal4',
+    //   name: 'ReportModal',
+    //   component: ReportModal
+    // },
+    // {
+    //   path: '/modal5',
+    //   name: 'GameStartModal',
+    //   component: GameStartModal
+    // },
+    // {
+    //   path: '/modal6',
+    //   name: 'InfoModal',
+    //   component: InfoModal
+    // }
   ]
 })
 
