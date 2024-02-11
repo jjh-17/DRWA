@@ -18,7 +18,7 @@ const categories = ref(filteredCategories.map(category => ({
 })));
 
 // 예시 데이터 및 메소드
-const nickname = ref('');
+const nickname = ref(authStore.nickname);
 
 const profileImage = ref('');
 
@@ -31,8 +31,22 @@ onMounted(() => {
     });
 });
 
-function checkNickname() {
-    alert('중복 확인 로직을 구현하세요.');
+async function checkNickname() {
+    if (!nickname.value) {
+        alert('닉네임을 입력해주세요.');
+        return;
+    }
+    try {
+        const response = await httpService.get(`/profile/check/nickname?nickname=${nickname.value.toString()}`);
+        if (response.data) {
+            alert('사용 가능한 닉네임입니다.');
+        } else {
+            alert('이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.');
+        }
+    } catch (error) {
+        console.error('닉네임 중복 확인 중 오류 발생:', error);
+        alert('닉네임 중복 확인 중 오류가 발생했습니다. 다시 시도해주세요.');
+    }
 }
 
 /**
@@ -69,21 +83,27 @@ async function submitProfile() {
         .filter(category => category.selected)
         .map(category => category.english);
 
-    // 예시: 닉네임, 프로필 이미지, 선택된 관심 카테고리 데이터를 서버로 전송
-    const profileData = {
+    const updateProfileRequest = {
+        profileId: authStore.profileId,
         nickname: nickname.value,
-        profileImage: profileImage.value,
-        categories: selectedCategories,
-    };
+    }
 
     try {
         // 여기서 실제로 API 요청을 보냅니다. 예시로는 console.log로 대체합니다.
         console.log('보낼 데이터:', selectedCategories);
-        const response = await httpService.post('/member/update/interests', selectedCategories);
+        let response = await httpService.post('/member/update/interests', selectedCategories);
         if (response.status === 200) {
             // 성공적으로 관심 카테고리가 업데이트되면 Pinia 스토어의 상태를 직접 업데이트
             authStore.interests = selectedCategories;
         }
+
+        response = await httpService.post('profile/update', updateProfileRequest);
+
+        if (response.status === 200) {
+            // 성공적으로 프로필 정보가 업데이트되면 Pinia 스토어의 상태를 직접 업데이트
+            authStore.nickname = nickname.value;
+        }
+
         alert('정보 수정이 완료되었습니다.');
     } catch (error) {
         console.error('정보 수정 실패:', error);
@@ -108,7 +128,7 @@ async function submitProfile() {
             <div class="q-mt-md">
                 <div class="text-bold q-mb-xs">닉네임</div>
                 <div class="q-input q-ma-none q-pa-none" style="display: flex; align-items: center;">
-                    <q-input rounded outlined v-model="nickname" placeholder="닉네임을 입력해주세요" class="nickname-input"
+                    <q-input rounded outlined v-model="nickname" class="nickname-input"
                         style="flex-grow: 1; border-right: none;" />
                     <q-btn flat label="중복확인" color="purple" @click="checkNickname" class="q-ml-md rounded-borders"
                         style="max-height: 54px;" />

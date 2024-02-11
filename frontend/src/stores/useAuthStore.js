@@ -11,6 +11,7 @@ export const useAuthStore = defineStore('auth', {
     memberId: null,
     interests: [], // 사용자의 관심 카테고리 목록
     // 프로필 관련 상태 추가
+    profileId: 0,
     nickname: '',
     point: 0,
     mvpCount: 0,
@@ -75,6 +76,7 @@ export const useAuthStore = defineStore('auth', {
       // 예: this.userProfilePic = `https://.../${loginData.userId}.png`
 
       // 프로필 정보를 상태에 저장
+      this.profileId = loginData.profile.profileId
       this.nickname = loginData.profile.nickname
       this.point = loginData.profile.point
       this.mvpCount = loginData.profile.mvpCount
