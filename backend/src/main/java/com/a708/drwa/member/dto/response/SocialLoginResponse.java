@@ -1,6 +1,7 @@
 package com.a708.drwa.member.dto.response;
 
 import com.a708.drwa.debate.enums.DebateCategory;
+import com.a708.drwa.profile.dto.response.ProfileResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,5 +19,6 @@ public class SocialLoginResponse {
     private String userId;
     private String accessToken;
     private List<DebateCategory> interests; // 사용자의 관심 카테고리 목록
+    private ProfileResponse profile; // 사용자의 프로필 정보
 
 }

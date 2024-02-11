@@ -13,6 +13,7 @@ import com.a708.drwa.member.service.Impl.NaverLoginServiceImpl;
 import com.a708.drwa.member.type.SocialType;
 import com.a708.drwa.member.util.JWTUtil;
 import com.a708.drwa.profile.dto.request.AddProfileRequest;
+import com.a708.drwa.profile.dto.response.ProfileResponse;
 import com.a708.drwa.profile.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -93,9 +94,10 @@ public class MemberService {
         // 사용자 ID로 관심사 조회
         List<DebateCategory> interests = memberInterestService.findInterestsByMemberId((long) memberId);
 
+        ProfileResponse profile = profileService.findProfileByMemberId(memberId);
 
         // 응답 DTO 반환
-        return new SocialLoginResponse(memberId, userId, jwtAccessToken, interests);
+        return new SocialLoginResponse(memberId, userId, jwtAccessToken, interests, profile);
     }
 
     /**
