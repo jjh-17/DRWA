@@ -12,6 +12,9 @@ import com.a708.drwa.member.service.Impl.KakaoLoginServiceImpl;
 import com.a708.drwa.member.service.Impl.NaverLoginServiceImpl;
 import com.a708.drwa.member.type.SocialType;
 import com.a708.drwa.member.util.JWTUtil;
+import com.a708.drwa.profile.dto.request.AddProfileRequest;
+import com.a708.drwa.profile.dto.response.ProfileResponse;
+import com.a708.drwa.profile.service.ProfileService;
 import com.a708.drwa.redis.domain.MemberRedisKey;
 import com.a708.drwa.redis.util.RedisKeyUtil;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +38,7 @@ public class MemberService {
     private final KakaoLoginServiceImpl kakaoLoginService;
     private final RedisTemplate<String, Object> redisTemplate;
     private final MemberInterestService memberInterestService;
+    private final ProfileService profileService;
     private final JWTUtil jwtUtil;
 
     @Value("${jwt.refreshtoken.expiretime}")
@@ -93,9 +97,10 @@ public class MemberService {
         // 사용자 ID로 관심사 조회
         List<DebateCategory> interests = memberInterestService.findInterestsByMemberId((long) memberId);
 
+        ProfileResponse profile = profileService.findProfileByMemberId(memberId);
 
         // 응답 DTO 반환
-        return new SocialLoginResponse(memberId, userId, jwtAccessToken, interests);
+        return new SocialLoginResponse(memberId, userId, jwtAccessToken, interests, profile);
     }
 
     /**
@@ -110,7 +115,13 @@ public class MemberService {
                 .socialType(socialUserInfoResponse.getSocialType())
                 .build();
 
-        return memberRepository.save(member);
+        memberRepository.save(member);
+
+        // 프로필 초기화 로직
+        AddProfileRequest addProfileRequest = new AddProfileRequest(member.getId(), member.getUserId());
+        profileService.addProfile(addProfileRequest); // 프로필 생성
+
+        return member;
     }
 
     /**
