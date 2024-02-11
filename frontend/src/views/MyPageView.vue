@@ -3,8 +3,10 @@ import { QPage, QCard, QCardSection, QSeparator, QAvatar } from 'quasar'
 import HeaderComponent from '@/components/common/HeaderComponent.vue'
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/useAuthStore'
 
 const router = useRouter()
+const authStore = useAuthStore()
 
 // 예시 기록 데이터
 const gameRecords = ref([
@@ -56,20 +58,20 @@ const onEditClick = () => {
             </q-avatar>
             <div class="nickname">
               닉네임 <q-icon name="edit" class="cursor-pointer" @click="onEditClick" />
-              <div class="text-caption">사용자123</div>
+              <div class="text-caption">{{ authStore.nickname }}</div>
             </div>
           </div>
-          <div>1630p <q-icon name="arrow_forward_ios" class="cursor-pointer" /></div>
+          <div>{{ authStore.point }}p <q-icon name="arrow_forward_ios" class="cursor-pointer" /></div>
         </q-card-section>
 
         <q-card-section class="flex flex-center q-gutter-sm justify-around">
           <div>
             전적
-            <div>10승 5패</div>
+            <div> {{ authStore.winCount }}승 {{ authStore.tieCount }}무 {{ authStore.loseCount }}패</div>
           </div>
           <div>
             승률
-            <div>66%</div>
+            <div>{{ authStore.winRate }}%</div>
           </div>
         </q-card-section>
 
