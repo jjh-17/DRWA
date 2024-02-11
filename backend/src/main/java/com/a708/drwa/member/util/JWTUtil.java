@@ -31,13 +31,15 @@ public class JWTUtil {
 
     /**
      * JWT 빌더 객체를 생성한다.
+     * @param memberId 토큰에 담을 회원의 아이디
      * @param userId 토큰에 담을 회원의 아이디
      * @param expireTime 토큰의 만료시간
      * @return JWT 빌더 객체
      */
-    private JwtBuilder createJwtBuilder(String userId, long expireTime) {
+    private JwtBuilder createJwtBuilder(int memberId, String userId, long expireTime) {
         long currentTimeMillis = System.currentTimeMillis();
         return Jwts.builder()
+                .claim("memberId", memberId)
                 // 토큰에 담을 정보를 지정한다.
                 .claim("userId", userId)
                 // 토큰의 발급시간을 지정한다.
@@ -53,8 +55,8 @@ public class JWTUtil {
      * @param userId 토큰에 담을 회원의 아이디
      * @return JWT Access 토큰
      */
-    public String createAccessToken(String userId) {
-        return createJwtBuilder(userId, accessTokenExpireTime * 1000).compact();
+    public String createAccessToken(int memberId, String userId) {
+        return createJwtBuilder(memberId, userId, accessTokenExpireTime * 1000).compact();
     }
 
 
@@ -63,59 +65,9 @@ public class JWTUtil {
      * @param userId 토큰에 담을 회원의 아이디
      * @return JWT Refresh 토큰
      */
-    public String createRefreshToken(String userId) {
-        return createJwtBuilder(userId, refreshTokenExpireTime * 1000).compact();
+    public String createRefreshToken(int memberId,String userId) {
+        return createJwtBuilder(memberId, userId, refreshTokenExpireTime * 1000).compact();
     }
-
-//    /**
-//     * JWT Access 토큰을 생성한다.
-//     * @param memberId 토큰에 담을 회원의 아이디
-//     * @return JWT Access 토큰
-//     * @throws UnsupportedEncodingException 인코딩 예외
-//     */
-//    public String createAccessToken(String memberId) throws UnsupportedEncodingException {
-//        // 현재 시간을 저장한다.
-//        long currentTimeMillis = System.currentTimeMillis();
-//
-//        // AccessToken을 생성한다.
-//        JwtBuilder jwtAccessTokenBuilder = Jwts.builder();
-//        // 토큰에 담을 정보를 지정한다.
-//        jwtAccessTokenBuilder.claim("memberId", memberId);
-//        // 토큰의 발급시간을 지정한다.
-//        jwtAccessTokenBuilder.setIssuedAt(new Date(currentTimeMillis));
-//        // 토큰의 만료시간을 지정한다.
-//        jwtAccessTokenBuilder.setExpiration(new Date(currentTimeMillis + accessTokenExpireTime*1000));
-//        // 토큰을 암호화한다.
-//        jwtAccessTokenBuilder.signWith(SignatureAlgorithm.HS256, jwtKey.getBytes(StandardCharsets.UTF_8));
-//
-//        // AccessToken을 반환한다.
-//        return jwtAccessTokenBuilder.compact();
-//    }
-
-//    /**
-//     * JWT Refresh 토큰을 생성한다.
-//     * @param memberId 토큰에 담을 회원의 아이디
-//     * @return JWT Refresh 토큰
-//     * @throws UnsupportedEncodingException 인코딩 예외
-//     */
-//    public String createRefreshToken(String memberId) throws UnsupportedEncodingException {
-//        // 현재 시간을 저장한다.
-//        long currentTimeMillis = System.currentTimeMillis();
-//
-//        // RefreshToken을 생성한다.
-//        JwtBuilder jwtRefreshTokenBuilder = Jwts.builder();
-//        // 토큰의 유형을 지정한다.
-//        jwtRefreshTokenBuilder.claim("memberId", memberId);
-//        // 토큰의 발급시간을 지정한다.
-//        jwtRefreshTokenBuilder.setIssuedAt(new Date(currentTimeMillis));
-//        // 토큰의 만료시간을 지정한다.
-//        jwtRefreshTokenBuilder.setExpiration(new Date(currentTimeMillis + refreshTokenExpireTime*1000));
-//        // 토큰을 암호화한다.
-//        jwtRefreshTokenBuilder.signWith(SignatureAlgorithm.HS256, jwtKey.getBytes(StandardCharsets.UTF_8));
-//
-//        //  RefreshToken을 반환한다.
-//        return jwtRefreshTokenBuilder.compact();
-//    }
 
     /**
      * AccessToken에서 멤버 아이디를 추출한다.
@@ -123,7 +75,7 @@ public class JWTUtil {
      * @return 멤버 아이디
      * @throws ParseException 파싱 예외
      */
-    public String getMemberId(String authorization) throws ParseException {
+    public int getMemberId(String authorization) throws ParseException {
         // accessToken을 파싱한다.
         String[] chunks = authorization.split("\\.");
         // Base64.Decoder를 생성한다.
@@ -136,10 +88,37 @@ public class JWTUtil {
         JSONObject obj = (JSONObject) parser.parse(payload);
 
         // memberId를 추출한다.
-        String memberId = (String) obj.get("memberId");
+        Long memberIdLong = (Long) obj.get("memberId");
+        int memberId = memberIdLong.intValue();
 
         // memberId를 반환한다.
         return memberId;
+    }
+
+    /**
+     * AccessToken에서 유저 아이디를 추출한다.
+     *
+     * @param authorization JWT Access 토큰울 담은 Header의 Authorization 값
+     * @return 유저 아이디
+     * @throws ParseException 파싱 예외
+     */
+    public String getUserId(String authorization) throws ParseException {
+        // accessToken을 파싱한다.
+        String[] chunks = authorization.split("\\.");
+        // Base64.Decoder를 생성한다.
+        Base64.Decoder decoder = Base64.getUrlDecoder();
+
+        // payload에 저장된 memberId를 획득한다.
+        String payload = new String(decoder.decode(chunks[1]));
+        JSONParser parser = new JSONParser();
+        // payload를 파싱한다.
+        JSONObject obj = (JSONObject) parser.parse(payload);
+
+        // memberId를 추출한다.
+        String userId = (String) obj.get("userId");
+
+        // memberId를 반환한다.
+        return userId;
     }
 
     /**
