@@ -15,6 +15,7 @@ const searchQuery = ref('');
 const router = useRouter();
 const roomStore = useRoomStore();
 const menu = ref(false);
+const profileMenu = ref(false); // 마이페이지 메뉴 토글 상태
 // 모달창 표시 여부 
 const showDialog = ref(false);
 
@@ -58,7 +59,7 @@ async function searchRooms() {
         console.warn('검색어를 입력해주세요.');
         return;
     }
-await roomStore.searchRooms(searchQuery.value, type.value);
+    await roomStore.searchRooms(searchQuery.value, type.value);
     if (!type.value) {
         alert('검색 유형을 선택해주세요.');
         return;
@@ -81,10 +82,10 @@ function onLogoClick() {
         <!-- <q-btn flat round dense icon="menu" class="q-mr-sm" /> -->
 
         <!-- 로고 및 랭킹 버튼 -->
-            <q-avatar class="logo" @click="onLogoClick" style="cursor: pointer;">
-                <img src="@\assets\img\logo.png">
-            </q-avatar>
-            <q-btn flat label="랭킹" class="ranking" @click="goToRanking" />
+        <q-avatar class="logo" @click="onLogoClick" style="cursor: pointer;">
+            <img src="@\assets\img\logo.png">
+        </q-avatar>
+        <q-btn flat label="랭킹" class="ranking" @click="goToRanking" />
 
         <!-- 가운데 정렬을 위한 공간 배분 -->
         <q-space />
@@ -114,14 +115,14 @@ function onLogoClick() {
         <!-- 로그인 상태에 따른 조건부 렌더링 -->
         <q-space /> <!-- 이것은 나머지 요소들을 오른쪽으로 밀어냅니다 -->
         <div v-if="authStore.isLoggedIn">
-            <q-btn flat round @click="menu = !menu">
+            <q-btn flat round @click="profileMenu = !profileMenu">
                 <q-avatar>
                     <img src=https://cdn.quasar.dev/img/avatar.png>
                 </q-avatar>
             </q-btn>
-            <q-menu v-model="menu" auto-close>
+            <q-menu auto-close>
                 <q-list>
-                    <q-item clickable v-close-popup @click="goToUserProfile">
+                    <q-item clickable v-close-popup>
                         <q-item-section>UserID: {{ authStore.userId }}</q-item-section>
                     </q-item>
                     <q-item clickable v-close-popup @click="goToMyPage">
@@ -165,8 +166,8 @@ function onLogoClick() {
 
 .logo {
     margin-left: 40px;
-    margin-right:40px;
-    width:45px;
+    margin-right: 40px;
+    width: 45px;
     height: 45px;
 }
 
@@ -174,7 +175,7 @@ function onLogoClick() {
     padding: 0px 10px 0px 10px;
 }
 
-.ranking{
+.ranking {
     font-color: white;
 }
 
@@ -183,18 +184,20 @@ function onLogoClick() {
 }
 
 .input {
-    flex:1;
+    flex: 1;
     text-align: left;
     background-color: white;
     width: 450px;
-    height:40px;
+    height: 40px;
 }
-.search{
-    display:flex;
+
+.search {
+    display: flex;
     justify-content: center;
-    align-items:center;
+    align-items: center;
     margin-right: 80px;
 }
+
 .search-container {
     flex: 1;
     max-width: 800px;
@@ -215,7 +218,7 @@ function onLogoClick() {
 .q-btn-dropdown {
     color: white;
     width: 120px;
-    background-color:#34227C;
+    background-color: #34227C;
 }
 
 .login-btn {
@@ -223,7 +226,8 @@ function onLogoClick() {
     margin-bottom: 10px;
     position: relative;
 }
-.login{
-    margin-right:25px;
+
+.login {
+    margin-right: 25px;
 }
 </style>
