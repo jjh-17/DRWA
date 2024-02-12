@@ -56,39 +56,6 @@ const router = createRouter({
       path: '/ranking',
       name: 'RankingView',
       component: RankingView
-<<<<<<< frontend/src/router/index.js
-    },
-    // {
-    //   path: '/modal1',
-    //   name: 'VotingResult',
-    //   component: VotingResult
-    // },
-    // {
-    //   path: '/modal2',
-    //   name: 'EncourageModal',
-    //   component: EncourageModal
-    // },
-    // {
-    //   path: '/modal3',
-    //   name: 'ExitModal',
-    //   component: ExitModal
-    // },
-    // {
-    //   path: '/modal4',
-    //   name: 'ReportModal',
-    //   component: ReportModal
-    // },
-    // {
-    //   path: '/modal5',
-    //   name: 'GameStartModal',
-    //   component: GameStartModal
-    // },
-    // {
-    //   path: '/modal6',
-    //   name: 'PasswordModal',
-    //   component: PasswordModal
-    // },
-=======
     }
     // {
     //   path: '/modal1',
@@ -120,7 +87,6 @@ const router = createRouter({
     //   name: 'InfoModal',
     //   component: InfoModal
     // }
->>>>>>> frontend/src/router/index.js
   ]
 })
 
