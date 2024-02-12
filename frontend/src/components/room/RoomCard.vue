@@ -3,16 +3,16 @@
       <div class="top-container"></div>
       <div class="thumbnail-part">
         <div class="image-container">
-          <img :src="room.img1" alt="Image 1" />
+          <img :src="room.thumbnail1" alt="Image 1" />
         </div>
         <!-- <div>vs</div> -->
         <div class="image-container">
-          <img :src="room.img2" alt="Image 2" />
+          <img :src="room.thumbnail2" alt="Image 2" />
         </div>
       </div>
       <div class="title">제목 : {{ room.title }}</div>
-      <div class="keyword">제시어 : {{ room.keyword1 }} vs {{ room.keyword2 }}</div>
-      <div class="host">방장 : {{ room.name }}</div>
+      <div class="keyword">제시어 : {{ room.leftKeyword }} vs {{ room.rightKeyword }}</div>
+      <div class="host">방장 : {{ room.hostId }}</div>
     </div>
   </template>
   

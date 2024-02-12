@@ -2,13 +2,11 @@ package com.a708.drwa.game.domain;
 
 import com.a708.drwa.member.domain.Member;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
+@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Record {
 
@@ -35,7 +33,7 @@ public class Record {
     // 소속
     @Column(nullable = false, updatable = false, columnDefinition = "TINYINT")
     @Enumerated(EnumType.ORDINAL)
-    private Team team;
+    Team team;
 
     @Builder
     public Record(Member member, GameInfo gameInfo, Result result, Team team) {
