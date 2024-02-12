@@ -2,6 +2,7 @@ package com.a708.drwa.member.domain;
 
 import com.a708.drwa.member.type.SocialType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,6 +30,10 @@ public class Member {
     @Column
     @Enumerated(EnumType.ORDINAL)
     private SocialType socialType;
+
+    @Column
+    @Size(max = 10)
+    private String authority;
 
     @Builder
     public Member(String userId, SocialType socialType) {

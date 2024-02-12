@@ -1,7 +1,7 @@
 <template>
   <div class="roomList-container">
     <ul>
-      <li v-for="room in rooms.slice(0, displayCount)" :key="room.name">
+      <li v-for="room in rooms.slice(0, displayCount)" :key="room.hostId">
         <RoomCard :room=room />
       </li>
     </ul>
@@ -20,165 +20,165 @@ import RoomCard from '@/components/room/RoomCard.vue'
 // [임시]더미데이터
 const rooms = ref([
   {
-    img1: 'https://cdn.quasar.dev/img/mountains.jpg',
-    img2: 'https://cdn.quasar.dev/img/parallax1.jpg',
-    keyword1: '산',
-    keyword2: '바다',
+    thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
+    thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
+    leftKeyword: '산',
+    rightKeyword: '바다',
     title: '어디서 살고 싶나요?',
-    name: '나는자연인이다',
+    hostId: '나는자연인이다',
     totalNum: 10
   },
   {
-    img1: 'https://cdn.quasar.dev/img/parallax2.jpg',
-    img2: 'https://cdn.quasar.dev/img/mountains.jpg',
-    keyword1: '치킨',
-    keyword2: '피자',
+    thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
+    thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
+    leftKeyword: '치킨',
+    rightKeyword: '피자',
     title: '당신의 선호 음식은?',
-    name: '장사의신',
+    hostId: '장사의신',
     totalNum: 8
   },
   {
-    img1: 'https://cdn.quasar.dev/img/mountains.jpg',
-    img2: 'https://cdn.quasar.dev/img/parallax1.jpg',
-    keyword1: '산',
-    keyword2: '바다',
+    thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
+    thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
+    leftKeyword: '산',
+    rightKeyword: '바다',
     title: '어디서 살고 싶나요?',
-    name: '나는자연인이다1',
+    hostId: '나는자연인이다1',
     totalNum: 10
   },
   {
-    img1: 'https://cdn.quasar.dev/img/parallax2.jpg',
-    img2: 'https://cdn.quasar.dev/img/mountains.jpg',
-    keyword1: '치킨',
-    keyword2: '피자',
+    thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
+    thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
+    leftKeyword: '치킨',
+    rightKeyword: '피자',
     title: '당신의 선호 음식은?',
-    name: '장사의신1',
+    hostId: '장사의신1',
     totalNum: 8
   },
   {
-    img1: 'https://cdn.quasar.dev/img/mountains.jpg',
-    img2: 'https://cdn.quasar.dev/img/parallax1.jpg',
-    keyword1: '산',
-    keyword2: '바다',
+    thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
+    thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
+    leftKeyword: '산',
+    rightKeyword: '바다',
     title: '어디서 살고 싶나요?',
-    name: '나는자연인이다2',
+    hostId: '나는자연인이다2',
     totalNum: 10
   },
   {
-    img1: 'https://cdn.quasar.dev/img/parallax2.jpg',
-    img2: 'https://cdn.quasar.dev/img/mountains.jpg',
-    keyword1: '치킨',
-    keyword2: '피자',
+    thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
+    thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
+    leftKeyword: '치킨',
+    rightKeyword: '피자',
     title: '당신의 선호 음식은?',
-    name: '장사의신2',
+    hostId: '장사의신2',
     totalNum: 8
   },
   {
-    img1: 'https://cdn.quasar.dev/img/mountains.jpg',
-    img2: 'https://cdn.quasar.dev/img/parallax1.jpg',
-    keyword1: '산',
-    keyword2: '바다',
+    thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
+    thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
+    leftKeyword: '산',
+    rightKeyword: '바다',
     title: '어디서 살고 싶나요?',
-    name: '나는자연인이다3',
+    hostId: '나는자연인이다3',
     totalNum: 10
   },
   {
-    img1: 'https://cdn.quasar.dev/img/parallax2.jpg',
-    img2: 'https://cdn.quasar.dev/img/mountains.jpg',
-    keyword1: '치킨',
-    keyword2: '피자',
+    thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
+    thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
+    leftKeyword: '치킨',
+    rightKeyword: '피자',
     title: '당신의 선호 음식은?',
-    name: '장사의신3',
+    hostId: '장사의신3',
     totalNum: 8
   },
   {
-    img1: 'https://cdn.quasar.dev/img/mountains.jpg',
-    img2: 'https://cdn.quasar.dev/img/parallax1.jpg',
-    keyword1: '산',
-    keyword2: '바다',
+    thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
+    thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
+    leftKeyword: '산',
+    rightKeyword: '바다',
     title: '어디서 살고 싶나요?',
-    name: '나는자연인이다4',
+    hostId: '나는자연인이다4',
     totalNum: 10
   },
   {
-    img1: 'https://cdn.quasar.dev/img/parallax2.jpg',
-    img2: 'https://cdn.quasar.dev/img/mountains.jpg',
-    keyword1: '치킨',
-    keyword2: '피자',
+    thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
+    thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
+    leftKeyword: '치킨',
+    rightKeyword: '피자',
     title: '당신의 선호 음식은?',
-    name: '장사의신4',
+    hostId: '장사의신4',
     totalNum: 8
   },
   {
-    img1: 'https://cdn.quasar.dev/img/mountains.jpg',
-    img2: 'https://cdn.quasar.dev/img/parallax1.jpg',
-    keyword1: '산',
-    keyword2: '바다',
+    thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
+    thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
+    leftKeyword: '산',
+    rightKeyword: '바다',
     title: '어디서 살고 싶나요?',
-    name: '나는자연인이다5',
+    hostId: '나는자연인이다5',
     totalNum: 10
   },
   {
-    img1: 'https://cdn.quasar.dev/img/parallax2.jpg',
-    img2: 'https://cdn.quasar.dev/img/mountains.jpg',
-    keyword1: '치킨',
-    keyword2: '피자',
+    thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
+    thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
+    leftKeyword: '치킨',
+    rightKeyword: '피자',
     title: '당신의 선호 음식은?',
-    name: '장사의신5',
+    hostId: '장사의신5',
     totalNum: 8
   },
   {
-    img1: 'https://cdn.quasar.dev/img/mountains.jpg',
-    img2: 'https://cdn.quasar.dev/img/parallax1.jpg',
-    keyword1: '산',
-    keyword2: '바다',
+    thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
+    thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
+    leftKeyword: '산',
+    rightKeyword: '바다',
     title: '어디서 살고 싶나요?',
-    name: '나는자연인이다6',
+    hostId: '나는자연인이다6',
     totalNum: 10
   },
   {
-    img1: 'https://cdn.quasar.dev/img/parallax2.jpg',
-    img2: 'https://cdn.quasar.dev/img/mountains.jpg',
-    keyword1: '치킨',
-    keyword2: '피자',
+    thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
+    thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
+    leftKeyword: '치킨',
+    rightKeyword: '피자',
     title: '당신의 선호 음식은?',
-    name: '장사의신6',
+    hostId: '장사의신6',
     totalNum: 8
   },
   {
-    img1: 'https://cdn.quasar.dev/img/mountains.jpg',
-    img2: 'https://cdn.quasar.dev/img/parallax1.jpg',
-    keyword1: '산',
-    keyword2: '바다',
+    thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
+    thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
+    leftKeyword: '산',
+    rightKeyword: '바다',
     title: '어디서 살고 싶나요?',
-    name: '나는자연인이다7',
+    hostId: '나는자연인이다7',
     totalNum: 10
   },
   {
-    img1: 'https://cdn.quasar.dev/img/parallax2.jpg',
-    img2: 'https://cdn.quasar.dev/img/mountains.jpg',
-    keyword1: '치킨',
-    keyword2: '피자',
+    thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
+    thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
+    leftKeyword: '치킨',
+    rightKeyword: '피자',
     title: '당신의 선호 음식은?',
-    name: '장사의신7',
+    hostId: '장사의신7',
     totalNum: 8
   },
   {
-    img1: 'https://cdn.quasar.dev/img/mountains.jpg',
-    img2: 'https://cdn.quasar.dev/img/parallax1.jpg',
-    keyword1: '산',
-    keyword2: '바다',
+    thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
+    thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
+    leftKeyword: '산',
+    rightKeyword: '바다',
     title: '어디서 살고 싶나요?',
-    name: '나는자연인이다8',
+    hostId: '나는자연인이다8',
     totalNum: 10
   },
   {
-    img1: 'https://cdn.quasar.dev/img/parallax2.jpg',
-    img2: 'https://cdn.quasar.dev/img/mountains.jpg',
-    keyword1: '치킨',
-    keyword2: '피자',
+    thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
+    thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
+    leftKeyword: '치킨',
+    rightKeyword: '피자',
     title: '당신의 선호 음식은?',
-    name: '장사의신8',
+    hostId: '장사의신8',
     totalNum: 8
   }
 ])
@@ -188,16 +188,18 @@ const props = defineProps({
 })
 
 const roomStore = useRoomStore()
-const categoryName = computed(() => props.activeCategory)
-
+const categoryhostId = computed(() => props.activeCategory)
+// const rooms = ref([]);
 watch(
   () => props.activeCategory,
   (newCategory) => {
-    console.log('New active category:', newCategory) // 로깅
-    roomStore.fetchRoomsCategory(newCategory)
+    console.log('New active category:', newCategory) 
+    // rooms = roomStore.fetchRoomsCategory(newCategory)
   },
   { immediate: true }
 )
+
+
 
 const displayCount = ref(8);
 
