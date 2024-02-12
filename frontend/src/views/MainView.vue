@@ -9,7 +9,7 @@
     </div>
 
     <div class="carousel">
-      <div class="carousel__prev1" @click="navigateToPrev"><img src="@/assets/img/left_arrow.png"></div>
+      <div class="carousel__prev1" @click="navigateToPrev">&lt;</div>
       <div class="carousel-container">
         <Carousel ref="carousel" :itemsToShow="2.95" :wrapAround="true" :transition="500">
           <Slide v-for="slide in images" :key="slide">
@@ -17,7 +17,7 @@
           </Slide>
         </Carousel>
       </div>
-      <div class="carousel__next1" @click="navigateToNext"><img src="@/assets/img/right_arrow.png"></div>
+      <div class="carousel__next1" @click="navigateToNext">&gt;</div>
     </div>
   </div>
   <div class="categories">
@@ -30,7 +30,7 @@
       </div>
     </div>
   </div>
-  <div class="roomList" ref="roomList">
+  <div class="roomList">
     <RoomsCategory v-if="activeCategory" :activeCategory="activeCategory" />
   </div>
   <div class="room-create">
@@ -79,13 +79,10 @@ const navigateToNext = () => {
     carousel.value.next()
   }
 }
-const roomList = ref(null);
+
 const setActiveCategory = (category) => {
-  state.activeCategory = category.name;
-  if (roomList.value) {
-    roomList.value.scrollIntoView({ behavior: 'smooth' });
-  }
-};
+  state.activeCategory = category.name
+}
 
 const setActiveBox = (boxType) => {
   state.activeBox = boxType
@@ -93,8 +90,6 @@ const setActiveBox = (boxType) => {
 
 // toRefs를 사용하여 반응성 있는 데이터를 반환
 const { activeCategory, images } = toRefs(state)
-
-
 
 const isModalVisible = ref(false);
 
@@ -203,20 +198,18 @@ const scrollToTop = () => {
   z-index: 10;
   /* 다른 요소 위에 표시 */
   height: 50%;
+  line-height: 200px;
   font-size: calc(50vh / 2);
+  color: #34227c;
 }
-.carousel__prev1 img,
-.carousel__next1 img{
-  height:70%;
-}
-.carousel__prev1 {
-  left: 10%;
 
+.carousel__prev1 {
+  left: 15%;
   /* 왼쪽에서부터의 거리 */
 }
 
 .carousel__next1 {
-  right: 10%;
+  right: 15%;
   /* 오른쪽에서부터의 거리 */
 }
 

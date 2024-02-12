@@ -6,12 +6,6 @@ import SearchResults from '@/views/SearchResults.vue'
 import ThumbnailImg from '../components/room/ThumbnailImg.vue'
 import DebateView from '@/views/DebateView.vue'
 import RankingView from '@/views/RankingView.vue'
-import VotingResult from '../components/modal/VotingResult.vue'
-import EncourageModal from '../components/modal/EncourageModal.vue'
-import ExitModal from '../components/modal/ExitModal.vue'
-import ReportModal from '../components/modal/ReportModal.vue'
-import GameStartModal from '../components/modal/GameStartModal.vue'
-import PasswordModal from '../components/modal/PasswordModal.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -57,36 +51,6 @@ const router = createRouter({
       name: 'RankingView',
       component: RankingView
     }
-    // {
-    //   path: '/modal1',
-    //   name: 'VotingResult',
-    //   component: VotingResult
-    // },
-    // {
-    //   path: '/modal2',
-    //   name: 'EncourageModal',
-    //   component: EncourageModal
-    // },
-    // {
-    //   path: '/modal3',
-    //   name: 'ExitModal',
-    //   component: ExitModal
-    // },
-    // {
-    //   path: '/modal4',
-    //   name: 'ReportModal',
-    //   component: ReportModal
-    // },
-    // {
-    //   path: '/modal5',
-    //   name: 'GameStartModal',
-    //   component: GameStartModal
-    // },
-    // {
-    //   path: '/modal6',
-    //   name: 'PasswordModal',
-    //   component: PasswordModal
-    // },
   ]
 })
 
