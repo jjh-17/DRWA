@@ -19,11 +19,21 @@ public class RoomSearchService {
     private RedisTemplate<String, Room> redisTemplate;
 
     public List<Room> searchRooms(String field, String query) {
-        SearchRequest request = new SearchRequest.Builder()
-                .index("room_index")
-                .query(q -> q.match(m -> m.field(field).query(query)))
-                .build();
-
+        SearchRequest.Builder searchRequestBuilder = new SearchRequest.Builder().index("room_index");
+        if ("title".equals(field)) {
+            // 제목으로 검색
+            searchRequestBuilder.query(q -> q.match(m -> m.field("title").query(query)));
+        } else if ("keyword".equals(field)) {
+            // keywordA 또는 keywordB로 검색
+            searchRequestBuilder.query(q -> q.bool(b -> b
+                    .should(s -> s.match(m -> m.field("keywordA").query(query)))
+                    .should(s -> s.match(m -> m.field("keywordB").query(query)))
+            ));
+        } else {
+            // 지원하지 않는 검색 필드의 경우 빈 결과 반환
+            return Collections.emptyList();
+        }
+        SearchRequest request = searchRequestBuilder.build();
         try {
             SearchResponse<Room> response = elasticsearchClient.search(request, Room.class);
             return response.hits().hits().stream()
@@ -32,7 +42,8 @@ public class RoomSearchService {
                         room.setTotalNum(hit.source().getTotalNum());
                         room.setHost(hit.source().getHost());
                         room.setTitle(hit.source().getTitle());
-                        room.setKeyword(hit.source().getKeyword());
+                        room.setKeywordA(hit.source().getKeywordA());
+                        room.setKeywordB(hit.source().getKeywordB());
                         return room;
                     })
                     .collect(Collectors.toList());
