@@ -20,4 +20,12 @@ public class RoomService {
             redisTemplate.opsForValue().set("room:" + room.getDebateId(), room);
         }
     }
+
+    public void updateRoomThumbnail(Room.ThumbnailUpdateInfo thumbnailUpdateInfo) {
+        Room room = findRoomById(thumbnailUpdateInfo.getRoomId());
+        if (room != null) {
+            room.updateThumbnail(thumbnailUpdateInfo);
+            saveRoomInRedis(room); // 업데이트된 정보를 레디스에 저장
+        }
+    }
 }
