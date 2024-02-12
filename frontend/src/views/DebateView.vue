@@ -11,8 +11,27 @@ import { useRoute } from 'vue-router'
 import { OpenVidu } from 'openvidu-browser'
 import UserVideo from '@/components/debate/UserVideo.vue'
 import { team } from '@/components/common/Team.js'
+import { onMounted } from "vue"
+import { storeToRefs } from "pinia"
 
 // === 변수 ===
+const roomInfo = reactive({
+  category: 'category', // 토론 카테고리
+  hostId: 1, // 방장 Id
+  title: 'title', // 제목
+  keywordLeft: 'keywordA', // 제시어 A
+  keywordRight: 'keywordB', // 제시어 B
+  playerNum: 4, // 플레이어 수 제한
+  jurorNum: 10, // 배심원 수 제한
+  isPrivate: false, // 사설방 여부
+  password: 'password', // 비밀번호
+  readyTime: 1, // 준비 시간
+  speakingTime: 5, // 발언 시간
+  qnaTime: 4, // qna 시간
+  thumbnailA: '', // 썸네일 A
+  thumbnailB: '', // 썸네일 B
+});
+
 // Debate 정보
 const route = useRoute()
 const debateId = route.params.debateId
@@ -21,159 +40,195 @@ const debate = debateStore.getDebate(debateId)
 const headerBarTitle = ref('[임시]제목입니다.')
 // headerBarTitle = debate.getTitle();
 
-// User 정보
-const authStore = useAuthStore()
+// 세션 정보
+const sessionInfo = reactive({
+  session: ref(undefined),
+  OV: ref(undefined),
+  debateId: route.params.debateId,
+  publisher: ref(undefined),  // 자기 자신
 
-// Room 정보 => API 호출 필요
-const roomInfo = {
-  category: ref('category'), // 토론 카테고리
-  hostId: ref(1), // 방장 Id
-  title: ref('title'), // 제목
-  keywordLeft: ref('keywordA'), // 제시어 A
-  keywordRight: ref('keywordB'), // 제시어 B
-  playerNum: ref(4), // 플레이어 수 제한
-  jurorNum: ref(10), // 배심원 수 제한
-  isPrivate: ref(false), // 사설방 여부
-  password: ref('password'), // 비밀번호
-  readyTime: ref(1), // 준비 시간
-  speakingTime: ref(5), // 발언 시간
-  qnaTime: ref(4), // qna 시간
-  thumbnailA: ref(''), // 썸네일 A
-  thumbnailB: ref('') // 썸네일 B
-}
+  // index == 각 팀에서의 순서
+  subscribersLeft: ref([]),   // 팀 A 리스트(자기 자신 포함 가능)
+  subscribersRight: ref([]),  // 팀 B 리스트(자기 자신 포함 가능)
+});
 
-const userInfo = {
-  memberId: ref(1),
-  userId: ref(''),
-  nickname: ref(''),
-  team: ref('')
-}
+// 참가자 정보
+const authStore = useAuthStore();
+const { memberId,  } = storeToRefs(authStore);
+const playerInfo = reactive({
+  memberId: memberId,
+  nickname: '',
+  team: team[3].english,
+  order: -1,
 
-// OPEN_VIDU 정보
-const openVidu = {
-  OV: ref(undefined), // 비디오
-  session: ref(undefined), // 세션 정보
+  // index == 각 팀에서의 순서
+  // 각 팀 플레이어의 {memberId, nickname, team } 저장
+  playerLeftList: [],
+  playerRightList: [],
+});
 
-  sessionId: ref(''),
-
-  publisher: ref(undefined), // 자기 자신
-  subscriber: ref(undefined),
-  subscribersLeft: ref([]), // 팀 A 리스트
-  subscribersRight: ref([]), // 팀 B 리스트
-  subscribersJuror: ref([]), // 배심원 리스트
-  subscribersWatcher: ref([]), // 관전자 리스트
-  publisherComputed: computed(() => openVidu.publisher.value),
-  subscribersLeftComputed: computed(() => openVidu.subscribersLeft.value),
-  subscribersRightComputed: computed(() => openVidu.subscribersRight.value),
-  subscribersJurorComputed: computed(() => openVidu.subscribersJuror.value),
-  subscrbersWatcherComputed: computed(() => openVidu.subscribersWatcher.value)
-}
-
-const communication = {
-  // 마이크/카메라 켜짐 여부
-  isMicOn: ref(false),
-  isCameraOn: ref(false),
-  isShareOn: ref(false),
-
-  // 마이크/카메라 핸들링 권한 여부
-  isMicHandleAvailable: ref(true),
-  isCameraHandleAvailable: ref(false),
-  isShareHandleAvailable: ref(false),
-
-  // 현재 사용중인 마이크/카메라 기기 정보
-  selectedMic: ref(''),
-  selectedCamera: ref(''),
-
-  // 가용 가능한 마이크/카메라 정보
-  micList: ref([]),
-  cameraList: ref([]),
-  micListComputed: computed(() => communication.micList.value),
-  cameraListComputed: computed(() => communication.cameraList.value)
-}
+// 화상 정보
+const communication = reactive({
+  isMicOn: false,
+  isCameraOn: false,
+  isShareOn: false,
+  isMicHandleAvailable: false,
+  isCameraHandleAvailable: false,
+  isShareHandleAvailable: false,
+});
+  
 
 // 채팅방
-const chatting = {
-  targetTeam: ref(team[3].english),
-  inputMessage: ref(''),
-  messagesLeft: ref([]),
-  messagesRight: ref([]),
-  messagesAll: ref([])
-}
+const chatting = reactive({
+  targetTeam: team[3].english,
+  messagesLeft: [],
+  messagesRight: [],
+  messagesAll: [],
+});
+
+// 자신의 팀 내 순서
+const getOrder = computed(() => {
+  if (sessionInfo.session) {
+    if (playerInfo.team == team[0].english) {
+      return sessionInfo.subscribersLeft.indexOf(sessionInfo.publisher)
+    } else if (playerInfo.team == team[1].english) {
+      return sessionInfo.subscribersRight.indexOf(sessionInfo.publisher)
+    }
+  }
+  return -1;
+})
 
 // === 세션 관련 메서드 ===
-// 세션 합류 메서드
+// 게임 방에 처음 왔을 때. 즉, 배심원/관전자 팀 합류
 function joinSession() {
   // openvidu, 세션 객체 생성
-  openVidu.OV.value = new OpenVidu()
-  openVidu.session.value = openVidu.OV.value.initSession()
+  sessionInfo.OV = new OpenVidu()
+  sessionInfo.session = sessionInfo.OV.initSession()
 
-  // 세션 시작 작업
-  openVidu.session.value.on('streamCreated', ({ stream }) => {
-    // 새로운 subscriber
-    const subscriber = openVidu.session.value.subscribe(stream)
-
-    // 관전자로 편입(host도 일단 관전자로?)
-    openVidu.subscribersWatcher.value.push(subscriber)
-    userInfo.team.value = team[3].english
-    communication.isMicHandleAvailable.value = false
-    communication.isCameraHandleAvailable.value = false
-    communication.isShareHandleAvailable.value = false
-    // handle
-
-    // // hostId == memberId면 초기팀 A, 그 외엔 관전자
-    // if (roomInfo.hostId == userInfo.memberId) {
-    //   openVidu.subscribersLeft.value.push(subscriber);
-    // } else {
-    //   openVidu.subscribersWatcher.value.push(subscriber);
-    // }
+  // 비동기 관련 오류 처리
+  sessionInfo.session.on('exception', ({ exception }) => {
+    console.warn(exception)
   })
 
-  // 세션 종료 작업 => 현재 팀에서 나간다.
-  openVidu.session.value.on('streamDestroyed', ({ stream }) => {
+  // 다른 참여자의 채팅 이벤트 수신 처리(닉네임, 목표 팀, 메시지 내용)
+  sessionInfo.session.on('signal:chat', (event) => {
+    const messageData = JSON.parse(event.data)
+
+    if (messageData.targetTeam == team[3].english) {
+      chatting.messagesAll.value.push(messageData)
+    } else {
+      console.error(`잘못된 채팅 이벤트 수신 : ${messageData}`)
+    }
+  })
+
+  // 세션 ALL로의 토큰이 유효하면, 세션 연결
+  // 관전자/배심원은 오디오, 캠이 필요없으므로 설정 X
+  getToken(team[3].english).then((token) => {
+    sessionInfo.session.value
+      .connect(token, { clientData: `${playerInfo.memberId},${playerInfo.nickname},${playerInfo.team}`})
+      .catch((error) => {
+        console.log('session 연결 실패 : ', error)
+      })
+  })
+}
+
+// sessionType으로 생성
+function joinSession2(sessionType) {
+  // openvidu, 세션 객체 생성
+  sessionInfo.OV = new OpenVidu()
+  sessionInfo.session = sessionInfo.OV.initSession()
+
+  // 다른 사용자의 stream(publisher) 생성 감지
+  sessionInfo.session.on('streamCreated', ({ stream }) => {
+    // 새로운 subscriber
+    const subscriber = sessionInfo.session.subscribe(stream)
+
+    // 새로운 참가자의 클라이언트 정보(memberId, nickname, team)를 받아옴
+    const clientDatas = subscriber.stream.connection.data.split('"');
+    const datas = clientDatas[3].split(',');
+    
+    // 다른 플레이어의 팀에 따라 저장 위치 변경
+    if (datas[2] == team[0].english) {
+      sessionInfo.subscribersLeft.push(subscriber)
+      playerInfo.playerLeftList.push({
+        memberId: datas[0],
+        nickname: datas[1],
+        team: datas[2],
+      });
+    } else if (datas[2] == team[1].english) {
+      sessionInfo.subscribersRight.push(subscriber)
+      playerInfo.playerRightList.push({
+        memberId: datas[0],
+        nickname: datas[1],
+        team: datas[2],
+      });
+    } else if (datas[2] == team[2].english || datas[2] == team[3].english) {
+      console.error(`${datas[2]}는 subscribers에 저장하면 안됩니다.`)
+    } else {
+      console.error(`joinSession Fail :  team(${playerInfo.team})`)
+    }
+  })
+
+  // 다른 사용자의 stream 종료 감지
+  sessionInfo.session.on('streamDestroyed', ({ stream }) => {
     leaveTeam(stream.streamManager)
   })
 
   // 비동기 관련 오류 처리
-  openVidu.session.value.on('exception', ({ exception }) => {
+  sessionInfo.session.on('exception', ({ exception }) => {
     console.warn(exception)
   })
 
-  // 이벤트 수신 처리 => targetTeam에 따라 메시지 저장 공간 변화
-  openVidu.session.value.on(`signal:chat`, (event) => {
+  // 채팅 이벤트 수신 처리(닉네임, 목표 팀, 메시지 내용) => targetTeam에 따라 메시지 저장 공간 변화
+  sessionInfo.session.on('signal:chat', (event) => {
     const messageData = JSON.parse(event.data)
 
     if (messageData.targetTeam == team[0].english) {
-      chatting.messagesLeft.value.push(messageData)
+      chatting.messagesLeft.push(messageData)
     } else if (messageData.targetTeam == team[1].english) {
-      chatting.messagesRight.value.push(messageData)
-    } else if (
-      messageData.targetTeam == team[2].english ||
-      messageData.targetTeam == team[3].english
-    ) {
+      chatting.messagesRight.push(messageData)
+    } else if (messageData.targetTeam == team[2].english || messageData.targetTeam == team[3].english) {
       chatting.messagesAll.value.push(messageData)
+    } else {
+      console.error(`잘못된 채팅 이벤트 수신 : ${messageData}`)
     }
   })
 
+  // 팀 변경 이벤트 수신 처리(이전 팀, 목표 팀)
+
+
   // 토큰이 유효하면 세션 연결
   getToken().then((token) => {
-    openVidu.session.value
-      .connect(token, { clientData: userInfo.userId.value })
+    sessionInfo.session.value
+      .connect(token, { clientData: `${playerInfo.memberId},${playerInfo.nickname},${playerInfo.team}`})
       .then(() => {
         // 사용자의 openVidu 설정 생성
-        let publisher_tmp = openVidu.OV.value.initPublisher(undefined, {
-          audioSource: undefined, // 오디오 => 기본 microphone
-          videoSource: undefined, // 비디오 => 기본 webcam
-          publishAudio: false, // 시작 오디오 상태(ON/OFF)
-          publishVideo: false, // 시작 비디오 상태(ON/OFF)
-          resolution: '640x480', // 카메라 해상도
+        let audioSource, videoSource
+        if (playerInfo.team == team[2].english || playerInfo.team == team[3].english) {
+          audioSource = false
+          videoSource = false
+          communication.isMicOn = false
+          communication.isCameraOn = false
+        } else {
+          audioSource = undefined
+          videoSource = undefined
+          communication.isMicOn = true;
+          communication.isCameraOn = true;
+        }
+        let publisher_tmp = sessionInfo.OV.value.initPublisher(undefined, {
+          audioSource: audioSource, // 오디오 => undefined면 microphone, false/null이면 사용 X
+          videoSource: videoSource, // 비디오 => 기본 webcam, false/null이면 사용 X
+          publishAudio: communication.isMicOn, // 시작 오디오 상태(ON/OFF)
+          publishVideo: communication.isCameraOn, // 시작 비디오 상태(ON/OFF)
+          resolution: '311x170', // 카메라 해상도
           frameRate: 30, // 카메라 프레임
           insertMode: 'APPEND', // 비디오가 추가되는 방식
           mirror: false // 비디오 거울 모드 X
         })
 
-        // 사용자 publisher 설정 수정 및 송출
-        openVidu.publisher.value = publisher_tmp
-        openVidu.session.value.publish(publisher_tmp)
+        // 사용자 publisher 설정 수정 및 publish
+        sessionInfo.publisher.value = publisher_tmp
+        sessionInfo.session.value.publish(publisher_tmp)
 
         // 미디어 정보를 불러온다.
         getMedia()
@@ -187,48 +242,28 @@ function joinSession() {
   window.addEventListener('beforeunload', leaveSession)
 }
 
-// targetTeam으로 합류
-function joinTeam(targetTeam, subscriber) {
-  // 기존 팀 나감
-  leaveTeam(subscriber)
-
-  // 현재 팀정보 수정
-  userInfo.team.value = targetTeam
-
-  // team에 따라 다른 subscrber 합류
-  if (userInfo.team.value == team[0].english) {
-    openVidu.subscribersLeft.value.push(subscriber)
-  } else if (userInfo.team.value == team[1].english) {
-    openVidu.subscribersRight.value.push(subscriber)
-  } else if (userInfo.team.value == team[2].english) {
-    openVidu.subscribersJuror.value.push(subscriber)
-  } else if (userInfo.team.value == team[3].english) {
-    openVidu.subscribersWatcher.value.push(subscriber)
-  }
-}
-
 // 현재 팀에서 나가기
-function leaveTeam(team, subscriber) {
-  let index
-  if (userInfo.team.value == team[0].english) {
-    index = openVidu.subscribersLeft.value.indexOf(subscriber, 0)
-    if (index >= 0) {
-      openVidu.subscribersLeft.value.splice(index, 1)
+function leaveTeam(streamManager) {
+  let idx;
+
+  // 팀 A 내 제거 시도
+  idx = sessionInfo.subscribersLeft.indexOf(streamManager, 0);
+  if (idx >= 0) {
+    sessionInfo.subscribersLeft.splice(idx, 1)
+    playerInfo.playerLeftList.splice(idx, 1)
+    if (playerInfo.team == team[0].english) {
+      playerInfo.order = getOrder();
     }
-  } else if (userInfo.team.value == team[1].english) {
-    index = openVidu.subscribersRight.value.indexOf(subscriber, 0)
-    if (index >= 0) {
-      openVidu.subscribersRight.value.splice(index, 1)
-    }
-  } else if (userInfo.team.value == team[2].english) {
-    index = openVidu.subscribersLeft.value.indexOf(subscriber, 0)
-    if (index >= 0) {
-      openVidu.subscribersLeft.value.splice(index, 1)
-    }
-  } else if (userInfo.team.value == team[3].english) {
-    index = openVidu.subscribersLeft.value.indexOf(subscriber, 0)
-    if (index >= 0) {
-      openVidu.subscribersLeft.value.splice(index, 1)
+    return
+  }
+
+  // 팀 B 내 제거 시도
+  idx = sessionInfo.subscribersRight.indexOf(streamManager, 0);
+  if (idx >= 0) {
+    sessionInfo.subscribersRight.splice(idx, 1)
+    playerInfo.playerRightList.splice(idx, 1)
+    if (playerInfo.team == team[1].english) {
+      playerInfo.order = getOrder();
     }
   }
 }
@@ -236,26 +271,25 @@ function leaveTeam(team, subscriber) {
 // 세션 나가기 메서드
 function leaveSession() {
   // 세션 연결 종료
-  if (openVidu.session.value) openVidu.session.value.disconnect()
+  if (sessionInfo.session.value) sessionInfo.session.value.disconnect()
 
   // Empty all properties...
-  openVidu.session.value = undefined
-  openVidu.publisher.value = undefined
-  openVidu.subscribersLeft.value = []
-  openVidu.subscribersRight.value = []
-  openVidu.subscribersJuror.value = []
-  openVidu.subscribersWatcher.value = []
-  openVidu.OV.value = undefined
+  sessionInfo.session.value = undefined
+  sessionInfo.OV.value = undefined
+  sessionInfo.publisher.value = undefined
+  sessionInfo.subscribersLeft.value = []
+  sessionInfo.subscribersRight.value = []
+  sessionInfo.subscribersAll.value = []
 
   // 윈도우 종료 시 세션 나가기 이벤트 삭제
   window.removeEventListener('beforeunload', leaveSession)
 }
 
 // API 호출 메서드를 이용하여 토큰 반환
-async function getToken() {
+async function getToken(category, team) {
   // API 호출 필요
-  await createSession(openVidu.sessionId.value)
-  const token = await createToken(debateId)
+  await createSession(`${debateId}_${category}_${team}`)
+  const token = await createToken(`${debateId}_${category}_${team}`)
   return token
 }
 
@@ -268,8 +302,8 @@ function sendMessage(event, inputMessage) {
     openVidu.session.value.signal({
       // 메시지 데이터를 문자열로 변환해서 전송
       data: JSON.stringify({
-        username: userInfo.nickname.value,
-        targetTeam: chatting.targetTeam.value,
+        nickname: userInfo.nickname.value,
+        targetTeam: chatting.targetTeam,
         message: inputMessage
       }),
       type: 'chat' // 신호 타입을 'chat'으로 설정
@@ -405,6 +439,9 @@ async function replaceAudioTrack(deviceId) {
     console.error('오디오 기기 변경 에러 : ', error)
   }
 }
+
+joinSession();
+
 </script>
 
 <template>
@@ -417,24 +454,24 @@ async function replaceAudioTrack(deviceId) {
       <div class="teamA-container">
         <div class="team-title">TeamA</div>
         <div class="players">
-          <div class="player">+</div>
-          <div class="player">+</div>
-          <div class="player">+</div>
+          <div v-for="num in roomInfo.playerNum.value/2" :key="num">
+            <div class="player">+</div>
+          </div>
         </div>
       </div>
       <div class="share-container"></div>
       <div class="teamB-container">
         <div class="team-title">TeamB</div>
         <div class="players">
-          <div class="player">+</div>
-          <div class="player">+</div>
-          <div class="player">+</div>
+          <div v-for="num in roomInfo.playerNum.value/2" :key="num">
+            <div class="player">+</div>
+          </div>
         </div>
       </div>
       <div class="chatting-container">
         <div class="chatting-tabs">
-          <div class="chatting-team-tab"> 팀 채팅 </div>
-          <div class="chatting-all-tab"> 전체 채팅 </div>
+          <div class="chatting-team-tab" :aria-readonly="true"> 팀 채팅 </div>
+          <div class="chatting-all-tab" :aria-readonly="true"> 전체 채팅 </div>
         </div>
         <div class="chattings"></div>
         <div class="send-message">
