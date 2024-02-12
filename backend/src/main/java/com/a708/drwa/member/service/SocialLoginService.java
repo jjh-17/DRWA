@@ -1,7 +1,6 @@
 package com.a708.drwa.member.service;
 
-import com.a708.drwa.member.dto.GoogleUserInfoResponse;
-import com.a708.drwa.member.dto.SocialUserInfoResponse;
+import com.a708.drwa.member.dto.response.SocialUserInfoResponse;
 
 /**
  * 소셜 로그인 서비스 인터페이스

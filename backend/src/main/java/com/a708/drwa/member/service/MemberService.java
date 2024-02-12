@@ -1,8 +1,9 @@
 package com.a708.drwa.member.service;
 
+import com.a708.drwa.debate.enums.DebateCategory;
 import com.a708.drwa.member.domain.Member;
-import com.a708.drwa.member.dto.SocialLoginResponse;
-import com.a708.drwa.member.dto.SocialUserInfoResponse;
+import com.a708.drwa.member.dto.response.SocialLoginResponse;
+import com.a708.drwa.member.dto.response.SocialUserInfoResponse;
 import com.a708.drwa.member.exception.MemberErrorCode;
 import com.a708.drwa.member.exception.MemberException;
 import com.a708.drwa.member.repository.MemberRepository;
@@ -11,12 +12,17 @@ import com.a708.drwa.member.service.Impl.KakaoLoginServiceImpl;
 import com.a708.drwa.member.service.Impl.NaverLoginServiceImpl;
 import com.a708.drwa.member.type.SocialType;
 import com.a708.drwa.member.util.JWTUtil;
+import com.a708.drwa.redis.domain.MemberRedisKey;
+import com.a708.drwa.redis.util.RedisKeyUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Transactional(readOnly = true)
 @Service
@@ -27,14 +33,16 @@ public class MemberService {
     private final GoogleLoginServiceImpl googleLoginService;
     private final NaverLoginServiceImpl naverLoginService;
     private final KakaoLoginServiceImpl kakaoLoginService;
-    private final JWTUtil jwtUtil;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final MemberInterestService memberInterestService;
+    private final JWTUtil jwtUtil;
 
     @Value("${jwt.refreshtoken.expiretime}")
     private Long refreshTokenExpireTime;
 
     /**
      * 소셜 로그인 인증 URL을 반환한다.
+     *
      * @param socialType : google, naver, kakao
      * @return : 인증 URL
      */
@@ -48,6 +56,7 @@ public class MemberService {
 
     /**
      * 소셜 로그인 후 인증 코드로부터 액세스 토큰을 반환한다.
+     *
      * @param socialType : google, naver, kakao
      * @param code : 소셜 로그인 후 인증 코드
      * @return : 액세스 토큰
@@ -70,15 +79,23 @@ public class MemberService {
                 // 기존 사용자가 없으면 새로운 사용자 등록
                 .orElseGet(() -> registerNewUser(socialUserInfoResponse));
 
+        int memberId = member.getId();
+        String userId = member.getUserId();
+
+
         // JWT 토큰 생성
-        String jwtAccessToken = jwtUtil.createAccessToken(member.getUserId());
-        String jwtRefreshToken = jwtUtil.createRefreshToken(member.getUserId());
+        String jwtAccessToken = jwtUtil.createAccessToken(memberId, userId);
+        String jwtRefreshToken = jwtUtil.createRefreshToken(memberId, userId);
 
         // Redis에 리프레시 토큰 저장
-        redisTemplate.opsForValue().set(member.getUserId(), jwtRefreshToken, refreshTokenExpireTime);
+        redisTemplate.opsForValue().set(userId, jwtRefreshToken, refreshTokenExpireTime);
+
+        // 사용자 ID로 관심사 조회
+        List<DebateCategory> interests = memberInterestService.findInterestsByMemberId((long) memberId);
+
 
         // 응답 DTO 반환
-        return new SocialLoginResponse(member.getUserId(), jwtAccessToken);
+        return new SocialLoginResponse(userId, jwtAccessToken, interests);
     }
 
     /**
@@ -133,7 +150,8 @@ public class MemberService {
      * @param userId
      */
     public void deleteRefreshToken(String userId) {
-        boolean exists = Boolean.TRUE.equals(redisTemplate.hasKey(userId));
+        HashOperations<String, MemberRedisKey, Object> hashOperations = redisTemplate.opsForHash();
+        boolean exists = Boolean.TRUE.equals(hashOperations.hasKey(userId, MemberRedisKey.REFRESH_TOKEN));
         if (!exists) {
             throw new MemberException(MemberErrorCode.TOKEN_NOT_FOUND);
         }

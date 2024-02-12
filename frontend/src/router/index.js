@@ -84,9 +84,9 @@ const router = createRouter({
     // },
     // {
     //   path: '/modal6',
-    //   name: 'InfoModal',
-    //   component: InfoModal
-    // }
+    //   name: 'PasswordModal',
+    //   component: PasswordModal
+    // },
   ]
 })
 
