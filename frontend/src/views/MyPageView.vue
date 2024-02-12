@@ -3,23 +3,16 @@ import { QPage, QCard, QCardSection, QSeparator, QAvatar } from 'quasar'
 import HeaderComponent from '@/components/common/HeaderComponent.vue'
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/useAuthStore'
 
 const router = useRouter()
-const authStore = useAuthStore()
-
-// 이미지를 동적으로 불러오기 위한 함수
-const loadImage = (path) => {
-  return new URL(`../assets/${path}`, import.meta.url).href;
-};
 
 // 예시 기록 데이터
 const gameRecords = ref([
-  { word1: '초콜릿', word2: '사탕', result: '승', points: '10p', img1: loadImage('img/chocolate.png'), img2: loadImage('img/candy.png') },
-  { word1: '책', word2: '영화', result: '패', points: '10p', img1: loadImage('img/book.png'), img2: loadImage('img/movie.png') },
-  { word1: '커피', word2: '녹차', result: '승', points: '10p', img1: loadImage('img/coffee.png'), img2: loadImage('img/tea.png') },
-  { word1: '바다', word2: '산', result: '패', points: '10p', img1: loadImage('img/beach.png'), img2: loadImage('img/mountain.png') },
-  { word1: '고양이', word2: '강아지', result: '승', points: '10p', img1: loadImage('img/cat.png'), img2: loadImage('img/dog.png') },
+  { word1: '초콜릿', word2: '사탕', result: '승', points: '10p', img1: '/images/chocolate.png', img2: '/images/candy.png' },
+  { word1: '책', word2: '영화', result: '패', points: '10p', img1: '/images/book.png', img2: '/images/movie.png' },
+  { word1: '커피', word2: '녹차', result: '승', points: '10p', img1: '/images/coffee.png', img2: '/images/greentea.png' },
+  { word1: '바다', word2: '산', result: '패', points: '10p', img1: '/images/sea.png', img2: '/images/mountain.png' },
+  { word1: '고양이', word2: '강아지', result: '승', points: '10p', img1: '/images/cat.png', img2: '/images/dog.png' },
 ]);
 
 // 예시 칭호 데이터, 실제로는 DB에서 받아온 데이터를 사용하기
@@ -63,20 +56,20 @@ const onEditClick = () => {
             </q-avatar>
             <div class="nickname">
               닉네임 <q-icon name="edit" class="cursor-pointer" @click="onEditClick" />
-              <div class="text-caption">{{ authStore.nickname }}</div>
+              <div class="text-caption">사용자123</div>
             </div>
           </div>
-          <div>{{ authStore.point }}p <q-icon name="arrow_forward_ios" class="cursor-pointer" /></div>
+          <div>1630p <q-icon name="arrow_forward_ios" class="cursor-pointer" /></div>
         </q-card-section>
 
         <q-card-section class="flex flex-center q-gutter-sm justify-around">
           <div>
             전적
-            <div> {{ authStore.winCount }}승 {{ authStore.tieCount }}무 {{ authStore.loseCount }}패</div>
+            <div>10승 5패</div>
           </div>
           <div>
             승률
-            <div>{{ authStore.winRate }}%</div>
+            <div>66%</div>
           </div>
         </q-card-section>
 

@@ -13,7 +13,6 @@ import 'quasar/dist/quasar.css'
 
 import App from './App.vue'
 import router from './router'
-import { useAuthStore } from './stores/useAuthStore'
 
 const app = createApp(App)
 
@@ -23,11 +22,5 @@ app.use(Quasar, {
   config: {}, // import Quasar config here
   plugins: {} // import Quasar plugins here
 })
-
-// 인증 스토어 가져오기
-const authStore = useAuthStore()
-
-// 앱 마운트 전에 인증 상태 초기화
-authStore.initializeAuthFromLocalStorage()
 
 app.mount('#app')
