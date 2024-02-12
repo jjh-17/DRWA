@@ -67,7 +67,6 @@ const playerInfo = reactive({
   playerRightList: [],
 });
 
-<<<<<<< HEAD
 // 화상 정보
 const communication = reactive({
   isMicOn: false,
@@ -77,20 +76,6 @@ const communication = reactive({
   isCameraHandleAvailable: false,
   isShareHandleAvailable: false,
 });
-=======
-const userInfo = {
-  memberId: ref(1),
-  userId: ref(''),
-  nickname: ref(''),
-  team: ref(''),
-}
-
-// OPEN_VIDU 정보
-const openVidu = {
-  OV : ref(undefined),            // 비디오
-  session: ref(undefined),        // 세션 정보
-  sessionId: ref(''),
->>>>>>> 31c7e7fa2851d8347d608dbdcf17bfab5700a55f
   
 
 // 채팅방
@@ -117,37 +102,8 @@ const getOrder = computed(() => {
 // 게임 방에 처음 왔을 때. 즉, 배심원/관전자 팀 합류
 function joinSession() {
   // openvidu, 세션 객체 생성
-<<<<<<< HEAD
   sessionInfo.OV = new OpenVidu()
   sessionInfo.session = sessionInfo.OV.initSession()
-=======
-  openVidu.OV.value = new OpenVidu()
-  openVidu.session.value = openVidu.OV.value.initSession();
-
-  // 세션 시작 작업 => 새로운 참여자의 합류
-  openVidu.session.value.on("streamCreated", ({ stream }) => {
-    // 새로운 subscriber
-    const subscriber = openVidu.session.value.subscribe(stream)
-
-    // 관전자로 편입(host도 일단 관전자로?)
-    openVidu.subscribersWatcher.value.push(subscriber);
-    console.log(`joinSession : ${team[3].english}`);
-    joinTeam(team[3].english);
-    // handle
-    
-    // // hostId == memberId면 초기팀 A, 그 외엔 관전자
-    // if (roomInfo.hostId == userInfo.memberId) {
-    //   openVidu.subscribersLeft.value.push(subscriber);
-    // } else {
-    //   openVidu.subscribersWatcher.value.push(subscriber);
-    // }
-  })
-
-  // 세션 종료 작업 => 현재 팀에서 나간다.
-  openVidu.session.value.on("streamDestroyed", ({ stream }) => {
-    leaveTeam(stream.streamManager);
-  })
->>>>>>> 31c7e7fa2851d8347d608dbdcf17bfab5700a55f
 
   // 비동기 관련 오류 처리
   sessionInfo.session.on('exception', ({ exception }) => {
@@ -176,8 +132,29 @@ function joinSession() {
   })
 }
 
+function sendChangeTeamMessage(event, targetTeam) {
+  // 새로고침 방지
+  event.preventDefault()
+
+  // 다른 참가자들에게 메시지 전송
+  
+
+  if (targetTeam) {
+    // 다른 참가원에게 메시지 전송하기
+    openVidu.session.value.signal({
+      // 메시지 데이터를 문자열로 변환해서 전송
+      data: JSON.stringify({
+        nickname: userInfo.nickname.value,
+        targetTeam: chatting.targetTeam,
+        message: inputMessage
+      }),
+      type: 'chat' // 신호 타입을 'chat'으로 설정
+    })
+  }
+}
+
 // sessionType으로 생성
-function joinSession2(sessionType) {
+function joinSession2(team) {
   // openvidu, 세션 객체 생성
   sessionInfo.OV = new OpenVidu()
   sessionInfo.session = sessionInfo.OV.initSession()
@@ -283,7 +260,6 @@ function joinSession2(sessionType) {
   })
 
   // 윈도우 종료 시 세션 나가기 이벤트 등록
-<<<<<<< HEAD
   window.addEventListener('beforeunload', leaveSession)
 }
 
@@ -298,57 +274,6 @@ function leaveTeam(streamManager) {
     playerInfo.playerLeftList.splice(idx, 1)
     if (playerInfo.team == team[0].english) {
       playerInfo.order = getOrder();
-=======
-  window.addEventListener("beforeunload", leaveSession);
-}
-
-// targetTeam으로 합류
-function joinTeam(targetTeam) {
-  // 기존 팀 나감
-  leaveTeam(openVidu.publisher.value);
-
-  // 현재 팀정보 수정
-  userInfo.team.value = targetTeam;
-  console.log(`팀 변경 : ${userInfo.team.value}`);
-
-  // team에 따라 다른 subscrber 합류
-  if (userInfo.team.value == team[0].english) {
-    openVidu.subscribersLeft.value.push(openVidu.publisher.value);
-    communication.isMicHandleAvailable.value = true;
-    communication.isCameraHandleAvailable.value = true;
-    communication.isShareHandleAvailable.value = true;
-  } else if (userInfo.team.value == team[1].english) {
-    openVidu.subscribersRight.value.push(openVidu.publisher.value);
-    communication.isMicHandleAvailable.value = true;
-    communication.isCameraHandleAvailable.value = true;
-    communication.isShareHandleAvailable.value = true;
-  } else if (userInfo.team.value == team[2].english) {
-    openVidu.subscribersJuror.value.push(openVidu.publisher.value);
-    communication.isMicHandleAvailable.value = false;
-    communication.isCameraHandleAvailable.value = false;
-    communication.isShareHandleAvailable.value = false;
-    communication.isMicOn.value = false;
-    communication.isCameraOn.value = false;
-    communication.isShareOn.value = false;
-  } else if (userInfo.team.value == team[3].english) {
-    openVidu.subscribersWatcher.value.push(openVidu.publisher.value);
-    communication.isMicHandleAvailable.value = false;
-    communication.isCameraHandleAvailable.value = false;
-    communication.isShareHandleAvailable.value = false;
-    communication.isMicOn.value = false;
-    communication.isCameraOn.value = false;
-    communication.isShareOn.value = false;
-  }
-}
-
-// 현재 팀에서 나가기
-function leaveTeam(subscriber) {
-  let index;
-  if (userInfo.team.value == team[0].english) {
-    index = openVidu.subscribersLeft.value.indexOf(subscriber, 0)
-    if (index >= 0) {
-      openVidu.subscribersLeft.value.splice(index, 1)
->>>>>>> 31c7e7fa2851d8347d608dbdcf17bfab5700a55f
     }
     return
   }
@@ -370,23 +295,12 @@ function leaveSession() {
   if (sessionInfo.session.value) sessionInfo.session.value.disconnect()
 
   // Empty all properties...
-<<<<<<< HEAD
   sessionInfo.session.value = undefined
   sessionInfo.OV.value = undefined
   sessionInfo.publisher.value = undefined
   sessionInfo.subscribersLeft.value = []
   sessionInfo.subscribersRight.value = []
   sessionInfo.subscribersAll.value = []
-=======
-  console.log(`publisher : ${openVidu.publisher.value}`)
-  openVidu.session.value = undefined;
-  openVidu.publisher.value = undefined;
-  openVidu.subscribersLeft.value = [];
-  openVidu.subscribersRight.value = [];
-  openVidu.subscribersJuror.value = [];
-  openVidu.subscribersWatcher.value = [];
-  openVidu.OV.value = undefined;
->>>>>>> 31c7e7fa2851d8347d608dbdcf17bfab5700a55f
 
   // 윈도우 종료 시 세션 나가기 이벤트 삭제
   window.removeEventListener('beforeunload', leaveSession)
@@ -610,41 +524,24 @@ joinSession();
 
   <div id="session" v-if="openVidu.session.value">
     <div id="session-header">
-<<<<<<< HEAD
       // 세션 나가기 여부
       <input
         type="button"
         id="buttonLeaveSession"
         @click="leaveSession"
         value="Leave session"
-=======
-      <!-- 세션 나가기 여부 -->
-      <input type="button" @click="leaveSession" value="Leave session"
->>>>>>> 31c7e7fa2851d8347d608dbdcf17bfab5700a55f
       />
-
-      <!-- 팀 변경 -->
-      <div>
-        <input type="button" @click="joinTeam(team[0].english)" value="팀 A"/>
-        <input type="button" @click="joinTeam(team[1].english)" value="팀 B"/>
-        <input type="button" @click="joinTeam(team[2].english)" value="배심원"/>
-        <input type="button" @click="joinTeam(team[3].english)" value="관전자"/>
-      </div>
     </div>
-    <!-- <DebateVideos 
+    <DebateVideos 
       :subscribers-left="openVidu.subscribersLeftComputed"
-      :subscribers-right="openVidu.subscribersRightComputed" /> -->
+      :subscribers-right="openVidu.subscribersRightComputed" />
 
-<<<<<<< HEAD
     // 방에 들어갔을 때 같이 보이게 될 채팅창
     <ChattingBar 
-=======
-    <!-- 방에 들어갔을 때 같이 보이게 될 채팅창 -->
-    <!-- <ChattingBar 
->>>>>>> 31c7e7fa2851d8347d608dbdcf17bfab5700a55f
       :nickname="userInfo.nickname.value" :role="userInfo.team.value"
       :messages-left="chatting.messagesLeft.value" :messages-right="chatting.messagesRight.value" 
-      :messages-all="chatting.messagesAll.value"/> -->
+      :messages-all="chatting.messagesAll.value"
+       />
   </div>
   -->
 
