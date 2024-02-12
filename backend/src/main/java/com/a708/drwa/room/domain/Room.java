@@ -21,7 +21,10 @@ public class Room { // Elasticsearch에 저장되는 방 정보
     private String title;
 
     @Field(type = FieldType.Text, analyzer = "korean")
-    private String keyword;
+    private String keywordA;
+
+    @Field(type = FieldType.Text, analyzer = "korean")
+    private String keywordB;
 
     private String host;
 
