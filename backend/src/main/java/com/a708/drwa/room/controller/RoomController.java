@@ -36,16 +36,22 @@ public class RoomController {
         return ResponseEntity.ok(fullRoomDetails);
     }
 
+//    @PostMapping("/rooms/thumbnail")
+//    public ResponseEntity<?> updateRoomThumbnail(@RequestBody Room.ThumbnailUpdateInfo thumbnailUpdateInfo) {
+//        Room room = roomService.findRoomById(thumbnailUpdateInfo.getRoomId());
+//        if (room == null) {
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        room.updateThumbnail(thumbnailUpdateInfo);
+//        roomService.saveRoomInRedis(room);
+//
+//        return ResponseEntity.ok().build();
+//    }
+
     @PostMapping("/rooms/thumbnail")
     public ResponseEntity<?> updateRoomThumbnail(@RequestBody Room.ThumbnailUpdateInfo thumbnailUpdateInfo) {
-        Room room = roomService.findRoomById(thumbnailUpdateInfo.getRoomId());
-        if (room == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        room.updateThumbnail(thumbnailUpdateInfo);
-        roomService.saveRoomInRedis(room);
-
-        return ResponseEntity.ok().build();
+        roomService.updateRoomThumbnail(thumbnailUpdateInfo);
+        return ResponseEntity.ok().build(); // 성공 응답
     }
 }
