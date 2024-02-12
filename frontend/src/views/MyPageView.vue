@@ -8,13 +8,18 @@ import { useAuthStore } from '@/stores/useAuthStore'
 const router = useRouter()
 const authStore = useAuthStore()
 
+// 이미지를 동적으로 불러오기 위한 함수
+const loadImage = (path) => {
+  return new URL(`../assets/${path}`, import.meta.url).href;
+};
+
 // 예시 기록 데이터
 const gameRecords = ref([
-  { word1: '초콜릿', word2: '사탕', result: '승', points: '10p', img1: '/images/chocolate.png', img2: '/images/candy.png' },
-  { word1: '책', word2: '영화', result: '패', points: '10p', img1: '/images/book.png', img2: '/images/movie.png' },
-  { word1: '커피', word2: '녹차', result: '승', points: '10p', img1: '/images/coffee.png', img2: '/images/greentea.png' },
-  { word1: '바다', word2: '산', result: '패', points: '10p', img1: '/images/sea.png', img2: '/images/mountain.png' },
-  { word1: '고양이', word2: '강아지', result: '승', points: '10p', img1: '/images/cat.png', img2: '/images/dog.png' },
+  { word1: '초콜릿', word2: '사탕', result: '승', points: '10p', img1: loadImage('img/chocolate.png'), img2: loadImage('img/candy.png') },
+  { word1: '책', word2: '영화', result: '패', points: '10p', img1: loadImage('img/book.png'), img2: loadImage('img/movie.png') },
+  { word1: '커피', word2: '녹차', result: '승', points: '10p', img1: loadImage('img/coffee.png'), img2: loadImage('img/tea.png') },
+  { word1: '바다', word2: '산', result: '패', points: '10p', img1: loadImage('img/beach.png'), img2: loadImage('img/mountain.png') },
+  { word1: '고양이', word2: '강아지', result: '승', points: '10p', img1: loadImage('img/cat.png'), img2: loadImage('img/dog.png') },
 ]);
 
 // 예시 칭호 데이터, 실제로는 DB에서 받아온 데이터를 사용하기
