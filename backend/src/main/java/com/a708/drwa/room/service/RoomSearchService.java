@@ -44,6 +44,8 @@ public class RoomSearchService {
                         room.setTitle(hit.source().getTitle());
                         room.setKeywordA(hit.source().getKeywordA());
                         room.setKeywordB(hit.source().getKeywordB());
+                        room.setThumbnailAUrl(hit.source().getThumbnailAUrl());
+                        room.setThumbnailBUrl(hit.source().getThumbnailBUrl());
                         return room;
                     })
                     .collect(Collectors.toList());

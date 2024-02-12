@@ -30,21 +30,31 @@ public class Room { // Elasticsearch에 저장되는 방 정보
 
     private String totalNum;
 
-    private String thumbnailUrl;
+    private String thumbnailAUrl;
 
-    private String thumbnailId;
+    private String thumbnailBUrl;
+
+    private String thumbnailAId;
+
+    private String thumbnailBId;
 
     @Getter
     @Setter
     public static class ThumbnailUpdateInfo {
         private String roomId;
-        private String thumbnailId;
-        private String thumbnailUrl;
+        private String thumbnailId; // 썸네일A 또는 썸네일B의 ID
+        private String thumbnailUrl; // 새로운 썸네일 URL
+        private String thumbnailType; // 'A' 또는 'B'
     }
 
     public void updateThumbnail(ThumbnailUpdateInfo thumbnailUpdateInfo) {
-        this.thumbnailId = thumbnailUpdateInfo.getThumbnailId();
-        this.thumbnailUrl = thumbnailUpdateInfo.getThumbnailUrl();
+        if ("A".equals(thumbnailUpdateInfo.getThumbnailType())) {
+            this.thumbnailAId = thumbnailUpdateInfo.getThumbnailId();
+            this.thumbnailAUrl = thumbnailUpdateInfo.getThumbnailUrl();
+        } else if ("B".equals(thumbnailUpdateInfo.getThumbnailType())) {
+            this.thumbnailBId = thumbnailUpdateInfo.getThumbnailId();
+            this.thumbnailBUrl = thumbnailUpdateInfo.getThumbnailUrl();
+        }
     }
 
 }
