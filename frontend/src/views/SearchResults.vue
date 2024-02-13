@@ -214,7 +214,7 @@ async function fetchData() {
 
 onMounted(fetchData);
 </script>
-<style>
+<style scoped>
 .option{
   margin-top: 40px;
   margin-left: 50px;
