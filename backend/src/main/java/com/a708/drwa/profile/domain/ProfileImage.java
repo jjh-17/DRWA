@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "profile_image")
@@ -20,9 +21,11 @@ public class ProfileImage {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @Setter
     @Column(name = "original_path")
     private String originalPath;
 
+    @Setter
     @Column(name = "s3_path")
     private String s3Path;
 

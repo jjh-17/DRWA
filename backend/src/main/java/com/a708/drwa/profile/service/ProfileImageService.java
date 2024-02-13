@@ -31,6 +31,13 @@ public class ProfileImageService {
     private final JWTUtil jwtUtil;
     private final S3Uploader s3Uploader;
 
+    /**
+     * 프로필 이미지를 업로드하고, 이미지 URL을 반환한다.
+     *
+     * @param file  : 업로드할 이미지 파일
+     * @param token : JWT 토큰
+     * @return : 업로드된 이미지 URL
+     */
     @Transactional
     public String uploadProfileImage(MultipartFile file, String token) throws IOException {
         // 멤버 찾기
@@ -44,6 +51,7 @@ public class ProfileImageService {
         // 멤버 ID에 해당하는 기존 프로필 이미지가 있는지 확인
         ProfileImage existingProfileImage = profileImageRepository.findByMemberId(member.getId());
 
+        // 기존 프로필 이미지가 있는 경우, 기존 이미지 정보 업데이트
         if (existingProfileImage != null) {
             // S3에서 기존 이미지 파일 삭제
             try {
@@ -51,12 +59,37 @@ public class ProfileImageService {
             } catch (Exception e) {
                 log.error("Error deleting old profile image from S3", e);
             }
+
+            // 기존 이미지 정보 업데이트
+            existingProfileImage.setOriginalPath(file.getOriginalFilename());
+            existingProfileImage.setS3Path(s3Url);
+        } else { // 기존 프로필 이미지가 없는 경우, 새 프로필 이미지 정보 저장
+            // 새 프로필 이미지 정보 저장
+            existingProfileImage = new ProfileImage(member, file.getOriginalFilename(), s3Url);
+            profileImageRepository.save(existingProfileImage);
         }
 
-        // 업로드된 이미지의 메타데이터를 데이터베이스에 저장
-        profileImageRepository.save(new ProfileImage(member, file.getOriginalFilename(), s3Url));
 
         return s3Url; // 업로드된 이미지의 URL 반환
+    }
+
+    /**
+     * 멤버 ID를 사용하여 프로필 이미지 URL을 조회한다.
+     *
+     * @param memberId : 멤버 ID
+     * @return : 프로필 이미지 URL
+     */
+    public String findProfileImageUrlByMemberId(int memberId) {
+        // 멤버 ID를 사용하여 프로필 이미지 정보 조회
+        ProfileImage profileImage = profileImageRepository.findByMemberId(memberId);
+
+        // 프로필 이미지가 존재하는 경우, 이미지 URL 반환
+        if (profileImage != null) {
+            return profileImage.getS3Path();
+        }
+
+        // 프로필 이미지가 없는 경우, null 또는 기본 이미지 URL 반환
+        return null; // 또는 기본 이미지 URL을 반환할 수 있습니다.
     }
 
 }
