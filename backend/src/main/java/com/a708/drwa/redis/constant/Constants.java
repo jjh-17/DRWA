@@ -23,10 +23,10 @@ public final class Constants {
         else if(category.equals(DebateCategory.ECONOMY.name()))     return Constants.RANK_ECONOMY_REDIS_KEY;
         else if(category.equals(DebateCategory.SPORTS.name()))      return Constants.RANK_SPORTS_REDIS_KEY;
         else if(category.equals(DebateCategory.ANIMAL.name()))      return Constants.RANK_ANIMAL_REDIS_KEY;
-        else if(category.equals(DebateCategory.SHOPPING.name()))    return Constants.RANK_SHOPPING_REDIS_KEY;
+        else if(category.equals(DebateCategory.MUSIC.name()))    return Constants.RANK_MUSIC_REDIS_KEY;
         else if(category.equals(DebateCategory.LOVE.name()))        return Constants.RANK_LOVE_REDIS_KEY;
         else if(category.equals(DebateCategory.POLITICS.name()))    return Constants.RANK_POLITICS_REDIS_KEY;
-        else if(category.equals(DebateCategory.SOCIETY.name()))     return Constants.RANK_SOCIAL_REDIS_KEY;
+        else if(category.equals(DebateCategory.SOCIETY.name()))     return Constants.RANK_SOCIETY_REDIS_KEY;
         else if(category.equals(DebateCategory.CHARACTER.name()))   return Constants.RANK_PERSON_REDIS_KEY;
         else if(category.equals(DebateCategory.CULTURE.name()))     return Constants.RANK_CULTURE_REDIS_KEY;
         else if(category.equals(DebateCategory.ETC.name()))         return Constants.RANK_ETC_REDIS_KEY;
