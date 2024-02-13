@@ -21,42 +21,27 @@
             <span id="vs"> vs </span>
             <input type="text" id="keywordB" placeholder="입력하세요" />
           </div>
-          <div class="form-group">
-            <label for="category">인원수</label>
-            <select id="playerNum">
+          <div class="form-group" >
+            <label for="playerNum" >인원수</label>
+            <select id="playerNum" :disabled="disableOptions">
               <option>1:1</option>
               <option>2:2</option>
               <option>3:3</option>
             </select>
-            <label for="category">배심원수</label>
-            <input type="text" id="jurorNum" placeholder="예시 : 3" />
+            <label for="jurorNum" >배심원수</label>
+            <input type="text" id="jurorNum" placeholder="예시 : 3"  :disabled="disableOptions"/>
           </div>
-          <div class="form-group">
-            <div class="isPublic">
-              <label for="isPublic">공개 여부</label>
-              <div class="radio">
-                <div class="publicb">
-                  <input
-                    type="radio"
-                    id="public"
-                    name="visibility"
-                    value="public"
-                    v-model="isPublic"
-                    checked
-                  />
-                  <label for="public" class="pbtn">공개</label>
-                </div>
-                <div class="privateb">
-                  <input type="radio" id="private" name="visibility" value="private" v-model="isPublic" />
-                  <label for="private" class="pbtn">비공개</label>
-                </div>
-              </div>
+          <div class="form-group" style="display:flex;">
+            
+            <label for="isPublic">공개 여부</label>
+            <q-toggle
+              :label="`${isPublic ? 'public' : 'private'}`"
+              v-model="isPublic"
+              style="margin-right:40px;"
+            />
+            <div v-if="!isPublic">
+              <input type="password" id="password" placeholder="비밀번호 입력" style="width: 150px;"/>
             </div>
-            <!-- 비공개 선택시 비밀번호 입력란 표시 -->
-            <span v-if="isPublic === 'private'">
-              <label for="password">비밀번호:</label>
-              <input type="password" id="password" placeholder="비밀번호 입력" />
-            </span>
           </div>
           <div class="form-group">
             <label for="category" id="times">발언시간</label>
@@ -81,22 +66,22 @@
           <div class="form-group" style="display:flex; justify-content:space-between; margin-right: 30px; height:100px;">
             <label for="thumbnailA">제시어A<br>썸네일</label>
             <div class ="thA"  style="margin-right: 40px;">
-              <input type="text" id="thumbnailA" v-model="thumbnailASearchQuery" placeholder="썸네일A 검색어 입력" style="margin-bottom:3px;"/>
-              <div class="selectImgA" style="font-size: small;">첨부 이미지<br>{{ thumbnailAId }}</div>
+              <input type="text" id="thumbnailA" v-model="thumbnailASearchQuery" placeholder="썸네일A 검색어 입력" style="margin-bottom:3px; width: 135px;"/>
+              <div class="selectImgA" style="font-size: small; color:black;">첨부 이미지<br>{{ thumbnailAId }}</div>
             </div>
             <ThumbnailImg :searchQuery="thumbnailASearchQuery" @selectImg="setThumbnailA"/>
           </div>
           <div class="form-group" style="display:flex; justify-content:space-between; margin-right: 30px; height:100px;">
             <label for="thumbnailB">제시어B<br>썸네일</label>
             <div class="thB"  style="margin-right: 40px;">
-              <input type="text" id="thumbnailB" v-model="thumbnailBSearchQuery" placeholder="썸네일B 검색어 입력" style="margin-bottom:3px;" />
-              <div class="selectImgB" style="font-size: small;">첨부 이미지<br>{{ thumbnailBId }}</div>
+              <input type="text" id="thumbnailB" v-model="thumbnailBSearchQuery" placeholder="썸네일B 검색어 입력" style="margin-bottom:3px; width: 135px;" />
+              <div class="selectImgB" style="font-size: small; color:black;">첨부 이미지<br>{{ thumbnailBId }}</div>
             </div>
             <ThumbnailImg :searchQuery="thumbnailBSearchQuery" @selectImg="setThumbnailB"/>
           </div>
           <div class="btn">
             <button type="submit" class="submit-button">방 생성</button>
-            <button type="submit" class="close-button" @click="closeModal">취소</button>
+            <button class="close-button" @click="closeModal">취소</button>
           </div>
         </form>
       </div>
@@ -108,6 +93,7 @@
 import { defineProps, defineEmits, ref, computed, watch } from 'vue'
 import { categories } from '@/components/category/Category.js'
 import axios from 'axios' // Axios 라이브러리 임포트
+import { QToggle } from 'quasar'
 import ThumbnailImg from '../room/ThumbnailImg.vue';
 
 const thumbnailASearchQuery = ref('')
@@ -137,13 +123,15 @@ const filteredCategories = computed(() => {
 })
 
 const props = defineProps({
-  isVisible: Boolean
+  isVisible: Boolean,
+  disableOptions: Boolean 
 })
-const emits = defineEmits(['update:isVisible'])
+const emits = defineEmits(['update:isVisible']);
 
 const closeModal = () => {
   emits('update:isVisible', false)
-}
+};
+
 
 // 폼 데이터를 관리하는 반응형 변수들
 const category = ref('')
@@ -231,6 +219,7 @@ const submitForm = async () => {
   width: 100px; /* 고정된 너비로 설정 */
   display: inline-block; /* 라벨을 인라인 블록 요소로 만들어 줄 바꿈 없이 옆에 배치 가능하게 함 */
   margin-bottom: 0.5rem; /* 라벨과 입력 필드 사이의 여백 */
+  color: black;
 }
 .radio{
   display: flex;
