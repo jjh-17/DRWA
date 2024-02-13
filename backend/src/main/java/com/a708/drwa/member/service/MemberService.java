@@ -1,40 +1,49 @@
 package com.a708.drwa.member.service;
 
+import com.a708.drwa.auth.domain.RefreshToken;
+import com.a708.drwa.auth.exception.AuthErrorCode;
+import com.a708.drwa.auth.exception.AuthException;
+import com.a708.drwa.auth.repository.AuthRepository;
 import com.a708.drwa.debate.enums.DebateCategory;
+import com.a708.drwa.member.data.JWTMemberInfo;
+import com.a708.drwa.member.data.dto.request.UpdateInterestRequestDto;
+import com.a708.drwa.member.data.dto.response.SocialAuthURLResponse;
+import com.a708.drwa.member.data.dto.response.SocialLoginResponse;
+import com.a708.drwa.member.data.dto.response.SocialUserInfoResponse;
 import com.a708.drwa.member.domain.Member;
-import com.a708.drwa.member.dto.response.SocialLoginResponse;
-import com.a708.drwa.member.dto.response.SocialUserInfoResponse;
+import com.a708.drwa.member.domain.MemberInterest;
 import com.a708.drwa.member.exception.MemberErrorCode;
 import com.a708.drwa.member.exception.MemberException;
+import com.a708.drwa.member.repository.MemberInterestRepository;
 import com.a708.drwa.member.repository.MemberRepository;
 import com.a708.drwa.member.service.Impl.GoogleLoginServiceImpl;
 import com.a708.drwa.member.service.Impl.KakaoLoginServiceImpl;
 import com.a708.drwa.member.service.Impl.NaverLoginServiceImpl;
 import com.a708.drwa.member.type.SocialType;
-import com.a708.drwa.member.util.JWTUtil;
-import com.a708.drwa.redis.domain.MemberRedisKey;
-import com.a708.drwa.redis.util.RedisKeyUtil;
+import com.a708.drwa.profile.dto.request.AddProfileRequest;
+import com.a708.drwa.profile.dto.response.ProfileResponse;
+import com.a708.drwa.profile.service.ProfileService;
+import com.a708.drwa.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Transactional(readOnly = true)
-@Service
-@RequiredArgsConstructor
 @Slf4j
+@Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final MemberInterestRepository memberInterestRepository;
+    private final AuthRepository authRepository;
+    private final ProfileService profileService;
     private final GoogleLoginServiceImpl googleLoginService;
     private final NaverLoginServiceImpl naverLoginService;
     private final KakaoLoginServiceImpl kakaoLoginService;
-    private final RedisTemplate<String, Object> redisTemplate;
-    private final MemberInterestService memberInterestService;
     private final JWTUtil jwtUtil;
 
     @Value("${jwt.refreshtoken.expiretime}")
@@ -46,12 +55,14 @@ public class MemberService {
      * @param socialType : google, naver, kakao
      * @return : 인증 URL
      */
-    public String getAuthorizationUrl(String socialType) {
+    public SocialAuthURLResponse getAuthorizationUrl(String socialType) {
         // 소셜로그인 타입에 따른 소셜로그인 서비스 인스턴스 반환
         SocialLoginService socialLoginService = getSocialLoginService(socialType);
 
         // 인증 URL 반환
-        return socialLoginService.getAuthorizationUrl();
+        return SocialAuthURLResponse.builder()
+                .authorizationUrl(socialLoginService.getAuthorizationUrl())
+                .build();
     }
 
     /**
@@ -79,23 +90,40 @@ public class MemberService {
                 // 기존 사용자가 없으면 새로운 사용자 등록
                 .orElseGet(() -> registerNewUser(socialUserInfoResponse));
 
-        int memberId = member.getId();
-        String userId = member.getUserId();
-
-
-        // JWT 토큰 생성
-        String jwtAccessToken = jwtUtil.createAccessToken(memberId, userId);
-        String jwtRefreshToken = jwtUtil.createRefreshToken(memberId, userId);
+        JWTMemberInfo jwtMemberInfo = JWTMemberInfo.builder()
+                .memberId(member.getId())
+                .userId(member.getUserId())
+                .build();
+        String jwtAccessToken = jwtUtil.createAccessToken(jwtMemberInfo);
+        String jwtRefreshToken = jwtUtil.createRefreshToken(jwtMemberInfo);
 
         // Redis에 리프레시 토큰 저장
-        redisTemplate.opsForValue().set(userId, jwtRefreshToken, refreshTokenExpireTime);
+        authRepository.save(RefreshToken.builder()
+                .userId(member.getUserId())
+                .refreshToken(jwtRefreshToken)
+                .expiredTime(refreshTokenExpireTime)
+                .build());
 
         // 사용자 ID로 관심사 조회
-        List<DebateCategory> interests = memberInterestService.findInterestsByMemberId((long) memberId);
-
+        List<MemberInterest> memberInterests = memberRepository.findById(jwtMemberInfo.getMemberId())
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND))
+                .getMemberInterestList();
+        // 프로필 조회
+        ProfileResponse profile = profileService.findProfileByMemberId(jwtMemberInfo.getMemberId());
 
         // 응답 DTO 반환
-        return new SocialLoginResponse(userId, jwtAccessToken, interests);
+        return SocialLoginResponse.builder()
+                .memberId(jwtMemberInfo.getMemberId())
+                .userId(jwtMemberInfo.getUserId())
+                .accessToken(jwtAccessToken)
+                .interests(memberInterests)
+                .profile(profile)
+                .build();
+    }
+
+    public void logout(String token) {
+        JWTMemberInfo memberInfo = jwtUtil.getMember(token);
+        deleteRefreshToken(memberInfo.getUserId());
     }
 
     /**
@@ -105,12 +133,16 @@ public class MemberService {
      */
     @Transactional
     protected Member registerNewUser(SocialUserInfoResponse socialUserInfoResponse) {
-        Member member = Member.builder()
+        Member member = memberRepository.save(Member.builder()
                 .userId(socialUserInfoResponse.getId())
                 .socialType(socialUserInfoResponse.getSocialType())
-                .build();
+                .build());
 
-        return memberRepository.save(member);
+        // 프로필 초기화 로직
+        AddProfileRequest addProfileRequest = new AddProfileRequest(member.getId(), member.getUserId());
+        profileService.addProfile(addProfileRequest); // 프로필 생성
+
+        return member;
     }
 
     /**
@@ -130,31 +162,24 @@ public class MemberService {
 
     /**
      * 회원탈퇴 처리
-     * @param userId : 사용자 아이디
+     * @param token accessToken
      */
     @Transactional
-    public void deleteMember(String userId) {
-        // 사용자 조회
-        Member member = memberRepository.findByUserId(userId)
-                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
-
+    public void deleteMember(String token) {
+        // token으로 memberInfo 추출
+        JWTMemberInfo memberInfo = jwtUtil.getMember(token);
         // 사용자 정보 DB에서 삭제
-    	memberRepository.deleteByUserId(userId);
-
-        // Redis에서 리프레시 토큰 삭제
-        redisTemplate.delete(userId);
+        memberRepository.deleteById(memberInfo.getMemberId());
+        deleteRefreshToken(memberInfo.getUserId());
     }
 
     /**
      * 리프레시 토큰 삭제
-     * @param userId
+     * @param userId 사용자 아이디
      */
     public void deleteRefreshToken(String userId) {
-        HashOperations<String, MemberRedisKey, Object> hashOperations = redisTemplate.opsForHash();
-        boolean exists = Boolean.TRUE.equals(hashOperations.hasKey(userId, MemberRedisKey.REFRESH_TOKEN));
-        if (!exists) {
-            throw new MemberException(MemberErrorCode.TOKEN_NOT_FOUND);
-        }
-        redisTemplate.delete(userId);
+        if (!authRepository.existsById(userId))
+            throw new AuthException(AuthErrorCode.TOKEN_NOT_EXIST_ERROR);
+        authRepository.deleteById(userId);
     }
 }

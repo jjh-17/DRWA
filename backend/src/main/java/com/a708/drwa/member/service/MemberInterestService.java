@@ -2,14 +2,20 @@ package com.a708.drwa.member.service;
 
 import com.a708.drwa.debate.domain.Debate;
 import com.a708.drwa.debate.enums.DebateCategory;
+import com.a708.drwa.member.data.JWTMemberInfo;
+import com.a708.drwa.member.data.dto.request.UpdateInterestRequestDto;
 import com.a708.drwa.member.domain.Member;
 import com.a708.drwa.member.domain.MemberInterest;
+import com.a708.drwa.member.exception.MemberErrorCode;
+import com.a708.drwa.member.exception.MemberException;
 import com.a708.drwa.member.repository.MemberInterestRepository;
 import com.a708.drwa.member.repository.MemberRepository;
+import com.a708.drwa.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +28,7 @@ public class MemberInterestService {
 
     private final MemberInterestRepository memberInterestRepository;
     private final MemberRepository memberRepository;
+    private final JWTUtil jwtUtil;
 
 
     /**
@@ -31,37 +38,39 @@ public class MemberInterestService {
      * @param categories 관심 카테고리 목록 (최대 3개까지 선택 가능)
      */
     @Transactional
-    public void updateMemberInterests(int memberId, List<DebateCategory> categories) {
-       // 최대 3개까지 선택 가능
-        if (categories.size() > 3) {
-            throw new IllegalArgumentException("최대 3개의 관심 카테고리만 선택할 수 있습니다.");
-        }
+    public void updateMemberInterests(String token, UpdateInterestRequestDto updateInterestRequestDto) {
+        // 최대 3개까지 선택 가능
+        List<DebateCategory> categories = updateInterestRequestDto.getDebateCategories();
+        if(categories.size() > 3)
+            throw new MemberException(MemberErrorCode.TOO_MANY_CATEGORIES);
 
-        // 기존 관심 카테고리 삭제
-        List<MemberInterest> existingInterests = memberInterestRepository.findByMemberId((long) memberId);
-        memberInterestRepository.deleteAll(existingInterests);
+        // 멤버 찾기
+        JWTMemberInfo memberInfo = jwtUtil.getMember(token);
+        Member member = memberRepository.findById(memberInfo.getMemberId())
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
 
-        // 기존 관심 카테고리 삭제 및 새로운 관심 카테고리 저장 로직 내
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다."));
-
-        // 새로운 관심 카테고리 저장
-        for (DebateCategory category : categories) {
-            MemberInterest interest = new MemberInterest();
-            interest.setMember(member); // 조회한 Member 엔티티 참조
-            interest.setDebateCategory(category);
-            memberInterestRepository.save(interest);
+        // 멤버 관심사 삭제 후 일괄 변경
+        member.removeAllInterests();
+        for(DebateCategory debateCategory : updateInterestRequestDto.getDebateCategories()) {
+            MemberInterest.builder()
+                    .member(member)
+                    .debateCategory(debateCategory)
+                    .build();
         }
     }
 
     /**
      * 멤버 ID로 관심카테고리 조회
      *
-     * @param memberId
+     * @param token accessToken
      * @return
      */
-    public List<DebateCategory> findInterestsByMemberId(Long memberId) {
-        List<MemberInterest> interests = memberInterestRepository.findByMemberId(memberId);
+    public List<DebateCategory> findInterestsByMemberId(String token) {
+        List<MemberInterest> interests = memberRepository
+                .findById(jwtUtil.getMember(token).getMemberId())
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND))
+                .getMemberInterestList();
+
         return interests.stream()
                 .map(MemberInterest::getDebateCategory)
                 .collect(Collectors.toList());

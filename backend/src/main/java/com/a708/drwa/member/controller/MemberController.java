@@ -2,12 +2,12 @@ package com.a708.drwa.member.controller;
 
 import com.a708.drwa.annotation.AuthRequired;
 import com.a708.drwa.debate.enums.DebateCategory;
-import com.a708.drwa.member.dto.response.SocialAuthURLResponse;
-import com.a708.drwa.member.dto.request.SocialLoginRequest;
-import com.a708.drwa.member.dto.response.SocialLoginResponse;
+import com.a708.drwa.member.data.dto.request.SocialLoginRequest;
+import com.a708.drwa.member.data.dto.request.UpdateInterestRequestDto;
+import com.a708.drwa.member.data.dto.response.SocialAuthURLResponse;
+import com.a708.drwa.member.data.dto.response.SocialLoginResponse;
 import com.a708.drwa.member.service.MemberInterestService;
 import com.a708.drwa.member.service.MemberService;
-import com.a708.drwa.member.util.JWTUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,16 +17,15 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/member")
 @RequiredArgsConstructor
-@Slf4j
 public class MemberController {
 
 
     private final MemberService memberService;
     private final MemberInterestService memberInterestService;
-    private final JWTUtil jwtUtil;
 
     /**
      * 소셜 로그인 인증 URL을 반환한다.
@@ -35,10 +34,10 @@ public class MemberController {
      * @return : 인증 URL
      */
     @GetMapping("/authURL/{socialType}")
-    public ResponseEntity<?> getAuthURL(@PathVariable String socialType) {
+    public ResponseEntity<SocialAuthURLResponse> getAuthURL(@PathVariable String socialType) {
         // 소셜 로그인 타입에 따른 인증 URL 반환
-        String authorizationUrl = memberService.getAuthorizationUrl(socialType);
-        return ResponseEntity.ok(new SocialAuthURLResponse(authorizationUrl));
+        return ResponseEntity
+                .ok(memberService.getAuthorizationUrl(socialType));
     }
 
     /**
@@ -86,9 +85,9 @@ public class MemberController {
      */
     @PostMapping("/logout")
     @AuthRequired
-    public ResponseEntity<?> logout(@RequestParam String userId) {
+    public ResponseEntity<String> logout(HttpServletRequest request) {
         // Redis에서 리프레시 토큰 삭제
-        memberService.deleteRefreshToken(userId);
+        memberService.logout(request.getHeader("Authorization"));
         return ResponseEntity.ok().body("Successfully logged out.");
     }
 
@@ -96,25 +95,14 @@ public class MemberController {
      * 멤버 관심 카테고리 업데이트
      *
      * @param request
-     * @param categories
+     * @param
      * @return
      * @throws ParseException
      */
     @AuthRequired
     @PostMapping("/update/interests")
-    public ResponseEntity<?> updateInterests(HttpServletRequest request, @RequestBody List<DebateCategory> categories) throws ParseException {
-        log.info("categories : " + categories);
-
-        String authorizationHeader = request.getHeader("Authorization");
-        log.info("authorizationHeader : " + authorizationHeader);
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            return ResponseEntity.badRequest().body("Invalid Authorization header.");
-        }
-
-        String token = authorizationHeader.substring(7); // "Bearer " 다음 부분을 추출합니다
-        int memberId = jwtUtil.getMemberId(token);
-
-        memberInterestService.updateMemberInterests(memberId, categories);
+    public ResponseEntity<Void> updateInterests(@RequestBody UpdateInterestRequestDto updateInterestRequestDto, HttpServletRequest request) throws ParseException {
+        memberInterestService.updateMemberInterests(request.getHeader("Authorization"), updateInterestRequestDto);
         return ResponseEntity.ok().build();
     }
 
