@@ -8,4 +8,10 @@ import { RouterView } from 'vue-router'
   </q-layout>
 </template>
 
-<style scoped></style>
+<style scoped>
+@import url('https://cdn.rawgit.com/moonspam/NanumSquare/master/nanumsquare.css');
+
+
+* {
+  font-family: 'NanumSquare', sans-serif;
+}</style>

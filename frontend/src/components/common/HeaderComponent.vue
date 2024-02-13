@@ -1,9 +1,8 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { QDialog, QIcon } from 'quasar';
 import { useAuthStore } from '@/stores/useAuthStore';
-import axios from 'axios';
+import { useRoomStore } from '@/stores/useRoomStore';
 
 // // 로그인 상태를 시뮬레이션하기 위한 ref. 실제 앱에서는 상태 관리 라이브러리나 props를 통해 관리될 수 있습니다.
 // const isLoggedIn = ref(false);
@@ -14,7 +13,9 @@ import axios from 'axios';
 const authStore = useAuthStore();
 const searchQuery = ref('');
 const router = useRouter();
-
+const roomStore = useRoomStore();
+const menu = ref(false);
+const profileMenu = ref(false); // 마이페이지 메뉴 토글 상태
 // 모달창 표시 여부 
 const showDialog = ref(false);
 
@@ -40,7 +41,9 @@ const goToMyPage = () => {
     router.push({ name: 'MyPageView' });
 }
 
-
+const goToRanking = () => {
+    router.push({ name: 'RankingView' });
+}
 
 //방 검색
 const type = ref('');
@@ -50,20 +53,22 @@ const setType = (newType) => {
     type.value = newType;
     cond.value = newType === 'title' ? '방 제목 ' : '방 제시어';
 };
-async function searchRooms(type) {
+
+async function searchRooms() {
     if (!searchQuery.value.trim()) {
         console.warn('검색어를 입력해주세요.');
         return;
     }
-    try {
-        const response = await axios.get(`http://localhost:8080/search/${type}`, {
-            params: { query: searchQuery.value }
-        });
-        router.push({ name: 'SearchResults', query: { type, query: searchQuery.value, rooms: JSON.stringify(response.data) } });
-    } catch (error) {
-        console.error('검색 중 오류 발생:', error);
+    await roomStore.searchRooms(searchQuery.value, type.value);
+    if (!type.value) {
+        alert('검색 유형을 선택해주세요.');
+        return;
     }
+
+    // `type`과 `query`를 URL의 동적 세그먼트로 전달
+    router.push({ name: 'SearchResults', params: { type: type.value, query: searchQuery.value } });
 }
+
 
 function onLogoClick() {
     router.push("/");
@@ -77,48 +82,49 @@ function onLogoClick() {
         <!-- <q-btn flat round dense icon="menu" class="q-mr-sm" /> -->
 
         <!-- 로고 및 랭킹 버튼 -->
-        <q-avatar class="q-mr-sm" @click="onLogoClick" style="cursor: pointer;">
+        <q-avatar class="logo" @click="onLogoClick" style="cursor: pointer;">
             <img src="@\assets\img\logo.png">
         </q-avatar>
-        <q-btn flat label="랭킹" class="text-white q-mr-sm" />
-
+        <q-btn flat label="랭킹" class="ranking" @click="goToRanking" />
 
         <!-- 가운데 정렬을 위한 공간 배분 -->
         <q-space />
 
         <!-- 검색창 -->
-
-        <q-btn-dropdown v-model="menu" class="dropdown" :label="cond">
-
-            <q-list>
-                <q-item clickable v-close-popup @click="setType('title')">
-                    <q-item-section>
-                        <q-item-label>방 제목</q-item-label>
-                    </q-item-section>
-                </q-item>
-                <q-item clickable v-close-popup @click="setType('keyword')">
-                    <q-item-section>
-                        <q-item-label>방 제시어</q-item-label>
-                    </q-item-section>
-                </q-item>
-            </q-list>
-        </q-btn-dropdown>
-        <q-input class="searchbox" v-model="searchQuery" placeholder="검색어 입력" style="height: 35px;" />
-        <q-btn label="검색" @click="searchRooms(type.value)" />
-
+        <div class="search-container">
+            <div class="search">
+                <q-btn-dropdown v-model="menu" class="dropdown" :label="cond">
+                    <q-list>
+                        <q-item clickable v-close-popup @click="setType('title')">
+                            <q-item-section>
+                                <q-item-label>방 제목</q-item-label>
+                            </q-item-section>
+                        </q-item>
+                        <q-item clickable v-close-popup @click="setType('keyword')">
+                            <q-item-section>
+                                <q-item-label>방 제시어</q-item-label>
+                            </q-item-section>
+                        </q-item>
+                    </q-list>
+                </q-btn-dropdown>
+                <input v-model="searchQuery" class="input" placeholder="   검색어를 입력하세요">
+                <q-btn label="검색" @click="searchRooms" />
+            </div>
+        </div>
 
         <!-- 로그인 상태에 따른 조건부 렌더링 -->
         <q-space /> <!-- 이것은 나머지 요소들을 오른쪽으로 밀어냅니다 -->
+
         <div v-if="authStore.isLoggedIn">
-            <q-btn flat round @click="menu = !menu">
+            <q-btn flat round @click="profileMenu = !profileMenu">
                 <q-avatar>
                     <img src=https://cdn.quasar.dev/img/avatar.png>
                 </q-avatar>
             </q-btn>
-            <q-menu v-model="menu" auto-close>
+            <q-menu auto-close>
                 <q-list>
-                    <q-item clickable v-close-popup @click="goToUserProfile">
-                        <q-item-section>UserID: {{ authStore.userId }}</q-item-section>
+                    <q-item clickable v-close-popup>
+                        <q-item-section>{{ authStore.nickname }}</q-item-section>
                     </q-item>
                     <q-item clickable v-close-popup @click="goToMyPage">
                         <q-item-section>마이페이지</q-item-section>
@@ -129,7 +135,7 @@ function onLogoClick() {
                 </q-list>
             </q-menu>
         </div>
-        <q-btn v-else flat label="로그인" class="text-white" @click="showDialog = true" />
+        <q-btn v-else flat label="로그인" class="login" @click="showDialog = true" />
         <!--로그인 모달 -->
         <q-dialog v-model="showDialog">
             <q-card class="q-pa-md bg-indigo-1 " style="width: 400px; max-width: 80vw; height: 35erd0px;">
@@ -154,32 +160,57 @@ function onLogoClick() {
     background-color: #34227C;
     color: white;
     height: 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.q-mr-sm {
-    padding: 0px 25px 0px 25px;
+.logo {
+    margin-left: 40px;
+    margin-right: 40px;
+    width: 45px;
+    height: 45px;
 }
 
-.text-white.q-mr-sm {
-    padding: 0px 25px 0px 25px;
+.-avatar .logo {
+    padding: 0px 10px 0px 10px;
 }
 
-.q-input.searchbox {
+.ranking {
+    font-color: white;
+}
+
+.text-white.logo_ranking {
+    padding: 0px 10px 0px 10px;
+}
+
+.input {
+    flex: 1;
+    text-align: left;
+    background-color: white;
+    width: 450px;
+    height: 40px;
+}
+
+.search {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 80px;
+}
+
+.search-container {
     flex: 1;
     max-width: 800px;
-    background-color: white;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
     /* 그림자 효과 */
     border-radius: 2px;
     /* 모서리 둥글게 만듦 */
     height: 35px;
 }
 
-
 /* placeholder의 위치를 조정합니다. */
-.q-input.searchbox input::placeholder {
-    text-align: center;
-    /* 가운데 정렬 */
+.q-input input::placeholder {
+    text-align: right;
     font-size: 1em;
     line-height: 35px;
     /* padding-top: 10px; 위쪽으로 조정 */
@@ -188,10 +219,16 @@ function onLogoClick() {
 .q-btn-dropdown {
     color: white;
     width: 120px;
+    background-color: #34227C;
 }
 
 .login-btn {
     width: 13rem;
     margin-bottom: 10px;
+    position: relative;
+}
+
+.login {
+    margin-right: 25px;
 }
 </style>
