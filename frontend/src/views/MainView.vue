@@ -47,9 +47,7 @@
           </Slide>
         </Carousel>
       </div>
-      <div class="carousel__next1" @click="navigateToNext">
-        <img src="@/assets/img/right_arrow.png" />
-      </div>
+      <div class="carousel__next1" @click="navigateToNext"><img src="@/assets/img/right_arrow.png"></div>
     </div>
   </div>
   <div class="categories">
@@ -66,7 +64,7 @@
       </div>
     </div>
   </div>
-  <div class="roomList" ref="roomList">
+  <div class="roomList">
     <RoomsCategory v-if="activeCategory" :activeCategory="activeCategory" />
   </div>
   <div class="room-create">

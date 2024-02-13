@@ -1,12 +1,21 @@
+<template>
+  <header>
+    <DebateHeaderBar :headerBarTitle="headerBarTitle"/>
+  </header>
+  <div>
+    12
+  </div>
+  <footer>
+    <DebateBottomBar />
+  </footer>
+</template>
+
 <script setup>
 import DebateHeaderBar from '@/components/debate/DebateHeaderBar.vue'
-import DebateVideos from '@/components/debate/DebateVideos.vue'
-import ChattingBar from '@/components/debate/ChattingBar.vue'
 import DebateBottomBar from '@/components/debate/DebateBottomBar.vue'
-import { createSession, createToken } from '@/api/debate'
-import { ref, reactive, toRefs, computed, defineProps } from 'vue'
+
+import { ref, reactive, toRefs } from 'vue'
 import { useDebateStore } from '@/stores/useDebateStore'
-import { useAuthStore } from '@/stores/useAuthStore'
 import { useRoute } from 'vue-router'
 import { OpenVidu } from 'openvidu-browser'
 import UserVideo from '@/components/debate/UserVideo.vue'
@@ -15,23 +24,6 @@ import { onMounted } from "vue"
 import { storeToRefs } from "pinia"
 
 // === 변수 ===
-const roomInfo = reactive({
-  category: 'category', // 토론 카테고리
-  hostId: 1, // 방장 Id
-  title: 'title', // 제목
-  keywordLeft: 'keywordA', // 제시어 A
-  keywordRight: 'keywordB', // 제시어 B
-  playerNum: 4, // 플레이어 수 제한
-  jurorNum: 10, // 배심원 수 제한
-  isPrivate: false, // 사설방 여부
-  password: 'password', // 비밀번호
-  readyTime: 1, // 준비 시간
-  speakingTime: 5, // 발언 시간
-  qnaTime: 4, // qna 시간
-  thumbnailA: '', // 썸네일 A
-  thumbnailB: '', // 썸네일 B
-});
-
 // Debate 정보
 const route = useRoute()
 const debateId = route.params.debateId
@@ -483,24 +475,24 @@ joinSession();
       <div class="teamA-container">
         <div class="team-title">TeamA</div>
         <div class="players">
-          <div v-for="num in roomInfo.playerNum/2" :key="num">
-            <div class="player">+</div>
-          </div>
+          <div class="player">+</div>
+          <div class="player">+</div>
+          <div class="player">+</div>
         </div>
       </div>
       <div class="share-container"></div>
       <div class="teamB-container">
         <div class="team-title">TeamB</div>
         <div class="players">
-          <div v-for="num in roomInfo.playerNum/2" :key="num">
-            <div class="player">+</div>
-          </div>
+          <div class="player">+</div>
+          <div class="player">+</div>
+          <div class="player">+</div>
         </div>
       </div>
       <div class="chatting-container">
         <div class="chatting-tabs">
-          <div class="chatting-team-tab" :aria-readonly="true"> 팀 채팅 </div>
-          <div class="chatting-all-tab" :aria-readonly="true"> 전체 채팅 </div>
+          <div class="chatting-team-tab"> 팀 채팅 </div>
+          <div class="chatting-all-tab"> 전체 채팅 </div>
         </div>
         <div class="chattings"></div>
         <div class="send-message">
@@ -555,13 +547,13 @@ joinSession();
 
     <footer>
       <DebateBottomBar
-        :team="playerInfo.team"
-        :is-mic-handle-available="communication.isMicHandleAvailable"
-        :is-camera-handle-available="communication.isCameraHandleAvailable"
-        :is-share-handle-available="communication.isShareHandleAvailable"
-        :is-mic-on="communication.isMicOn"
-        :is-camera-on="communication.isCameraOn"
-        :is-share-on="communication.isShareOn"
+        :team="userInfo.team.value"
+        :is-mic-handle-available="communication.isMicHandleAvailable.value"
+        :is-camera-handle-available="communication.isCameraHandleAvailable.value"
+        :is-share-handle-available="communication.isShareHandleAvailable.value"
+        :is-mic-on="communication.isMicOn.value"
+        :is-camera-on="communication.isCameraOn.value"
+        :is-share-on="communication.isShareOn.value"
         :handle-mic-by-user="handleMicByUser"
         @handleCameraByUser="handleCameraByUser"
         @handleMicByUser="handleMicByUser"
@@ -572,119 +564,10 @@ joinSession();
 </template>
 
 <style scoped>
-.app-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh; /* 전체 화면 높이를 차지하도록 설정 */
-  margin: 0; /* 기본 마진 제거 */
-}
-
-.main-container {
-  flex-grow: 1; /* header와 footer를 제외한 모든 공간을 차지 */
-  display: flex; /* Flexbox 레이아웃 사용 */
-  margin-bottom:70px;
-}
-
-.teamA-container,
-.teamB-container,
-.share-container,
-.chatting-container {
-  height: 100%;
-}
-.share-container {
-  flex: 4.5;
-}
-.chatting-container {
-  display:flex;
-  flex: 1.5;
-  border-left: 1px solid #ccc;
-  box-shadow: -4px 0 5px -2px rgba(0, 0, 0, 0.2); /* 왼쪽 그림자 설정 */
-  flex-direction:column;
-}
-.chatting-tabs {
-  height:10%;
-  display:flex;
-  justify-content: space-around;
-  padding:10px;
-}
-.chatting-team-tab,
-.chatting-all-tab {
-  display:flex;
-  align-items:center;
-  justify-content: center;
-  font-size: 1rem;
-  border-radius: 4px;
-  background-color: #e8ebf9;
-  color: #34227c;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  width: 42%;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-}
-.chattings {
-  flex:8;
-}
-.send-message {
-  flex:1;
-  height:10%;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  padding: 5px;
-}
-.send-message img {
-  height:50%;
-  object-fit: contain;
-}
-
-.styled-input {
-  font-size: 16px;
-  padding: 10px 20px;
-  border: 2px solid #34227C; /* Adjust the color to match the image */
-  border-radius: 25px; /* This gives the rounded corners */
-  outline: none; /* Removes the default focus outline */
-  width: 230px; /* Adjust the width as needed */
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow */
-}
-
-.teamA-container,
-.teamB-container {
-  flex: 1;
-  display:flex;
-  flex-direction:column;
-}
-.team-title {
-  height:10%;
-  text-align:center;
-  line-height:56.31px;
-  background-color:#E8EBF9;
-  color:#34227C;
-  font-size:20px;
-  font-weight:bold;
-}
-.players{
-  height:90%;
-  display:flex;
-  flex-direction:column;
-}
-.player {
-  flex:1; 
-  border: 1px solid #34227C;
-  background-color:#D9D9D9;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#34227C;
-  font-size:30px;
-  cursor:pointer;
-}
 footer {
   position: fixed;
   left: 0;
   bottom: 0;
   width: 100%;
-}
-.form-group {
-  margin-bottom: 1rem;
 }
 </style>
