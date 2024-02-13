@@ -4,9 +4,7 @@ import com.a708.drwa.auth.domain.RefreshToken;
 import com.a708.drwa.auth.exception.AuthErrorCode;
 import com.a708.drwa.auth.exception.AuthException;
 import com.a708.drwa.auth.repository.AuthRepository;
-import com.a708.drwa.debate.enums.DebateCategory;
 import com.a708.drwa.member.data.JWTMemberInfo;
-import com.a708.drwa.member.data.dto.request.UpdateInterestRequestDto;
 import com.a708.drwa.member.data.dto.response.SocialAuthURLResponse;
 import com.a708.drwa.member.data.dto.response.SocialLoginResponse;
 import com.a708.drwa.member.data.dto.response.SocialUserInfoResponse;
@@ -14,7 +12,6 @@ import com.a708.drwa.member.domain.Member;
 import com.a708.drwa.member.domain.MemberInterest;
 import com.a708.drwa.member.exception.MemberErrorCode;
 import com.a708.drwa.member.exception.MemberException;
-import com.a708.drwa.member.repository.MemberInterestRepository;
 import com.a708.drwa.member.repository.MemberRepository;
 import com.a708.drwa.member.service.Impl.GoogleLoginServiceImpl;
 import com.a708.drwa.member.service.Impl.KakaoLoginServiceImpl;
@@ -39,7 +36,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
-    private final MemberInterestRepository memberInterestRepository;
     private final AuthRepository authRepository;
     private final ProfileService profileService;
     private final ProfileImageService profileImageService;

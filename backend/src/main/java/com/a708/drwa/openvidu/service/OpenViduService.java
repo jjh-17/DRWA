@@ -1,13 +1,16 @@
 package com.a708.drwa.openvidu.service;
 
 
+import com.a708.drwa.global.exception.GlobalException;
 import com.a708.drwa.member.data.JWTMemberInfo;
 import com.a708.drwa.openvidu.data.dto.request.CreateRoomRequestDto;
 import com.a708.drwa.openvidu.data.dto.response.CreateRoomResponseDto;
 import com.a708.drwa.openvidu.data.dto.response.GetConnectionResponseDto;
 import com.a708.drwa.openvidu.exception.OpenViduErrorCode;
 import com.a708.drwa.openvidu.exception.OpenViduException;
-import com.a708.drwa.openvidu.repository.DebateRoomRepository;
+import com.a708.drwa.debate.repository.DebateRoomRepository;
+import com.a708.drwa.profile.exception.ProfileErrorCode;
+import com.a708.drwa.profile.repository.ProfileRepository;
 import com.a708.drwa.utils.JWTUtil;
 import io.openvidu.java.client.*;
 import lombok.RequiredArgsConstructor;
@@ -21,12 +24,19 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OpenViduService {
     private final DebateRoomRepository debateRoomRepository;
+    private final ProfileRepository profileRepository;
     private final OpenVidu openVidu;
     private final JWTUtil jwtUtil;
 
-    public CreateRoomResponseDto createSession(CreateRoomRequestDto createRoomDto, String jwt) {
+    public CreateRoomResponseDto createSession(CreateRoomRequestDto createRoomDto, String token) {
         // get userId from jwt
-        String userId = jwtUtil.getMember(jwt).getUserId();
+        JWTMemberInfo memberInfo = jwtUtil.getMember(token);
+        String userId = memberInfo.getUserId();
+        String nickName = profileRepository.findByMemberId(memberInfo.getMemberId())
+                .orElseThrow(() -> new GlobalException(ProfileErrorCode.PROFILE_NOT_FOUND))
+                .getNickname();
+
+        // create session properties
         String sessionId = userId + "-" + UUID.randomUUID();
         SessionProperties sessionProperties = new SessionProperties.Builder()
                 .customSessionId(sessionId)
@@ -43,7 +53,7 @@ public class OpenViduService {
         }
 
         // save room info
-        debateRoomRepository.save(createRoomDto.toEntity(sessionId));
+        debateRoomRepository.save(createRoomDto.toEntity(sessionId, nickName));
 
         // return sessionId;
         return CreateRoomResponseDto.builder()

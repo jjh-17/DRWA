@@ -1,24 +1,27 @@
-package com.a708.drwa.openvidu.domain;
+package com.a708.drwa.debate.domain;
 
+import com.a708.drwa.debate.data.dto.response.DebateInfoResponse;
 import com.a708.drwa.debate.enums.DebateCategory;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.index.Indexed;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @RedisHash("DebateRoom")
 public class DebateRoomInfo {
     @Id
     private String sessionId;
 
     // 토론 카테고리
+    @Indexed
     private DebateCategory debateCategory;
 
     // 방장 아이디
-    private int hostId;
+    private String hostName;
 
     // 토론 방 제목
     private String title;
@@ -43,4 +46,20 @@ public class DebateRoomInfo {
     // 썸네일
     private String thumbnail1;
     private String thumbnail2;
+
+    private int totalCnt;
+
+    public DebateInfoResponse toResponse() {
+        return DebateInfoResponse.builder()
+                .sessionId(this.sessionId)
+                .debateCategory(this.debateCategory)
+                .hostName(this.hostName)
+                .title(this.title)
+                .leftKeyword(this.leftKeyword)
+                .rightKeyword(this.rightKeyword)
+                .thumbnail1(this.thumbnail1)
+                .thumbnail2(this.thumbnail2)
+                .totalCnt(this.totalCnt)
+                .build();
+    }
 }

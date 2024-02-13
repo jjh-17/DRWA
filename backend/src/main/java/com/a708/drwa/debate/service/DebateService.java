@@ -1,26 +1,25 @@
 package com.a708.drwa.debate.service;
 
-import com.a708.drwa.debate.data.DebateMember;
 import com.a708.drwa.debate.data.DebateMembers;
 import com.a708.drwa.debate.data.RoomInfo;
-import com.a708.drwa.debate.data.dto.request.DebateCreateRequestDto;
 import com.a708.drwa.debate.data.dto.request.DebateJoinRequestDto;
 import com.a708.drwa.debate.data.dto.request.DebateStartRequestDto;
-import com.a708.drwa.debate.domain.Debate;
+import com.a708.drwa.debate.data.dto.response.DebateInfoResponse;
+import com.a708.drwa.debate.data.dto.response.Top5DebatesResponse;
 import com.a708.drwa.debate.exception.DebateErrorCode;
 import com.a708.drwa.debate.exception.DebateException;
 import com.a708.drwa.debate.repository.DebateRepository;
+import com.a708.drwa.debate.repository.DebateRoomRepository;
+import com.a708.drwa.debate.scheduler.RoomsKey;
 import com.a708.drwa.redis.domain.DebateRedisKey;
 import com.a708.drwa.redis.exception.RedisErrorCode;
 import com.a708.drwa.redis.exception.RedisException;
 import com.a708.drwa.redis.util.RedisKeyUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,27 +29,27 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-@Transactional(readOnly = true)
+@Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class DebateService {
     private final DebateRepository debateRepository;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final DebateRoomRepository debateRoomRepository;
+    private final RedisTemplate<String, DebateInfoResponse> redisTemplate;
     private final RedisKeyUtil redisKeyUtil;
     private final Map<String, ScheduledFuture<?>> scheduledFutures;
 
     /**
-     * 토론 방 생성
-     * @param debateCreateRequestDto
+     * 인기순 5개 가져오기
      * @return
      */
-    @Transactional
-    public int create(DebateCreateRequestDto debateCreateRequestDto) {
-        // 방 저장 및 아이디 추출
-        return debateRepository.save(Debate.builder()
-                        .debateCategory(debateCreateRequestDto.getDebateCategory())
-                        .build())
-                .getDebateId();
+    public Top5DebatesResponse getTop5Debates() {
+        // 인기순 5개 sessionId 검색
+        ZSetOperations<String, DebateInfoResponse> zSet = redisTemplate.opsForZSet();
+        return Top5DebatesResponse.builder()
+                .debateInfoResponses(zSet.reverseRange(RoomsKey.ROOM_POPULAR_KEY, 0, -1).stream().toList())
+                .build();
     }
 
     /**
@@ -59,34 +58,34 @@ public class DebateService {
      * @param debateStartRequestDto
      */
     public void start(DebateStartRequestDto debateStartRequestDto) {
-        HashOperations<String, String, Object> hashOperations = redisTemplate.opsForHash();
-        ListOperations<String, Object> listOperations = redisTemplate.opsForList();
-
-        String debateKey = debateStartRequestDto.getDebateId() + "";
-        String startTimeKey = DebateRedisKey.START_TIME.string();
-        String roomInfoKey = DebateRedisKey.ROOM_INFO.string();
-
-        // 시작 시간 및 설정 저장
-        hashOperations.put(debateKey, startTimeKey, System.currentTimeMillis() / 1000L + "");
-        hashOperations.put(debateKey, roomInfoKey, debateStartRequestDto.getRoomInfo());
-
-        // 유저 리스트 저장
-        for(Map.Entry<Integer, DebateMember> member : debateStartRequestDto.getMemberDtoHashMap().entrySet()) {
-            DebateMember memberDto = member.getValue();
-            String teamKey = member.getValue().getRole().string();
-            listOperations.rightPush(redisKeyUtil.getKeyByRoomIdWithKeyword(debateKey, teamKey), memberDto);
-        }
-
-        // Redis에 방 정보 저장을 위한 saveDebateRoomInfo 호출
-        try {
-            saveDebateRoomInfo(debateStartRequestDto);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            // JSON 변환 실패 처리 로직 (예외 로깅, 사용자에게 오류 응답 등)
-        }
-
-        // 준비 단계로 PHASE 진행
-        nextPhase(debateKey);
+//        HashOperations<String, String, Object> hashOperations = redisTemplate.opsForHash();
+//        ListOperations<String, Object> listOperations = redisTemplate.opsForList();
+//
+//        String debateKey = debateStartRequestDto.getDebateId() + "";
+//        String startTimeKey = DebateRedisKey.START_TIME.string();
+//        String roomInfoKey = DebateRedisKey.ROOM_INFO.string();
+//
+//        // 시작 시간 및 설정 저장
+//        hashOperations.put(debateKey, startTimeKey, System.currentTimeMillis() / 1000L + "");
+//        hashOperations.put(debateKey, roomInfoKey, debateStartRequestDto.getRoomInfo());
+//
+//        // 유저 리스트 저장
+//        for(Map.Entry<Integer, DebateMember> member : debateStartRequestDto.getMemberDtoHashMap().entrySet()) {
+//            DebateMember memberDto = member.getValue();
+//            String teamKey = member.getValue().getRole().string();
+//            listOperations.rightPush(redisKeyUtil.getKeyByRoomIdWithKeyword(debateKey, teamKey), memberDto);
+//        }
+//
+//        // Redis에 방 정보 저장을 위한 saveDebateRoomInfo 호출
+//        try {
+//            saveDebateRoomInfo(debateStartRequestDto);
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//            // JSON 변환 실패 처리 로직 (예외 로깅, 사용자에게 오류 응답 등)
+//        }
+//
+//        // 준비 단계로 PHASE 진행
+//        nextPhase(debateKey);
     }
 
     public void nextPhase(String debateKey) {
@@ -102,7 +101,7 @@ public class DebateService {
         // phase 값으로 무슨 단계인지 확인
         // -2 : 대기 단계
         // (phase % 4) % 2 == 0  : phase / 4 번째 사람 발언 단계. (phase % 4) % 2가 0이면 Left, 1이면 Right
-        // phase / 4 == playerNum / 2 : 투표 집계 단계. 결과 반영 후 대기 단계(-2)로 돌아가기
+        // phase / 4 == playerNum : 투표 집계 단계. 결과 반영 후 대기 단계(-2)로 돌아가기
 
         // -1 : 준비 단계
         if(phase < 0) {
@@ -224,12 +223,12 @@ public class DebateService {
         return true;
     }
 
-    @Autowired
-    private ObjectMapper objectMapper; // Jackson ObjectMapper
-
-    public void saveDebateRoomInfo(DebateStartRequestDto debateStartRequestDto) throws JsonProcessingException {
-        RoomInfo roomInfo = debateStartRequestDto.getRoomInfo();
-        String roomJson = objectMapper.writeValueAsString(roomInfo); // RoomInfo 객체를 JSON 문자열로 변환
-        redisTemplate.opsForList().rightPush("room_updates", roomJson); // JSON 문자열을 Object로 캐스팅하여 저장
-    }
+//    @Autowired
+//    private ObjectMapper objectMapper; // Jackson ObjectMapper
+//
+//    public void saveDebateRoomInfo(DebateStartRequestDto debateStartRequestDto) throws JsonProcessingException {
+//        RoomInfo roomInfo = debateStartRequestDto.getRoomInfo();
+//        String roomJson = objectMapper.writeValueAsString(roomInfo); // RoomInfo 객체를 JSON 문자열로 변환
+//        redisTemplate.opsForList().rightPush("room_updates", roomJson); // JSON 문자열을 Object로 캐스팅하여 저장
+//    }
 }
