@@ -17,7 +17,7 @@ public class OpenViduScheduler {
     private final OpenVidu openVidu;
 
     @Async
-    @Scheduled(fixedDelay = 15, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedDelay = 30, timeUnit = TimeUnit.SECONDS)
     public void fetch() {
         try {
             openVidu.fetch();

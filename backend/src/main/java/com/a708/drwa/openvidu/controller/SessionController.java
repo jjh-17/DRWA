@@ -32,10 +32,7 @@ public class SessionController {
     }
 
     @GetMapping("/session/{sessionId}")
-    public ResponseEntity<GetConnectionResponseDto> createConnection(@PathVariable("sessionId") String sessionId,
-                                                                     HttpServletRequest request)
-            throws OpenViduJavaClientException, OpenViduHttpException {
-
+    public ResponseEntity<GetConnectionResponseDto> createConnection(@PathVariable("sessionId") String sessionId, HttpServletRequest request) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(openViduService.getConnection(sessionId, request.getHeader("Authorization")));
