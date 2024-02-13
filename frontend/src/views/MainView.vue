@@ -71,7 +71,11 @@
   </div>
   <div class="room-create">
     <button @click="openModal"><img src="@/assets/img/create.png" /></button>
-    <DebateCreateModal :isVisible="isModalVisible" @update:isVisible="isModalVisible = $event" />
+    <DebateCreateModal
+  :isVisible="isModalVisible"
+  :disableOptions="false"
+  @update:isVisible="isModalVisible = $event"
+/>
   </div>
   <div class="goto-top">
     <button @click="scrollToTop"><img src="@/assets/img/top.png" /></button>
@@ -635,6 +639,7 @@ const scrollToTop = () => {
   color: #34227c;
   width: 200px;
   height: 40px;
+  font-weight: bold;
 }
 
 .category-container {
