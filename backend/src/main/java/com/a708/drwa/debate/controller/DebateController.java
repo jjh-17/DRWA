@@ -1,6 +1,7 @@
 package com.a708.drwa.debate.controller;
 
 import com.a708.drwa.debate.data.dto.request.DebateStartRequestDto;
+import com.a708.drwa.debate.data.dto.response.DebateInfoListResponse;
 import com.a708.drwa.debate.service.DebateService;
 import com.a708.drwa.openvidu.service.OpenViduService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,8 +22,14 @@ public class DebateController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<DebateInfoListResponse> findAll() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(debateService.findAll());
+    }
+
     @GetMapping("/popular")
-    public ResponseEntity<?> getDebatesByTotalCnt() {
+    public ResponseEntity<DebateInfoListResponse> getDebatesByTotalCnt() {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(debateService.getTop5Debates());
     }

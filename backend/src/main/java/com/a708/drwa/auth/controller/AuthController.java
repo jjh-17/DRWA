@@ -21,7 +21,7 @@ public class AuthController {
      * @return
      */
     @PostMapping("/silent-refresh")
-    public ResponseEntity<?> silentRefresh(HttpServletRequest request) {
+    public ResponseEntity<String> silentRefresh(HttpServletRequest request) {
             // silentRefreshProcess() 메소드를 통해 새로운 액세스 토큰을 발급받는다.
             return ResponseEntity.status(HttpStatus.OK)
                     .body(authService.silentRefreshProcess(request.getHeader("Authorization")));

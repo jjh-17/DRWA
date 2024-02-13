@@ -4,8 +4,9 @@ import com.a708.drwa.debate.data.DebateMembers;
 import com.a708.drwa.debate.data.RoomInfo;
 import com.a708.drwa.debate.data.dto.request.DebateJoinRequestDto;
 import com.a708.drwa.debate.data.dto.request.DebateStartRequestDto;
+import com.a708.drwa.debate.data.dto.response.DebateInfoListResponse;
 import com.a708.drwa.debate.data.dto.response.DebateInfoResponse;
-import com.a708.drwa.debate.data.dto.response.Top5DebatesResponse;
+import com.a708.drwa.debate.domain.DebateRoomInfo;
 import com.a708.drwa.debate.exception.DebateErrorCode;
 import com.a708.drwa.debate.exception.DebateException;
 import com.a708.drwa.debate.repository.DebateRepository;
@@ -23,6 +24,8 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -40,14 +43,24 @@ public class DebateService {
     private final RedisKeyUtil redisKeyUtil;
     private final Map<String, ScheduledFuture<?>> scheduledFutures;
 
+    public DebateInfoListResponse findAll() {
+        List<DebateInfoResponse> debateInfoResponses = new ArrayList<>();
+        for (DebateRoomInfo debateRoomInfo : debateRoomRepository.findAll()) {
+            debateInfoResponses.add(debateRoomInfo.toResponse());
+        }
+        return DebateInfoListResponse.builder()
+                .debateInfoResponses(debateInfoResponses)
+                .build();
+    }
+
     /**
      * 인기순 5개 가져오기
      * @return
      */
-    public Top5DebatesResponse getTop5Debates() {
+    public DebateInfoListResponse getTop5Debates() {
         // 인기순 5개 sessionId 검색
         ZSetOperations<String, DebateInfoResponse> zSet = redisTemplate.opsForZSet();
-        return Top5DebatesResponse.builder()
+        return DebateInfoListResponse.builder()
                 .debateInfoResponses(zSet.reverseRange(RoomsKey.ROOM_POPULAR_KEY, 0, -1).stream().toList())
                 .build();
     }
