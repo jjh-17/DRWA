@@ -32,6 +32,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -49,12 +50,12 @@ public class DebateService {
      * @return DebateInfoListResponse
      */
     public DebateInfoListResponse findAll() {
-        List<DebateInfoResponse> debateInfoResponses = new ArrayList<>();
-        for (DebateRoomInfo debateRoomInfo : debateRoomRepository.findAll()) {
-            debateInfoResponses.add(debateRoomInfo.toResponse());
-        }
         return DebateInfoListResponse.builder()
-                .debateInfoResponses(debateInfoResponses)
+                .debateInfoResponses(
+                        debateRoomRepository.findAll().stream()
+                                .map(DebateRoomInfo::toResponse)
+                                .collect(Collectors.toList())
+                )
                 .build();
     }
 
@@ -66,13 +67,26 @@ public class DebateService {
         // 인기순 5개 sessionId 검색
         ZSetOperations<String, DebateInfoResponse> zSet = redisTemplate.opsForZSet();
         return DebateInfoListResponse.builder()
-                .debateInfoResponses(zSet.reverseRange(RoomsKey.ROOM_POPULAR_KEY, 0, -1).stream().toList())
+                .debateInfoResponses(zSet.reverseRange(RoomsKey.ROOM_POPULAR_KEY, 0, -1).stream()
+                        .toList())
                 .build();
     }
 
-//    public DebateInfoListResponse getDebatesByCategory(String category) {
-//
-//    }
+    /**
+     * 카테고리 별 조회 함수
+     * @param category 카테고리 명
+     * @return DebateInfoListResponse
+     */
+    public DebateInfoListResponse getDebatesByCategory(String category) {
+        return DebateInfoListResponse.builder()
+                .debateInfoResponses(debateRoomRepository.findAllByDebateCategoryOrderByTotalCntDesc(DebateCategory.forValue(category))
+                        .stream()
+                        .map(DebateRoomInfo::toResponse)
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+
 
     /**
      * 토론 시작
