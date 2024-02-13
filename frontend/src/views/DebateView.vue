@@ -58,8 +58,8 @@ const sessionInfo = reactive({
 const authStore = useAuthStore();
 const { memberId,  } = storeToRefs(authStore);
 const playerInfo = reactive({
-  memberId: memberId,
-  nickname: '',
+  memberId: 'memberId' + Math.floor(Math.random() * 100),
+  nickname: 'nickname'+Math.floor(Math.random() * 100),
   team: team[3].english,
   order: -1,
 
@@ -170,12 +170,13 @@ function joinSession() {
 
   // 토큰이 유효하면 세션 연결
   getToken().then((token) => {
-    sessionInfo.session.value
+    console.log(`${playerInfo.memberId},${playerInfo.nickname}`);
+    sessionInfo.session
       .connect(token, { clientData: `${playerInfo.memberId},${playerInfo.nickname}` })
       .then(() => {
         // 사용자 publisher 설정 및 publish
-        sessionInfo.publisher = getDefaultPublisher()
-        sessionInfo.session.publisher(sessionInfo.publisher)
+        // sessionInfo.publisher = getDefaultPublisher()
+        // sessionInfo.session.publish(sessionInfo.publisher)
       })
       .catch((error) => {
         console.log('session 연결 실패 : ', error)
@@ -482,7 +483,7 @@ joinSession();
       <div class="teamA-container">
         <div class="team-title">TeamA</div>
         <div class="players">
-          <div v-for="num in roomInfo.playerNum.value/2" :key="num">
+          <div v-for="num in roomInfo.playerNum/2" :key="num">
             <div class="player">+</div>
           </div>
         </div>
@@ -491,7 +492,7 @@ joinSession();
       <div class="teamB-container">
         <div class="team-title">TeamB</div>
         <div class="players">
-          <div v-for="num in roomInfo.playerNum.value/2" :key="num">
+          <div v-for="num in roomInfo.playerNum/2" :key="num">
             <div class="player">+</div>
           </div>
         </div>
@@ -554,13 +555,13 @@ joinSession();
 
     <footer>
       <DebateBottomBar
-        :team="userInfo.team.value"
-        :is-mic-handle-available="communication.isMicHandleAvailable.value"
-        :is-camera-handle-available="communication.isCameraHandleAvailable.value"
-        :is-share-handle-available="communication.isShareHandleAvailable.value"
-        :is-mic-on="communication.isMicOn.value"
-        :is-camera-on="communication.isCameraOn.value"
-        :is-share-on="communication.isShareOn.value"
+        :team="playerInfo.team"
+        :is-mic-handle-available="communication.isMicHandleAvailable"
+        :is-camera-handle-available="communication.isCameraHandleAvailable"
+        :is-share-handle-available="communication.isShareHandleAvailable"
+        :is-mic-on="communication.isMicOn"
+        :is-camera-on="communication.isCameraOn"
+        :is-share-on="communication.isShareOn"
         :handle-mic-by-user="handleMicByUser"
         @handleCameraByUser="handleCameraByUser"
         @handleMicByUser="handleMicByUser"
