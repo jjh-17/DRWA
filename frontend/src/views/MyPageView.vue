@@ -42,6 +42,10 @@ const onEditClick = () => {
   router.push({ name: 'ProfileEdit' })
 }
 
+const onPointClick = () => {
+  router.push({ name: 'RankingView' })
+}
+
 </script>
 
 <template>
@@ -66,7 +70,8 @@ const onEditClick = () => {
               <div class="text-caption">{{ authStore.nickname }}</div>
             </div>
           </div>
-          <div>{{ authStore.point }}p <q-icon name="arrow_forward_ios" class="cursor-pointer" /></div>
+          <div>{{ authStore.point }}p <q-icon name="arrow_forward_ios" class="cursor-pointer" @click="onPointClick" />
+          </div>
         </q-card-section>
 
         <q-card-section class="flex flex-center q-gutter-sm justify-around">
