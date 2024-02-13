@@ -7,7 +7,19 @@ export const useAuthStore = defineStore('auth', {
     isLoggedIn: false,
     userProfilePic: null,
     accessToken: null,
-    userId: null
+    userId: null,
+    memberId: null,
+    interests: [], // 사용자의 관심 카테고리 목록
+    // 프로필 관련 상태 추가
+    profileId: 0,
+    nickname: '',
+    point: 0,
+    mvpCount: 0,
+    rankName: '',
+    winCount: 0,
+    loseCount: 0,
+    tieCount: 0,
+    winRate: 0
   }),
   actions: {
     /**
@@ -39,6 +51,7 @@ export const useAuthStore = defineStore('auth', {
           code: code
         })
         // 로그인 데이터를 저장하는 함수 호출
+        console.log('Login response:', response.data)
         this.setLoginData(response.data)
 
         const redirectAfterLogin = sessionStorage.getItem('redirectAfterLogin') || '/'
@@ -57,17 +70,30 @@ export const useAuthStore = defineStore('auth', {
       this.isLoggedIn = true
       this.accessToken = loginData.accessToken
       this.userId = loginData.userId
+      this.memberId = loginData.memberId
+      this.interests = loginData.interests // 관심 카테고리 목록 저장
       // userProfilePic 업데이트 로직이 필요하다면 여기에 추가
       // 예: this.userProfilePic = `https://.../${loginData.userId}.png`
+
+      // 프로필 정보를 상태에 저장
+      this.profileId = loginData.profile.profileId
+      this.nickname = loginData.profile.nickname
+      this.point = loginData.profile.point
+      this.mvpCount = loginData.profile.mvpCount
+      this.rankName = loginData.profile.rankName
+      this.winCount = loginData.profile.winCount
+      this.loseCount = loginData.profile.loseCount
+      this.tieCount = loginData.profile.tieCount
+      this.winRate = loginData.profile.winRate
 
       // HTTP 서비스의 헤더에 토큰을 설정합니다.
       httpService.defaults.headers.common['Authorization'] = `Bearer ${this.accessToken}`
 
-      console.log('Logged in:', this.accessToken, this.userId)
+      console.log('Logged in:', this.accessToken, this.userId, this.interests)
       console.log(httpService.defaults.headers.common['Authorization'])
 
       // 로그인 후 원하는 라우트로 리다이렉트. 예를 들어 홈으로 리다이렉트
-      router.push('/')
+      // router.push('/')
     },
     /**
      * 로그아웃 함수
@@ -76,12 +102,30 @@ export const useAuthStore = defineStore('auth', {
       this.isLoggedIn = false
       this.accessToken = null
       this.userId = null
+      this.memberId = null
       this.userProfilePic = null
       // 필요하다면 HTTP 서비스의 헤더에서 토큰을 제거
       delete httpService.defaults.headers.common['Authorization']
 
       // 로그아웃 후 메인페이지로 리다이렉트
       router.push('/')
+    },
+    /**
+     * 로컬 스토리지에서 로그인 정보를 읽어오는 함수
+     */
+    initializeAuthFromLocalStorage() {
+      // 로컬 스토리지에서 accessToken을 읽어옵니다.
+      const authLocalStorage = localStorage.getItem('auth')
+      if (authLocalStorage) {
+        // accessToken이 있다면 상태에 저장하고 HTTP 서비스의 헤더에 설정합니다.
+        const accessToken = JSON.parse(authLocalStorage).accessToken
+        if (!accessToken) {
+          return
+        }
+        this.accessToken = accessToken
+        this.isLoggedIn = true // 토큰이 있으므로 로그인 상태로 간주합니다.
+        httpService.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
+      }
     }
   },
   persist: {
