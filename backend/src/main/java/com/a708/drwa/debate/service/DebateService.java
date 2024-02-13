@@ -7,6 +7,7 @@ import com.a708.drwa.debate.data.dto.request.DebateStartRequestDto;
 import com.a708.drwa.debate.data.dto.response.DebateInfoListResponse;
 import com.a708.drwa.debate.data.dto.response.DebateInfoResponse;
 import com.a708.drwa.debate.domain.DebateRoomInfo;
+import com.a708.drwa.debate.enums.DebateCategory;
 import com.a708.drwa.debate.exception.DebateErrorCode;
 import com.a708.drwa.debate.exception.DebateException;
 import com.a708.drwa.debate.repository.DebateRepository;
@@ -43,6 +44,10 @@ public class DebateService {
     private final RedisKeyUtil redisKeyUtil;
     private final Map<String, ScheduledFuture<?>> scheduledFutures;
 
+    /**
+     * 방 목록 전체 조회
+     * @return DebateInfoListResponse
+     */
     public DebateInfoListResponse findAll() {
         List<DebateInfoResponse> debateInfoResponses = new ArrayList<>();
         for (DebateRoomInfo debateRoomInfo : debateRoomRepository.findAll()) {
@@ -55,7 +60,7 @@ public class DebateService {
 
     /**
      * 인기순 5개 가져오기
-     * @return
+     * @return DebateInfoListResponse
      */
     public DebateInfoListResponse getTop5Debates() {
         // 인기순 5개 sessionId 검색
@@ -64,6 +69,10 @@ public class DebateService {
                 .debateInfoResponses(zSet.reverseRange(RoomsKey.ROOM_POPULAR_KEY, 0, -1).stream().toList())
                 .build();
     }
+
+//    public DebateInfoListResponse getDebatesByCategory(String category) {
+//
+//    }
 
     /**
      * 토론 시작
