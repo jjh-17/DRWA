@@ -12,10 +12,16 @@ const props = defineProps({
   sendMessage: Function,
 });
 
+const emit = defineEmits(['sendMessage'])
+function sendMessage(event) {
+  emit('sendMessage', event, inputMessage.value, targetTeam.value)
+  inputMessage.value = ''
+}
+
 // === 변수 선언 ===
 // 채팅
 const targetTeam = ref(team[4].english);
-const inputMessage = ref("");
+const inputMessage = ref('');
 
 </script>
 
@@ -57,7 +63,7 @@ const inputMessage = ref("");
     <!-- 채팅 보내기 -->
     <div class="send-message">
       <input type="text" placeholder="메시지 보내기" class="styled-input" v-model="inputMessage"/>
-      <img src="@/assets/img/send.png" @click="(event) => sendMessage(event, inputMessage, targetTeam)"/>
+      <img src="@/assets/img/send.png" @click="(event) => sendMessage(event)"/>
     </div>
   </div>
 
