@@ -19,7 +19,8 @@ export const useAuthStore = defineStore('auth', {
     winCount: 0,
     loseCount: 0,
     tieCount: 0,
-    winRate: 0
+    winRate: 0,
+    profileImage: ''
   }),
   actions: {
     /**
@@ -86,6 +87,9 @@ export const useAuthStore = defineStore('auth', {
       this.tieCount = loginData.profile.tieCount
       this.winRate = loginData.profile.winRate
 
+      // 프로필 이미지 URL을 상태에 저장
+      this.profileImage = loginData.profileImageUrl
+
       // HTTP 서비스의 헤더에 토큰을 설정합니다.
       httpService.defaults.headers.common['Authorization'] = `Bearer ${this.accessToken}`
 
@@ -103,7 +107,18 @@ export const useAuthStore = defineStore('auth', {
       this.accessToken = null
       this.userId = null
       this.memberId = null
-      this.userProfilePic = null
+      this.interests = []
+      this.profileImage = ''
+      this.profileId = 0
+      this.nickname = ''
+      this.point = 0
+      this.mvpCount = 0
+      this.rankName = ''
+      this.winCount = 0
+      this.loseCount = 0
+      this.tieCount = 0
+      this.winRate = 0
+
       // 필요하다면 HTTP 서비스의 헤더에서 토큰을 제거
       delete httpService.defaults.headers.common['Authorization']
 
