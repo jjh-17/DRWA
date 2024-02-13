@@ -1,9 +1,6 @@
 <template>
   <div v-if="isVisible" class="modal-overlay" @click.self="closeModal">
     <div class="modal-container">
-      <div class="modal-header">
-        <button class="close-button" @click="closeModal">✕</button>
-      </div>
       <div class="modal-body">
         <form @submit.prevent="submitForm">
           <div class="form-group">
@@ -24,34 +21,27 @@
             <span id="vs"> vs </span>
             <input type="text" id="keywordB" placeholder="입력하세요" />
           </div>
-          <div class="form-group">
-            <label for="category">인원수</label>
-            <select id="playerNum">
+          <div class="form-group" >
+            <label for="playerNum" >인원수</label>
+            <select id="playerNum" :disabled="disableOptions">
               <option>1:1</option>
               <option>2:2</option>
               <option>3:3</option>
             </select>
-            <label for="category">배심원수</label>
-            <input type="text" id="jurorNum" placeholder="예시 : 3" />
+            <label for="jurorNum" >배심원수</label>
+            <input type="text" id="jurorNum" placeholder="예시 : 3"  :disabled="disableOptions"/>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="display:flex;">
+            
             <label for="isPublic">공개 여부</label>
-            <input
-              type="radio"
-              id="public"
-              name="visibility"
-              value="public"
+            <q-toggle
+              :label="`${isPublic ? 'public' : 'private'}`"
               v-model="isPublic"
-              checked
+              style="margin-right:40px;"
             />
-            <label for="public" class="btn">공개</label>
-            <input type="radio" id="private" name="visibility" value="private" v-model="isPublic" />
-            <label for="private" class="btn">비공개</label>
-            <!-- 비공개 선택시 비밀번호 입력란 표시 -->
-            <span v-if="isPublic === 'private'">
-              <label for="password">비밀번호:</label>
-              <input type="password" id="password" placeholder="비밀번호 입력" />
-            </span>
+            <div v-if="!isPublic">
+              <input type="password" id="password" placeholder="비밀번호 입력" style="width: 150px;"/>
+            </div>
           </div>
           <div class="form-group">
             <label for="category" id="times">발언시간</label>
@@ -73,17 +63,26 @@
               <option>3분</option>
             </select>
           </div>
-          <div class="form-group">
-            <label for="thumnbnailA">제시어A 썸네일</label>
-            <input type="text" id="thumbnailA" placeholder="썸네일A" />
+          <div class="form-group" style="display:flex; justify-content:space-between; margin-right: 30px; height:100px;">
+            <label for="thumbnailA">제시어A<br>썸네일</label>
+            <div class ="thA"  style="margin-right: 40px;">
+              <input type="text" id="thumbnailA" v-model="thumbnailASearchQuery" placeholder="썸네일A 검색어 입력" style="margin-bottom:3px; width: 135px;"/>
+              <div class="selectImgA" style="font-size: small; color:black;">첨부 이미지<br>{{ thumbnailAId }}</div>
+            </div>
+            <ThumbnailImg :searchQuery="thumbnailASearchQuery" @selectImg="setThumbnailA"/>
           </div>
-          <div class="form-group">
-            <label for="thumnbnailB">제시어B 썸네일</label>
-            <input type="text" id="thumbnailB" placeholder="썸네일B" />
+          <div class="form-group" style="display:flex; justify-content:space-between; margin-right: 30px; height:100px;">
+            <label for="thumbnailB">제시어B<br>썸네일</label>
+            <div class="thB"  style="margin-right: 40px;">
+              <input type="text" id="thumbnailB" v-model="thumbnailBSearchQuery" placeholder="썸네일B 검색어 입력" style="margin-bottom:3px; width: 135px;" />
+              <div class="selectImgB" style="font-size: small; color:black;">첨부 이미지<br>{{ thumbnailBId }}</div>
+            </div>
+            <ThumbnailImg :searchQuery="thumbnailBSearchQuery" @selectImg="setThumbnailB"/>
           </div>
-
-          <!-- 여기에 더 많은 폼 필드를 추가하세요 -->
-          <button type="submit" class="submit-button">방 만들기</button>
+          <div class="btn">
+            <button type="submit" class="submit-button">방 생성</button>
+            <button class="close-button" @click="closeModal">취소</button>
+          </div>
         </form>
       </div>
     </div>
@@ -91,23 +90,48 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, computed } from 'vue'
+import { defineProps, defineEmits, ref, computed, watch } from 'vue'
 import { categories } from '@/components/category/Category.js'
 import axios from 'axios' // Axios 라이브러리 임포트
+import { QToggle } from 'quasar'
+import ThumbnailImg from '../room/ThumbnailImg.vue';
 
+const thumbnailASearchQuery = ref('')
+const thumbnailBSearchQuery = ref('')
+
+
+watch(thumbnailASearchQuery, () => {
+}, { immediate: true });
+
+watch(thumbnailBSearchQuery, () => {
+}, { immediate: true });
+
+const setThumbnailA = ({ imageId, imageUrl }) => {
+  thumbnailAUrl.value = imageUrl;
+  thumbnailAId.value = imageId;
+  console.log('Selected image A ID:', imageId);
+};
+
+const setThumbnailB = ({ imageId, imageUrl }) => {
+  thumbnailBUrl.value = imageUrl;
+  thumbnailBId.value = imageId;
+  console.log('Selected image B ID:', imageId);
+};
 
 const filteredCategories = computed(() => {
   return categories.filter((c) => c.english !== 'all')
 })
 
 const props = defineProps({
-  isVisible: Boolean
+  isVisible: Boolean,
+  disableOptions: Boolean 
 })
-const emits = defineEmits(['update:isVisible'])
+const emits = defineEmits(['update:isVisible']);
 
 const closeModal = () => {
   emits('update:isVisible', false)
-}
+};
+
 
 // 폼 데이터를 관리하는 반응형 변수들
 const category = ref('')
@@ -118,8 +142,10 @@ const juryCount = ref('')
 const debateTime = ref('1분') // 초기값 설정
 const preparationTime = ref('1분') // 초기값 설정
 const questionTime = ref('1분') // 초기값 설정
-const thumbnailA = ref('')
-const thumbnailB = ref('')
+const thumbnailAUrl = ref('');
+const thumbnailBUrl = ref('');
+const thumbnailAId = ref('');
+const thumbnailBId = ref('');
 const isPublic = ref('public')
 
 const submitForm = async () => {
@@ -132,7 +158,7 @@ const submitForm = async () => {
     debateTime: debateTime.value,
     preparationTime: preparationTime.value,
     questionTime: questionTime.value,
-    thumbnails: [thumbnailA.value, thumbnailB.value],
+    thumbnails: [thumbnailAUrl.value, thumbnailBUrl.value],
     isPublic: isPublic.value === 'public'
   }
 
@@ -155,14 +181,6 @@ const submitForm = async () => {
   align-items: center;
   height:30px; /* 상하 패딩을 줄여 높이 감소 */
 }
-
-.close-button {
-  margin-left: auto; /* 버튼을 오른쪽으로 정렬 */
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-}
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -182,18 +200,12 @@ const submitForm = async () => {
   width: 30rem;
   padding: 2rem;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  height: 660px;
 }
-
-.close-button {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-}
-
 .form-group {
   margin-bottom: 1rem;  
 }
+
 .form-group input,
 .form-group select {
   border: 1px solid #ccc; /* 얇은 테두리 */
@@ -207,6 +219,28 @@ const submitForm = async () => {
   width: 100px; /* 고정된 너비로 설정 */
   display: inline-block; /* 라벨을 인라인 블록 요소로 만들어 줄 바꿈 없이 옆에 배치 가능하게 함 */
   margin-bottom: 0.5rem; /* 라벨과 입력 필드 사이의 여백 */
+  color: black;
+}
+.radio{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+}
+.isPublic{
+  display:flex;
+  width: 100%;
+}
+.isPublic input{
+  margin-right:5px;
+}
+.privateb{
+  margin-left:20px;
+  width: 100%;
+}
+.publicb{
+
+  width: 100%;
 }
 #playerNum {
   margin-right:30px;
@@ -218,6 +252,10 @@ const submitForm = async () => {
   margin-right:10px;
 }
 
+.thA, .thB {
+  display:flex;
+  flex-direction: column;
+}
 /* 공개/비공개 라디오 버튼 스타일 조정 */
 input[type="radio"] + label {
   background-color: #f2f2f2; /* 배경색 */
@@ -232,16 +270,6 @@ input[type="radio"]:checked + label {
   background-color: #34227c; /* 선택된 라벨의 배경색 */
   color: white; /* 선택된 라벨의 글자색 */
 }
-
-.submit-button {
-  background-color: #34227c;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.3rem;
-  cursor: pointer;
-  font-size: 1rem;
-}
 #keywordA, #keywordB {
   width: 130px;
 }
@@ -254,7 +282,45 @@ input[type="radio"]:checked + label {
 #thumbnailA, #thumbnailB {
   width:100px;
 }
-.btn {
-  text-align: center;
+.btn{
+  display: flex;
+  justify-content: space-between;
+}
+.pbtn{
+  text-align:center;
+}
+
+.submit-button {
+background-color: #34227C;
+color: #E8EBF9;
+font-weight: bold;
+border: none;
+padding: 10px 20px;
+border-radius: 5px;
+cursor: pointer;
+width: 120px;
+margin-left: 70px;
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+}
+
+.submit-button:hover {
+background-color: #28054b;
+}
+
+.close-button {
+background-color: #E8EBF9;
+color: #34227C;
+font-weight: bold;
+border: none;
+padding: 10px 20px;
+border-radius: 5px;
+cursor: pointer;
+width: 120px;
+margin-right:70px;
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+}
+
+.close-button:hover {
+background-color: #28054b;
 }
 </style>
