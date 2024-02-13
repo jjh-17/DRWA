@@ -94,10 +94,10 @@ const chatting = reactive({
 
 // 투표
 const vote = reactive({
-  voteLeftNum: 0,
-  voteRightNum: 0,
-  jurorVoteLeftNum: 0,
-  jurorVoteRightNum: 0,
+  voteLeftNum: Number,
+  voteRightNum: Number,
+  jurorVoteLeftNum: Number,
+  jurorVoteRightNum: Number,
 })
 
 // 세션에 팀별로 합류
