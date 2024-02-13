@@ -79,7 +79,7 @@ public class JWTUtil {
     public JWTMemberInfo getMember(String accessToken) {
         Claims claims = parseClaims(accessToken);
 
-        Integer memberId = Integer.parseInt((String) claims.get("memberId"));
+        Integer memberId = (Integer) claims.get("memberId");
         String userId = (String) claims.get("userId");
         log.info(">>>>>>>> USER INFO  {} : {}", memberId, userId);
 

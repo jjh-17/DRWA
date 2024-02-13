@@ -16,11 +16,17 @@ public class Debate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int debateId;
 
+    private String sessionId;
+
     @Enumerated
     private DebateCategory debateCategory;
 
+    private int totalCnt;
+
     @Builder
-    public Debate(DebateCategory debateCategory) {
+    public Debate(String sessionId, DebateCategory debateCategory) {
+        this.sessionId = sessionId;
         this.debateCategory = debateCategory;
+        this.totalCnt = 1;
     }
 }

@@ -25,11 +25,10 @@ public class SessionController {
     @PostMapping("/session")
     public ResponseEntity<CreateRoomResponseDto> createSession(@RequestBody CreateRoomRequestDto roomDto, HttpServletRequest request) throws OpenViduJavaClientException, OpenViduHttpException {
         log.info("------------------------------ OpenVidu Create Session ------------------------------");
-        String token = request.getHeader("Authorization");
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(openViduService
-                        .createSession(roomDto, token));
+                        .createSession(roomDto, request.getHeader("Authorization")));
     }
 
     @GetMapping("/session/{sessionId}")

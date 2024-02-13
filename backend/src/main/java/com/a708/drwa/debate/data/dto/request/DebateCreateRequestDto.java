@@ -7,5 +7,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class DebateCreateRequestDto {
+    private String sessionId;
     private DebateCategory debateCategory;
 }

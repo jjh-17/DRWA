@@ -2,7 +2,7 @@ package com.a708.drwa.openvidu.data.dto.request;
 
 
 import com.a708.drwa.debate.enums.DebateCategory;
-import com.a708.drwa.openvidu.domain.DebateRoomInfo;
+import com.a708.drwa.debate.domain.DebateRoomInfo;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,11 +39,11 @@ public class CreateRoomRequestDto {
     private String thumbnail1;
     private String thumbnail2;
 
-    public DebateRoomInfo toEntity(String sessionId) {
+    public DebateRoomInfo toEntity(String sessionId, String hostName) {
         return DebateRoomInfo.builder()
                 .sessionId(sessionId)
                 .debateCategory(this.debateCategory)
-                .hostId(this.hostId)
+                .hostName(hostName)
                 .title(this.title)
                 .leftKeyword(this.leftKeyword)
                 .rightKeyword(this.rightKeyword)
@@ -56,6 +56,7 @@ public class CreateRoomRequestDto {
                 .qnaTime(this.qnaTime)
                 .thumbnail1(this.thumbnail1)
                 .thumbnail2(this.thumbnail2)
+                .totalCnt(1)
                 .build();
     }
 }

@@ -1,57 +1,44 @@
-//package com.a708.drwa.debate.controller;
-//
-//import com.a708.drwa.debate.data.dto.request.DebateCreateRequestDto;
-//import com.a708.drwa.debate.data.dto.request.DebateJoinRequestDto;
-//import com.a708.drwa.debate.data.dto.request.DebateStartRequestDto;
-//import com.a708.drwa.debate.service.DebateService;
-//import com.a708.drwa.openvidu.service.OpenViduService;
-//import lombok.RequiredArgsConstructor;
-//import org.springframework.http.HttpStatus;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.web.bind.annotation.PostMapping;
-//import org.springframework.web.bind.annotation.RequestBody;
-//import org.springframework.web.bind.annotation.RequestMapping;
-//import org.springframework.web.bind.annotation.RestController;
-//
-//@RestController
-//@RequiredArgsConstructor
-//@RequestMapping("/api/debate")
-//public class DebateController {
-//    private final DebateService debateService;
-//    private final OpenViduService openViduService;
-//
-//    /**
-//     * 방 생성 API
-//     * debateCreateDto -> debateRepository -> roomId
-//     * getToken by roomId -> openvidu.createSession()
-//     * @param debateCreateRequestDto
-//     * @return
-//     */
-//    @PostMapping("/create")
-//    public ResponseEntity<Void> create(@RequestBody DebateCreateRequestDto debateCreateRequestDto) {
-//        openViduService.create(debateService
-//                .create(debateCreateRequestDto));
-//        return ResponseEntity
-//                .status(HttpStatus.CREATED)
-//                .build();
-//    }
-//
-//    /**
-//     * 방 입장 API
-//     * debateJoinRequestDto -> get session from OpenVidu Session
-//     * -> get token by session -> return session
-//     * @param debateJoinRequestDto
-//     * @return
-//     */
-//    @PostMapping("/join")
-//    public ResponseEntity<?> join(@RequestBody DebateJoinRequestDto debateJoinRequestDto) {
-//        String token = openViduService.join(debateJoinRequestDto.getDebateId());
-//        return ResponseEntity.status(HttpStatus.ACCEPTED).body(token);
-//    }
-//
-//    @PostMapping("/start")
-//    public ResponseEntity<Void> start(@RequestBody DebateStartRequestDto debateStartRequestDto) {
-//        debateService.start(debateStartRequestDto);
-//        return ResponseEntity.status(HttpStatus.OK).build();
-//    }
-//}
+package com.a708.drwa.debate.controller;
+
+import com.a708.drwa.debate.data.dto.request.DebateCreateRequestDto;
+import com.a708.drwa.debate.data.dto.request.DebateJoinRequestDto;
+import com.a708.drwa.debate.data.dto.request.DebateStartRequestDto;
+import com.a708.drwa.debate.data.dto.response.CreateRoomResponseDto;
+import com.a708.drwa.debate.enums.DebateCategory;
+import com.a708.drwa.debate.service.DebateService;
+import com.a708.drwa.openvidu.service.OpenViduService;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/debate")
+public class DebateController {
+    private final DebateService debateService;
+    private final OpenViduService openViduService;
+
+    @GetMapping("/{categoryName}")
+    public ResponseEntity<?> getDebatesByCategory(@PathVariable String categoryName) {
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/popular")
+    public ResponseEntity<?> getDebatesByTotalCnt() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(debateService.getTop5Debates());
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getDebateByMemberInterests(HttpServletRequest request) {
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/start")
+    public ResponseEntity<Void> start(@RequestBody DebateStartRequestDto debateStartRequestDto) {
+        debateService.start(debateStartRequestDto);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+}
