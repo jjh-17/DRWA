@@ -46,10 +46,9 @@ const sessionInfo = reactive({
   OV: undefined,
   debateId: route.params.debateId,
   publisher: undefined,  // 자기 자신
-  subscriber: undefined,
+  subscribesr: undefined,
 
   // index == 각 팀에서의 순서
-  addTo : '',
   teamLeftList: [],   // 팀 A 리스트(자기 자신 포함 가능)
   teamRightList: [],  // 팀 B 리스트(자기 자신 포함 가능)
 });
@@ -59,7 +58,7 @@ const authStore = useAuthStore();
 const { memberId,  } = storeToRefs(authStore);
 const playerInfo = reactive({
   memberId: 'memberId' + Math.floor(Math.random() * 100),
-  nickname: 'nickname'+Math.floor(Math.random() * 100),
+  nickname: 'nickname'+ Math.floor(Math.random() * 100),
   team: team[3].english,
   order: -1,
 
@@ -88,23 +87,11 @@ const communication = reactive({
 
 // 채팅방
 const chatting = reactive({
-  targetTeam: team[4].english,
+  // targetTeam: team[4].english,
   messagesLeft: [],
   messagesRight: [],
   messagesAll: [],
 });
-
-// 자신의 팀 내 순서
-const getOrder = computed(() => {
-  if (sessionInfo.session) {
-    if (playerInfo.team == team[0].english) {
-      return sessionInfo.teamLeftList.indexOf(sessionInfo.publisher, 0)
-    } else if (playerInfo.team == team[1].english) {
-      return sessionInfo.teamRightList.indexOf(sessionInfo.publisher, 0)
-    }
-  }
-  return -1;
-})
 
 // 세션에 팀별로 합류
 function joinSession() {
@@ -114,32 +101,34 @@ function joinSession() {
 
   // 다른 사용자의 stream(publisher) 생성 감지 이벤트
   sessionInfo.session.on('streamCreated', ({ stream }) => {
+    // // 새로운 stream의 클라이언트 정보(memberId, nickname, team)를 받아옴
+    const clientDatas = stream.connection.data.split('"');
+    const datas = clientDatas[3].split(',');
+
     // 새로운 subscriber
     const subscriber = sessionInfo.session.subscribe(stream)
 
-    // 새로운 참가자의 클라이언트 정보(memberId, nickname)를 받아옴
-    const clientDatas = subscriber.stream.connection.data.split('"');
-    const datas = clientDatas[3].split(',');
+    // const clientDatas = subscriber.stream.connection.data.split('"');
+    console.error(`streamCreated : ${clientDatas[3]}`)
 
-    // addTo에 따라 팀A, 팀B에 데이터 저장
-    if (sessionInfo.addTo == team[0].english) {
-      sessionInfo.addTo = ''
+
+    // data에 따라 팀A, 팀B에 데이터 저장
+    if (datas[2] == team[0].english) {
       sessionInfo.teamLeftList.push(subscriber)
       playerInfo.playerLeftList.push({
         memberId: datas[0],
         nickname: datas[1],
       });
-      playerInfo.order = getOrder();
-    } else if (sessionInfo.addTo == team[1].english) {
-      sessionInfo.addTo = ''
+      // playerInfo.order = getOrder();
+    } else if (datas[2] == team[1].english) {
       sessionInfo.teamRightList.push(subscriber)
       playerInfo.playerRightList.push({
         memberId: datas[0],
         nickname: datas[1],
       });
-      playerInfo.order = getOrder();
+      // playerInfo.order = getOrder();
     } else {
-      console.error(`잘못된 addTo(${sessionInfo.addTo}) 입니다.`)
+      console.error(`잘못된 팀 - ${datas[2]} 입니다.`)
     }
   });
 
@@ -157,7 +146,7 @@ function joinSession() {
     } else if (messageData.targetTeam == team[1].english) {
       chatting.messagesRight.push(messageData)
     } else if (messageData.targetTeam == team[4].english) {
-      chatting.messagesAll.value.push(messageData)
+      chatting.messagesAll.push(messageData)
     } else {
       console.error(`잘못된 채팅 이벤트 수신 : ${messageData}`)
     }
@@ -170,13 +159,29 @@ function joinSession() {
 
   // 토큰이 유효하면 세션 연결
   getToken().then((token) => {
-    console.log(`${playerInfo.memberId},${playerInfo.nickname}`);
+    console.log(`${playerInfo.memberId},${playerInfo.nickname},${playerInfo.team}`);
     sessionInfo.session
-      .connect(token, { clientData: `${playerInfo.memberId},${playerInfo.nickname}` })
+      .connect(token, { clientData: `${playerInfo.memberId},${playerInfo.nickname},${playerInfo.team}` })
       .then(() => {
         // 사용자 publisher 설정 및 publish
-        // sessionInfo.publisher = getDefaultPublisher()
-        // sessionInfo.session.publish(sessionInfo.publisher)
+        if (playerInfo.team == team[0].english || playerInfo.team == team[1].english) {
+          sessionInfo.publisher = getDefaultPublisher()
+          sessionInfo.session.publish(sessionInfo.publisher)
+          console.error(`현재 팀 : ${playerInfo.team}`)
+          if (playerInfo.team == team[0].english) {
+            sessionInfo.teamLeftList.push(sessionInfo.publisher);
+            playerInfo.playerLeftList.push({
+              memberId: playerInfo.memberId,
+              nickname: playerInfo.nickname,
+            })
+          } else if (playerInfo.team == team[1].english) {
+            sessionInfo.teamRightList.push(sessionInfo.publisher);
+            playerInfo.playerRightList.push({
+              memberId: playerInfo.memberId,
+              nickname: playerInfo.nickname,
+            })
+          }
+        }
       })
       .catch((error) => {
         console.log('session 연결 실패 : ', error)
@@ -197,7 +202,7 @@ function leaveTeam(streamManager) {
     // 정보 제거
     sessionInfo.teamLeftList.splice(idx, 1)
     playerInfo.playerLeftList.splice(idx, 1)
-    playerInfo.order = getOrder();
+    // playerInfo.order = getOrder();
     return
   }
 
@@ -206,7 +211,7 @@ function leaveTeam(streamManager) {
   if (idx >= 0) {
     sessionInfo.teamRightList.splice(idx, 1)
     playerInfo.playerRightList.splice(idx, 1)
-    playerInfo.order = getOrder();
+    // playerInfo.order = getOrder();
   }
 }
 
@@ -214,6 +219,12 @@ function leaveTeam(streamManager) {
 function changeTeam(event, targetTeam) {
   // 새로고침 방지
   event.preventDefault()
+
+  if (targetTeam != team[0].english && targetTeam != team[1].english
+    && targetTeam != team[2].english && targetTeam != team[3].english) {
+    console.log(`잘못된 targetTeam : ${targetTeam}`)
+    return;
+  }
 
   // 자리가 없다면 작업 취소
   if ((targetTeam == team[0].english && (sessionInfo.teamLeftList.length == roomInfo.playerNum / 2))
@@ -224,49 +235,24 @@ function changeTeam(event, targetTeam) {
 
   // stream 정보가 남아있으면 제거
   if (sessionInfo.publisher) {
-    leaveTeam(sessionInfo.publisher)
+    // leaveTeam(sessionInfo.publisher)
     sessionInfo.session.unpublish(sessionInfo.publisher)
     sessionInfo.publisher = undefined
   }
+  leaveSession();
 
   // targetTeam으로 소속 변경
-  const beforeTeam = playerInfo.team;
   playerInfo.team = targetTeam;
   initCommunication(playerInfo.team)
-
-  // A, B팀 이동
-  switch (targetTeam) {
-    case team[0].english:
-      // 새로운 stream 정보 생성 및 publish
-      sessionInfo.publisher = getDefaultPublisher(team[0].english)
-      sessionInfo.teamLeftList.push(sessionInfo.publisher)
-      playerInfo.playerLeftList.push({
-        memberId: playerInfo.memberId,
-        nickname: playerInfo.nickname,
-      })
-      sessionInfo.addTo = team[0].english
-      sessionInfo.session.publish()
-      break;
-    case team[1].english:
-      // 새로운 stream 정보 생성 및 publish
-      sessionInfo.publisher = getDefaultPublisher(team[1].english)
-      sessionInfo.teamRightList.push(sessionInfo.publisher)
-      playerInfo.playerRightList.push({
-        memberId: playerInfo.memberId,
-        nickname: playerInfo.nickname,
-      })
-      sessionInfo.addTo = team[1].english
-      sessionInfo.session.publish()
-      break;
-  }
+  joinSession();
 }
 
 // 소속 팀에 따라 화상 기기 설정 초기화
 function initCommunication(targetTeam) {
   if (targetTeam == team[0].english || targetTeam == team[1].english) {
-    communication.isMicOn = false;
-    communication.isCameraOn = false;
-    communication.isShareOn = false;
+    communication.isMicOn = true;
+    communication.isCameraOn = true;
+    communication.isShareOn = true;
     communication.isMicHandleAvailable = true;
     communication.isCameraHandleAvailable = true;
     communication.isShareHandleAvailable = false;
@@ -285,8 +271,8 @@ function getDefaultPublisher() {
   return sessionInfo.OV.initPublisher(undefined, {
     audioSource: undefined, // 오디오 => undefined면 microphone, false/null이면 사용 X
     videoSource: undefined, // 비디오 => 기본 webcam, false/null이면 사용 X
-    publishAudio: true, // 시작 오디오 상태(ON/OFF)
-    publishVideo: true, // 시작 비디오 상태(ON/OFF)
+    publishAudio: communication.isMicOn, // 시작 오디오 상태(ON/OFF)
+    publishVideo: communication.isCameraOn, // 시작 비디오 상태(ON/OFF)
     resolution: '311x170', // 카메라 해상도
     frameRate: 30, // 카메라 프레임
     insertMode: 'APPEND', // 비디오가 추가되는 방식
@@ -299,14 +285,37 @@ function leaveSession() {
   // 세션 연결 종료
   if (sessionInfo.session) sessionInfo.session.disconnect()
 
-  // Empty all properties...
-  sessionInfo.OV = undefined
+  // 세션 정보 초기화
   sessionInfo.session = undefined
-  sessionInfo.publisher = undefined
-  sessionInfo.teamLeftList = []
-  sessionInfo.teamRightList = []
+  sessionInfo.OV = undefined
+  sessionInfo.debateId = route.params.debateId
+  sessionInfo.publisher = undefined  // 자기 자신
+  sessionInfo.teamLeftList = []   // 팀 A 리스트(자기 자신 포함 가능)
+  sessionInfo.teamRightList = []  // 팀 B 리스트(자기 자신 포함 가능)
+
+  // 플레이어 정보 초기화
+  playerInfo.team = team[3].english,
+  playerInfo.order = -1
   playerInfo.playerLeftList = []
   playerInfo.playerRightList = []
+
+  // 통신 정보 초기화
+  communication.micList= []
+  communication.cameraList= []
+  communication.selectedMic= ''
+  communication.selectedCamera= []
+  communication.isMicOn= false
+  communication.isCameraOn= false
+  communication.isShareOn= false
+  communication.isMicHandleAvailable= false
+  communication.isCameraHandleAvailable= false
+  communication.isShareHandleAvailable= false
+
+  // 메시지 정보 초기화
+  // chatting.targetTeam= team[4].english
+  chatting.messagesLeft= []
+  chatting.messagesRight= []
+  chatting.messagesAll= []
 
   // 윈도우 종료 시 세션 나가기 이벤트 삭제
   window.removeEventListener('beforeunload', leaveSession)
@@ -322,15 +331,16 @@ async function getToken(category, team) {
 
 // === 채팅방 메서드 ===
 // 채팅 보내기 메서드
-function sendMessage(event, inputMessage) {
+function sendMessage(event, inputMessage, targetTeam) {
   event.preventDefault()
   if (inputMessage.trim()) {
     // 다른 참가원에게 메시지 전송하기
-    sessionInfo.session.value.signal({
+    sessionInfo.session.signal({
       // 메시지 데이터를 문자열로 변환해서 전송
       data: JSON.stringify({
         nickname: playerInfo.nickname,
-        targetTeam: chatting.targetTeam,
+        // targetTeam: chatting.targetTeam,
+        targetTeam: targetTeam,
         message: inputMessage
       }),
       type: 'chat' // 신호 타입을 'chat'으로 설정
@@ -482,32 +492,73 @@ joinSession();
     <div class="main-container">
       <div class="teamA-container">
         <div class="team-title">TeamA</div>
-        <div class="players">
-          <div v-for="num in roomInfo.playerNum/2" :key="num">
-            <div class="player">+</div>
+        <!-- 이미 해당 팀A 소속이면 관전자로 소속 변경 -->
+        <div class="players" v-if="playerInfo.team==team[0].english">
+          <UserVideo
+            v-for="sub in sessionInfo.teamLeftList"
+            :key="sub.stream.connection.connectionId"
+            :stream-manager="sub" :connectionId="sub.stream.connection.connectionId"
+            @click="(event) => changeTeam(event, team[3].english)"
+          />
+          <div v-for="num in (roomInfo.playerNum/2 - sessionInfo.teamLeftList.length)" :key="num">
+            <div class="player" @click="(event) => changeTeam(event, team[3].english)">+</div>
+          </div>
+        </div>
+
+        <!-- 팀A 소속이 아니면 팀A로 소속 변경 -->
+        <div class="players" v-else>
+          <UserVideo
+            v-for="sub in sessionInfo.teamLeftList"
+            :key="sub.stream.connection.connectionId"
+            :stream-manager="sub" :connectionId="sub.stream.connection.connectionId"
+            @click="(event) => changeTeam(event, team[0].english)"
+          />
+          <div v-for="num in (roomInfo.playerNum/2 - sessionInfo.teamLeftList.length)" :key="num">
+            <div class="player" @click="(event) => changeTeam(event, team[0].english)">+</div>
           </div>
         </div>
       </div>
-      <div class="share-container"></div>
+      <div class="share-container">
+        <div class="play-button">시작하기</div>
+        <div class="juror-button">배심원으로 입장 ( / )</div>
+        <div class="viewer-button">관전자로 입장 ( / )</div>
+      </div>
       <div class="teamB-container">
         <div class="team-title">TeamB</div>
-        <div class="players">
-          <div v-for="num in roomInfo.playerNum/2" :key="num">
-            <div class="player">+</div>
+        <!-- 이미 해당 팀B 소속이면 관전자로 소속 변경 -->
+        <div class="players" v-if="playerInfo.team==team[1].english">
+          <UserVideo
+            v-for="sub in sessionInfo.teamRightList"
+            :key="sub.stream.connection.connectionId"
+            :stream-manager="sub" :connectionId="sub.stream.connection.connectionId"
+            @click="(event) => changeTeam(event, team[3].english)"
+          />
+          <div v-for="num in (roomInfo.playerNum/2 - sessionInfo.teamRightList.length)" :key="num">
+            <div class="player" @click="(event) => changeTeam(event, team[3].english)">+</div>
+          </div>
+        </div>
+
+        <!-- 팀B 소속이 아니면 팀B로 소속 변경 -->
+        <div class="players" v-else>
+          <UserVideo
+            v-for="sub in sessionInfo.teamRightList"
+            :key="sub.stream.connection.connectionId"
+            :stream-manager="sub" :connectionId="sub.stream.connection.connectionId"
+            @click="(event) => changeTeam(event, team[1].english)"
+          />
+          <div v-for="num in (roomInfo.playerNum/2 - sessionInfo.teamRightList.length)" :key="num">
+            <div class="player" @click="(event) => changeTeam(event, team[1].english)">+</div>
           </div>
         </div>
       </div>
-      <div class="chatting-container">
-        <div class="chatting-tabs">
-          <div class="chatting-team-tab" :aria-readonly="true"> 팀 채팅 </div>
-          <div class="chatting-all-tab" :aria-readonly="true"> 전체 채팅 </div>
-        </div>
-        <div class="chattings"></div>
-        <div class="send-message">
-          <input type="text" placeholder="메시지 보내기" class="styled-input"/>
-          <img src="@/assets/img/send.png"/>
-        </div>
-      </div>
+
+      
+    <ChattingBar
+      :nickname="playerInfo.nickname" :role="playerInfo.team"
+      :messages-left="chatting.messagesLeft" :messages-right="chatting.messagesRight" :messages-all="chatting.messagesAll"
+      :send-message="sendMessage"
+    ></ChattingBar>      
+
     </div>
 
     <!--
@@ -563,9 +614,7 @@ joinSession();
         :is-camera-on="communication.isCameraOn"
         :is-share-on="communication.isShareOn"
         :handle-mic-by-user="handleMicByUser"
-        @handleCameraByUser="handleCameraByUser"
-        @handleMicByUser="handleMicByUser"
-        @handleShareByUser="handleShareByUser"
+        :handle-camera-by-user="handleCameraByUser"
       />
     </footer>
   </div>
@@ -592,7 +641,45 @@ joinSession();
   height: 100%;
 }
 .share-container {
+  position: relative;
   flex: 4.5;
+}
+.play-button {
+  position: absolute; /* 절대 위치 지정 */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* 중앙 정렬 */
+  display:flex;
+  justify-content:center;
+  align-items: center;
+  border-radius:8px;
+  top:50%;
+  width:150px;
+  height:80px;
+  background-color:#E8EBF9;
+  color:#34227C;
+  font-size:30px;
+  font-weight:bold;
+}
+.juror-button, .viewer-button {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  border-radius:8px;
+  position: absolute;
+  transform: translate(-50%, -50%); /* 중앙 정렬 */
+  left:50%;
+  width:300px;
+  height:40px;
+  background-color:#F0EEEE;
+  font-size:20px;
+  font-weight:bold;
+}
+.juror-button {
+  top:70%;
+}
+.viewer-button {
+  top:80%;
 }
 .chatting-container {
   display:flex;
