@@ -2,6 +2,7 @@ package com.a708.drwa.debate.repository;
 
 import com.a708.drwa.debate.data.dto.response.DebateInfoResponse;
 import com.a708.drwa.debate.domain.DebateRoomInfo;
+import com.a708.drwa.debate.enums.DebateCategory;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.repository.CrudRepository;
 
@@ -14,6 +15,7 @@ public interface DebateRoomRepository extends CrudRepository<DebateRoomInfo, Str
     boolean existsByTitle(String title);
     void deleteByTitle(String title);
 
+    List<DebateRoomInfo> findAllByDebateCategoryOrderByTotalCntDesc(DebateCategory debateCategory);
     @Override
     List<DebateRoomInfo> findAll();
 

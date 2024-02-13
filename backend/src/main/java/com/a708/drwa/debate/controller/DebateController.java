@@ -19,7 +19,8 @@ public class DebateController {
 
     @GetMapping("/{categoryName}")
     public ResponseEntity<?> getDebatesByCategory(@PathVariable String categoryName) {
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(debateService.getDebatesByCategory(categoryName));
     }
 
     @GetMapping("/all")

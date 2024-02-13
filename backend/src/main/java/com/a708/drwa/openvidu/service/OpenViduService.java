@@ -1,6 +1,7 @@
 package com.a708.drwa.openvidu.service;
 
 
+import com.a708.drwa.debate.data.dto.response.DebateInfoResponse;
 import com.a708.drwa.global.exception.GlobalException;
 import com.a708.drwa.member.data.JWTMemberInfo;
 import com.a708.drwa.openvidu.data.dto.request.CreateRoomRequestDto;
@@ -97,8 +98,13 @@ public class OpenViduService {
             throw new OpenViduException(OpenViduErrorCode.OPENVIDU_CAN_NOT_CREATE_SESSION);
         }
 
+        DebateInfoResponse debateInfoResponse = debateRoomRepository.findById(sessionId)
+                .orElseThrow(() -> new OpenViduException(OpenViduErrorCode.OPENVIDU_NOT_FOUND_SESSION))
+                .toResponse();
+
         return GetConnectionResponseDto.builder()
                 .connection(connection)
+                .debateInfoResponse(debateInfoResponse)
                 .build();
     }
 }
