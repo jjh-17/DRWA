@@ -185,6 +185,8 @@ console.log(props.team)
   padding: 10px;
   height: 100%;
   width: 50%;
+  position: absolute;
+  left: 25%;
 }
 
 .label {
