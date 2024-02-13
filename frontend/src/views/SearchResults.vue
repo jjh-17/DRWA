@@ -24,13 +24,12 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import { useRoomStore } from '@/stores/useRoomStore'; // import the room store
 import { useRoute } from 'vue-router';
 import RoomCard from '../components/room/RoomCard.vue'
 import HeaderComponent from '../components/common/HeaderComponent.vue'
 
 const route = useRoute();
-const rooms = ref([]);
 const searchQuery = ref(route.query.query || '');
 
 
@@ -208,9 +207,12 @@ async function fetchData() {
   }
       ];
     }
+  } catch (error) {
+    console.error('Error searching rooms:', error);
+  }
 }
 
-onMounted(searchRooms);
+onMounted(fetchData);
 </script>
 <style>
 .option{
