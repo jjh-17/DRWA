@@ -88,7 +88,7 @@ function onFileChange(file) {
 async function submitProfile() {
     const selectedCategories = categories.value
         .filter(category => category.selected)
-        .map(category => category.english);
+        .map(category => category.english.toUpperCase());
 
     // 관심 카테고리를 UpdateInterestRequestDto 객체 형식에 맞게 구성
     const updateInterestRequest = {
