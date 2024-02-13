@@ -8,6 +8,8 @@ import { useAuthStore } from '@/stores/useAuthStore'; // authStore 가져오기
 
 const authStore = useAuthStore();
 
+
+
 // '전체'와 '기타' 카테고리를 제외합니다.
 const filteredCategories = importedCategories.filter(category => category.english !== 'all' && category.english !== 'etc');
 
@@ -21,7 +23,7 @@ const categories = ref(filteredCategories.map(category => ({
 const nickname = ref(authStore.nickname);
 
 // 프로필 이미지의 데이터 URL을 저장하는 ref
-const profileImage = ref('');
+const profileImage = ref(authStore.profileImage);
 // 선택된 파일 객체를 저장하는 ref
 const selectedFile = ref(null);
 
@@ -66,6 +68,7 @@ function toggleCategory(category) {
 }
 
 function onFileChange(file) {
+    console.log('파일 선택:', file);
     if (file) {
         // 파일 객체 저장
         selectedFile.value = file;
@@ -116,10 +119,45 @@ async function submitProfile() {
             authStore.nickname = nickname.value;
         }
 
+        if (selectedFile.value) {
+            // 프로필 이미지가 변경된 경우에만 업로드
+            await uploadProfileImage(selectedFile.value);
+
+        }
+
         alert('정보 수정이 완료되었습니다.');
     } catch (error) {
         console.error('정보 수정 실패:', error);
         alert('정보 수정에 실패하였습니다.');
+    }
+}
+
+/**
+ * 프로필 이미지 업로드
+ * @param {*} file 
+ */
+async function uploadProfileImage(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await httpService.post('/profile/upload/image', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            },
+        });
+        if (response.status === 200) {
+            // alert('프로필 이미지가 성공적으로 업로드되었습니다.');
+            profileImage.value = response.data; // 업로드된 이미지의 URL로 업데이트
+            // 성공적으로 프로필 이미지가 업데이트되면 Pinia 스토어의 상태를 직접 업데이트
+            authStore.profileImage = response.data;
+
+        } else {
+            alert('이미지 업로드에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('이미지 업로드 중 오류 발생:', error);
+        alert('이미지 업로드 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
 }
 </script>
