@@ -9,6 +9,7 @@ const props = defineProps({
   messagesLeft: [],
   messagesRight: [],
   messagesAll: [],
+  sendMessage: Function,
 });
 
 const emit = defineEmits(['sendMessage'])

@@ -118,7 +118,8 @@ function onLogoClick() {
         <div v-if="authStore.isLoggedIn">
             <q-btn flat round @click="profileMenu = !profileMenu">
                 <q-avatar>
-                    <img src=https://cdn.quasar.dev/img/avatar.png>
+                    <img v-if="authStore.profileImage" :src="authStore.profileImage" />
+                    <img v-else src="https://cdn.quasar.dev/img/avatar.png" alt=" 디폴트 프로필 이미지" />
                 </q-avatar>
             </q-btn>
             <q-menu auto-close>

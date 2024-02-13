@@ -63,7 +63,8 @@ const onPointClick = () => {
         <q-card-section class="flex flex-center q-gutter-sm justify-around">
           <div class="flex flex-center justify-between">
             <q-avatar size="100px">
-              <img src="https://cdn.quasar.dev/img/avatar.png">
+              <img v-if="authStore.profileImage" :src="authStore.profileImage" />
+              <img v-else src="https://cdn.quasar.dev/img/avatar.png" alt=" 디폴트 프로필 이미지" />
             </q-avatar>
             <div class="nickname">
               닉네임 <q-icon name="edit" class="cursor-pointer" @click="onEditClick" />
