@@ -4,6 +4,7 @@ import { computed } from 'vue';
 import OvVideo from "./OvVideo.vue";
 const props = defineProps({
   streamManager: Object,
+  connectionId: String,
 })
 
 // clientData는 computed로 진행됨
@@ -16,12 +17,14 @@ function getConnectionData() {
   const { connection } = props.streamManager.stream;
   return JSON.parse(connection.data);
 }
+
+console.log(`uservideo : ${props.connectionId}`)
 </script>
 
 <template>
   <div v-if="streamManager">
     <!-- {{ clientData }}이게 내 현재 이름임 -->
-    <div><p>{{ clientData }}</p></div>
+    <!-- <div><p>{{ clientData }}</p></div> -->
     <ov-video :stream-manager="streamManager"/>
   </div>
 </template>

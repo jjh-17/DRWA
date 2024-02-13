@@ -46,7 +46,6 @@ const sessionInfo = reactive({
   OV: undefined,
   debateId: route.params.debateId,
   publisher: undefined,  // 자기 자신
-  subscribesr: undefined,
 
   // index == 각 팀에서의 순서
   teamLeftList: [],   // 팀 A 리스트(자기 자신 포함 가능)
@@ -92,6 +91,14 @@ const chatting = reactive({
   messagesRight: [],
   messagesAll: [],
 });
+
+// 투표
+const vote = reactive({
+  voteLeftNum: 0,
+  voteRightNum: 0,
+  jurorVoteLeftNum: 0,
+  jurorVoteRightNum: 0,
+})
 
 // 세션에 팀별로 합류
 function joinSession() {
@@ -149,6 +156,37 @@ function joinSession() {
       chatting.messagesAll.push(messageData)
     } else {
       console.error(`잘못된 채팅 이벤트 수신 : ${messageData}`)
+    }
+  })
+
+  // 팀 투표 이벤트 수신 처리(이전 투표 팀, 현재 투표 팀, 소속 팀)
+  sessionInfo.session.on('signal:voteTeam', (event) => {
+    const messageData = JSON.parse(event.data);
+
+    // 이전 투표 수 취소
+    if (messageData.beforeTeam == team[0].english) {
+      vote.voteLeftNum--;
+      if (messageData.team == team[2].english) {
+        vote.jurorVoteLeftNum--;
+      }
+    } else if (messageData.beforeTeam == team[1].english) {
+      vote.voteRightNum--;
+      if (messageData.team == team[2].english) {
+        vote.jurorVoteRightNum--;
+      }
+    }
+
+    // 현재 투표 반영
+    if (messageData.targetTeam == team[0].english) {
+      vote.voteLeftNum++;
+      if (messageData.team == team[2].english) {
+        vote.jurorVoteLeftNum++;
+      }
+    } else if (messageData.targetTeam == team[1].english) {
+      vote.voteRightNum++;
+      if (messageData.team == team[2].english) {
+        vote.jurorVoteRightNum++;
+      }
     }
   })
 
@@ -313,9 +351,9 @@ function leaveSession() {
 
   // 메시지 정보 초기화
   // chatting.targetTeam= team[4].english
-  chatting.messagesLeft= []
-  chatting.messagesRight= []
-  chatting.messagesAll= []
+  // chatting.messagesLeft= []
+  // chatting.messagesRight= []
+  // chatting.messagesAll= []
 
   // 윈도우 종료 시 세션 나가기 이벤트 삭제
   window.removeEventListener('beforeunload', leaveSession)
@@ -327,6 +365,23 @@ async function getToken(category, team) {
   await createSession(`${debateId}_${category}_${team}`)
   const token = await createToken(`${debateId}_${category}_${team}`)
   return token
+}
+
+// === 투표 ===
+// 팀 투표 메서드
+function sendVoteTeamMessage(event, team, beforeTeam, targetTeam) {
+  event.preventDefault()
+
+  // 전원에게 시그널 
+  sessionInfo.session.signal({
+    // 메시지 데이터를 문자열로 변환해서 전송
+    data: JSON.stringify({
+      beforeTeam: beforeTeam,
+      targetTeam: targetTeam,
+      team: team,
+    }),
+    type: 'voteTeam' // 신호 타입을 'chat'으로 설정
+  })
 }
 
 // === 채팅방 메서드 ===
@@ -490,6 +545,7 @@ joinSession();
     </header>
 
     <div class="main-container">
+      <!--  -->
       <div class="teamA-container">
         <div class="team-title">TeamA</div>
         <!-- 이미 해당 팀A 소속이면 관전자로 소속 변경 -->
@@ -497,11 +553,9 @@ joinSession();
           <UserVideo
             v-for="sub in sessionInfo.teamLeftList"
             :key="sub.stream.connection.connectionId"
-            :stream-manager="sub" :connectionId="sub.stream.connection.connectionId"
-            @click="(event) => changeTeam(event, team[3].english)"
-          />
+            :stream-manager="sub" :connectionId="sub.stream.connection.connectionId"/>
           <div v-for="num in (roomInfo.playerNum/2 - sessionInfo.teamLeftList.length)" :key="num">
-            <div class="player" @click="(event) => changeTeam(event, team[3].english)">+</div>
+            <div class="player">+</div>
           </div>
         </div>
 
@@ -518,23 +572,28 @@ joinSession();
           </div>
         </div>
       </div>
+
       <div class="share-container">
         <div class="play-button">시작하기</div>
-        <div class="juror-button">배심원으로 입장 ( / )</div>
-        <div class="viewer-button">관전자로 입장 ( / )</div>
+        
+        <div v-if="playerInfo.team!=team[2].english" class="juror-button" @click="(event) => changeTeam(event, team[2].english)">배심원으로 입장 ( / )</div>
+        <div v-else class="juror-button">배심원으로 입장 ( / )</div>
+
+        <div v-if="playerInfo.team!=team[3].english" class="viewer-button" @click="(event) => changeTeam(event, team[3].english)">관전자로 입장 ( / )</div>
+        <div v-else class="viewer-button">관전자로 입장 ( / )</div>
       </div>
+
       <div class="teamB-container">
         <div class="team-title">TeamB</div>
-        <!-- 이미 해당 팀B 소속이면 관전자로 소속 변경 -->
+        <!-- 이미 해당 팀B 소속이면 클릭 이벤트 제거-->
         <div class="players" v-if="playerInfo.team==team[1].english">
           <UserVideo
             v-for="sub in sessionInfo.teamRightList"
             :key="sub.stream.connection.connectionId"
             :stream-manager="sub" :connectionId="sub.stream.connection.connectionId"
-            @click="(event) => changeTeam(event, team[3].english)"
           />
           <div v-for="num in (roomInfo.playerNum/2 - sessionInfo.teamRightList.length)" :key="num">
-            <div class="player" @click="(event) => changeTeam(event, team[3].english)">+</div>
+            <div class="player">+</div>
           </div>
         </div>
 
@@ -552,57 +611,13 @@ joinSession();
         </div>
       </div>
 
-      
-    <ChattingBar
-      :nickname="playerInfo.nickname" :role="playerInfo.team"
-      :messages-left="chatting.messagesLeft" :messages-right="chatting.messagesRight" :messages-all="chatting.messagesAll"
-      :send-message="sendMessage"
-    ></ChattingBar>      
+      <!-- 채팅방 -->
+      <ChattingBar
+        :nickname="playerInfo.nickname" :role="playerInfo.team"
+        :messages-left="chatting.messagesLeft" :messages-right="chatting.messagesRight" :messages-all="chatting.messagesAll"
+        @send-message="sendMessage"></ChattingBar>      
 
     </div>
-
-    <!--
-  // session이 false일때! 즉, 방에 들어가지 않았을때
-  <div id="join" v-if="!openVidu.session.value">
-    <div id="join-dialog">
-      <div>
-        <p>
-          <label>세션 ID</label>
-          <input v-model="openVidu.sessionId.value" type="text" required />
-        </p>
-        <p>
-          <label>유저 ID</label>
-          <input v-model="userInfo.userId.value" type="text" required />
-        </p>
-        <p>
-          <button @click="joinSession">Join!</button>
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <div id="session" v-if="openVidu.session.value">
-    <div id="session-header">
-      // 세션 나가기 여부
-      <input
-        type="button"
-        id="buttonLeaveSession"
-        @click="leaveSession"
-        value="Leave session"
-      />
-    </div>
-    <DebateVideos 
-      :subscribers-left="openVidu.subscribersLeftComputed"
-      :subscribers-right="openVidu.subscribersRightComputed" />
-
-    // 방에 들어갔을 때 같이 보이게 될 채팅창
-    <ChattingBar 
-      :nickname="userInfo.nickname.value" :role="userInfo.team.value"
-      :messages-left="chatting.messagesLeft.value" :messages-right="chatting.messagesRight.value" 
-      :messages-all="chatting.messagesAll.value"
-       />
-  </div>
-  -->
 
     <footer>
       <DebateBottomBar
@@ -615,6 +630,11 @@ joinSession();
         :is-share-on="communication.isShareOn"
         :handle-mic-by-user="handleMicByUser"
         :handle-camera-by-user="handleCameraByUser"
+        :vote-left-num="vote.voteLeftNum"
+        :vote-right-num="vote.voteRightNum"
+        :juror-vote-left-num="vote.jurorVoteLeftNum"
+        :juror-vote-right-num="vote.jurorVoteRightNum"
+        @send-vote-team-message="sendVoteTeamMessage"
       />
     </footer>
   </div>

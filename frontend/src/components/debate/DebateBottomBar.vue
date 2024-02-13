@@ -64,16 +64,16 @@
       <div class="bar-container">
         <div
           class="barA"
-          :class="{ selected: selectedBar === 'A' }"
-          @click="vote('A')"
+          :class="{ selected: selectedBar === team[0].english }"
+          @click="(event) => vote(event, team[0].english)"
           :style="{ width: getBarWidth(supportRateA) }"
         >
           A : {{ supportRateA }}%
         </div>
         <div
           class="barB"
-          :class="{ selected: selectedBar === 'B' }"
-          @click="vote('B')"
+          :class="{ selected: selectedBar === team[1].english }"
+          @click="(event) => vote(event, team[1].english)"
           :style="{ width: getBarWidth(supportRateB) }"
         >
           B : {{ supportRateB }}%
@@ -96,60 +96,6 @@
 import { team } from '@/components/common/Team.js'
 import { ref, defineProps, defineEmits, computed } from 'vue'
 
-// 배심원 투표인지 저장
-const jurorVoteA = ref(0);
-const jurorVoteB = ref(0);
-const voteA = ref(0)
-const voteB = ref(0)
-const selectedBar = ref('')
-
-const supportRateA = computed(() => {
-  const totalVotes = voteA.value + voteB.value
-  return totalVotes > 0 ? Math.round((voteA.value / totalVotes) * 100) : 50
-})
-
-const supportRateB = computed(() => {
-  const totalVotes = voteA.value + voteB.value
-  return totalVotes > 0 ? Math.round((voteB.value / totalVotes) * 100) : 50
-})
-
-function getBarWidth(rate) {
-  return `calc(${rate}% + 80px)`; // 최소 80px + 지지율 비율
-}
-
-
-// 배심원 투표인지 아닌지도 구분해놓음.
-function vote(bar) {
-  // 이미 같은 바를 선택했는지 확인
-  if (selectedBar.value === bar) {
-    // 같은 바를 다시 클릭한 경우, 아무 동작도 하지 않음
-    return;
-  }
-
-  // 이전에 다른 바를 선택했다면, 이전 선택을 취소
-  if (selectedBar.value) {
-    if (selectedBar.value === 'A') {
-      if (props.team === 'juror') jurorVoteA.value--;
-      voteA.value--;
-    } else {
-      if (props.team === 'juror') jurorVoteB.value--;
-      voteB.value--;
-    }
-  }
-
-  // 새로 선택된 바에 따라 투표
-  if (bar === 'A') {
-    if (props.team === 'juror') jurorVoteA.value++;
-    voteA.value++;
-  } else if (bar === 'B') {
-    if (props.team === 'juror') jurorVoteB.value++;
-    voteB.value++;
-  }
-
-  // 현재 선택된 바 업데이트
-  selectedBar.value = bar;
-}
-
 // 전달 받을 정보
 const props = defineProps({
   isMicHandleAvailable: Boolean,
@@ -158,11 +104,49 @@ const props = defineProps({
   isMicOn: Boolean,
   isCameraOn: Boolean,
   isShareOn: Boolean,
-  team: String,
   handleMicByUser: Function,
   handleCameraByUser: Function,
-  handleShareByUser: Function
+  handleShareByUser: Function,
+
+  team: String,
+
+  voteLeftNum: Number,
+  voteRightNum: Number,
+  jurorVoteLeftNum: Number,
+  jurorVoteRightNum: Number,
 })
+
+const emit = defineEmits(['sendVoteTeamMessage'])
+
+
+// 배심원 투표인지 저장
+const selectedBar = ref('')
+
+const supportRateA = computed(() => {
+  const totalVotes = props.voteLeftNum + props.voteRightNum
+  return totalVotes > 0 ? Math.round((props.voteLeftNum / totalVotes) * 100) : 50
+})
+
+const supportRateB = computed(() => {
+  const totalVotes = props.voteLeftNum + props.voteRightNum
+  return totalVotes > 0 ? Math.round((props.voteRightNum / totalVotes) * 100) : 50
+})
+
+function getBarWidth(rate) {
+  return `calc(${rate}% + 80px)`; // 최소 80px + 지지율 비율
+}
+
+
+// 배심원 투표인지 아닌지도 구분해놓음.
+function vote(event, bar) {
+  // 다른 바를 선택했을 때만 동작
+  if (selectedBar.value !== bar) {
+    emit('sendVoteTeamMessage', event, props.team, selectedBar.value, bar)
+    selectedBar.value = bar;
+  }
+}
+
+
 
 console.log(props.team)
 </script>
