@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -64,8 +65,11 @@ public class S3Uploader {
      */
     public void deleteS3(String filePath) throws Exception {
         try{
-            String key = filePath.substring(56); // 폴더/파일.확장자
-
+            URI uri = new URI(filePath);
+            String path = uri.getPath();
+            String key = path.substring(path.indexOf('/', 1) + 1); // 두 번째 '/' 이후의 경로를 키로 사용
+            
+            log.info("S3 삭제할 key: " + key);
             try {
                 amazonS3Client.deleteObject(bucket, key);
             } catch (AmazonServiceException e) {
