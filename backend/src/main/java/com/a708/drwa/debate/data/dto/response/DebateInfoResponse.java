@@ -7,38 +7,24 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class DebateInfoResponse {
     private String sessionId;
+    private DebateCategory debateCategory;
     private String hostName;
     private String title;
-    private DebateCategory debateCategory;
     private String leftKeyword;
     private String rightKeyword;
+    private int playerNum;
+    private int jurorNum;
+    private Boolean isPrivate;
+    private String password;
+    private int speakingTime;
+    private int readyTime;
+    private int qnaTime;
     private String thumbnail1;
     private String thumbnail2;
     private int totalCnt;
-
-    @Builder
-    public DebateInfoResponse(
-            String sessionId,
-            String hostName,
-            String title,
-            DebateCategory debateCategory,
-            String leftKeyword,
-            String rightKeyword,
-            String thumbnail1,
-            String thumbnail2,
-            int totalCnt
-    ) {
-        this.sessionId = sessionId;
-        this.hostName = hostName;
-        this.title = title;
-        this.debateCategory = debateCategory;
-        this.leftKeyword = leftKeyword;
-        this.rightKeyword = rightKeyword;
-        this.thumbnail1 = thumbnail1;
-        this.thumbnail2 = thumbnail2;
-        this.totalCnt = totalCnt;
-    }
 }

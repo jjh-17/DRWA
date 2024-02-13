@@ -7,6 +7,7 @@ import com.a708.drwa.debate.data.dto.request.DebateStartRequestDto;
 import com.a708.drwa.debate.data.dto.response.DebateInfoListResponse;
 import com.a708.drwa.debate.data.dto.response.DebateInfoResponse;
 import com.a708.drwa.debate.domain.DebateRoomInfo;
+import com.a708.drwa.debate.enums.DebateCategory;
 import com.a708.drwa.debate.exception.DebateErrorCode;
 import com.a708.drwa.debate.exception.DebateException;
 import com.a708.drwa.debate.repository.DebateRepository;
@@ -31,6 +32,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -43,27 +45,48 @@ public class DebateService {
     private final RedisKeyUtil redisKeyUtil;
     private final Map<String, ScheduledFuture<?>> scheduledFutures;
 
+    /**
+     * 방 목록 전체 조회
+     * @return DebateInfoListResponse
+     */
     public DebateInfoListResponse findAll() {
-        List<DebateInfoResponse> debateInfoResponses = new ArrayList<>();
-        for (DebateRoomInfo debateRoomInfo : debateRoomRepository.findAll()) {
-            debateInfoResponses.add(debateRoomInfo.toResponse());
-        }
         return DebateInfoListResponse.builder()
-                .debateInfoResponses(debateInfoResponses)
+                .debateInfoResponses(
+                        debateRoomRepository.findAll().stream()
+                                .map(DebateRoomInfo::toResponse)
+                                .collect(Collectors.toList())
+                )
                 .build();
     }
 
     /**
      * 인기순 5개 가져오기
-     * @return
+     * @return DebateInfoListResponse
      */
     public DebateInfoListResponse getTop5Debates() {
         // 인기순 5개 sessionId 검색
         ZSetOperations<String, DebateInfoResponse> zSet = redisTemplate.opsForZSet();
         return DebateInfoListResponse.builder()
-                .debateInfoResponses(zSet.reverseRange(RoomsKey.ROOM_POPULAR_KEY, 0, -1).stream().toList())
+                .debateInfoResponses(zSet.reverseRange(RoomsKey.ROOM_POPULAR_KEY, 0, -1).stream()
+                        .toList())
                 .build();
     }
+
+    /**
+     * 카테고리 별 조회 함수
+     * @param category 카테고리 명
+     * @return DebateInfoListResponse
+     */
+    public DebateInfoListResponse getDebatesByCategory(String category) {
+        return DebateInfoListResponse.builder()
+                .debateInfoResponses(debateRoomRepository.findAllByDebateCategoryOrderByTotalCntDesc(DebateCategory.forValue(category))
+                        .stream()
+                        .map(DebateRoomInfo::toResponse)
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+
 
     /**
      * 토론 시작
