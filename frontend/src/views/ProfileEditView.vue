@@ -90,6 +90,11 @@ async function submitProfile() {
         .filter(category => category.selected)
         .map(category => category.english);
 
+    // 관심 카테고리를 UpdateInterestRequestDto 객체 형식에 맞게 구성
+    const updateInterestRequest = {
+        debateCategories: selectedCategories,
+    };
+
     const updateProfileRequest = {
         profileId: authStore.profileId,
         nickname: nickname.value,
@@ -98,7 +103,7 @@ async function submitProfile() {
     try {
         // 여기서 실제로 API 요청을 보냅니다. 예시로는 console.log로 대체합니다.
         console.log('보낼 데이터:', selectedCategories);
-        let response = await httpService.post('/member/update/interests', selectedCategories);
+        let response = await httpService.post('/member/update/interests', updateInterestRequest);
         if (response.status === 200) {
             // 성공적으로 관심 카테고리가 업데이트되면 Pinia 스토어의 상태를 직접 업데이트
             authStore.interests = selectedCategories;
