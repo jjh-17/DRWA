@@ -38,12 +38,9 @@ public class ElasticsearchConfig {
                 var response = elasticsearchClient.indices().create(c -> c
                         .index("room_index")
                         .mappings(m -> m
-                                .properties("title", p -> p
-                                        .text(t -> t.analyzer("nori"))
-                                )
-                                .properties("keyword", p -> p
-                                        .text(t -> t.analyzer("nori"))
-                                )
+                                .properties("title", p -> p.text(t -> t.analyzer("nori")))
+                                .properties("keywordA", p -> p.text(t -> t.analyzer("nori")))
+                                .properties("keywordB", p -> p.text(t -> t.analyzer("nori")))
                         )
                 );
                 return response.acknowledged();

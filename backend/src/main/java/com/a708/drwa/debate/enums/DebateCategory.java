@@ -7,17 +7,16 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum DebateCategory {
+    CHARACTER("CHARACTER"),
     LOVE("LOVE"),
+    FOOD("FOOD"),
     ECONOMY("ECONOMY"),
     SPORTS("SPORTS"),
-    ANIMAL("ANIMAL"),
-    FOOD("FOOD"),
+    MUSIC("MUSIC"),
     POLITICS("POLITICS"),
     SOCIETY("SOCIETY"),
-    CHARACTER("CHARACTER"),
+    ANIMAL("ANIMAL"),
     CULTURE("CULTURE"),
-    MUSIC("MUSIC"),
-    SHOPPING("SHOPPING"),
     ETC("ETC"),
     ;
 
