@@ -1,46 +1,38 @@
 package com.a708.drwa.debate.service;
 
-import com.a708.drwa.debate.data.DebateMember;
 import com.a708.drwa.debate.data.DebateMembers;
 import com.a708.drwa.debate.data.RoomInfo;
-import com.a708.drwa.debate.data.dto.request.DebateCreateRequestDto;
 import com.a708.drwa.debate.data.dto.request.DebateJoinRequestDto;
 import com.a708.drwa.debate.data.dto.request.DebateStartRequestDto;
-import com.a708.drwa.debate.data.dto.response.CreateRoomResponseDto;
 import com.a708.drwa.debate.data.dto.response.DebateInfoResponse;
 import com.a708.drwa.debate.data.dto.response.Top5DebatesResponse;
-import com.a708.drwa.debate.domain.Debate;
 import com.a708.drwa.debate.exception.DebateErrorCode;
 import com.a708.drwa.debate.exception.DebateException;
 import com.a708.drwa.debate.repository.DebateRepository;
-import com.a708.drwa.debate.domain.DebateRoomInfo;
 import com.a708.drwa.debate.repository.DebateRoomRepository;
 import com.a708.drwa.debate.scheduler.RoomsKey;
 import com.a708.drwa.redis.domain.DebateRedisKey;
 import com.a708.drwa.redis.exception.RedisErrorCode;
 import com.a708.drwa.redis.exception.RedisException;
 import com.a708.drwa.redis.util.RedisKeyUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-@Transactional(readOnly = true)
+@Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class DebateService {
     private final DebateRepository debateRepository;
     private final DebateRoomRepository debateRoomRepository;
@@ -49,33 +41,14 @@ public class DebateService {
     private final Map<String, ScheduledFuture<?>> scheduledFutures;
 
     /**
-     * 토론 방 생성
-     * @param debateCreateRequestDto
+     * 인기순 5개 가져오기
      * @return
      */
-    @Transactional
-    public CreateRoomResponseDto create(DebateCreateRequestDto debateCreateRequestDto) {
-        // 방 저장 및 아이디 추출
-        return CreateRoomResponseDto.builder()
-                .debateId(debateRepository.save(Debate.builder()
-                        .sessionId(debateCreateRequestDto.getSessionId())
-                        .debateCategory(debateCreateRequestDto.getDebateCategory())
-                        .build())
-                        .getDebateId())
-                .build();
-    }
-
-    public void join(DebateJoinRequestDto debateJoinRequestDto) {
-        // 방 찾기
-        debateRepository.findById(debateJoinRequestDto.getDebateId())
-                .orElseThrow(() -> new DebateException(DebateErrorCode.NOT_EXIST_DEBATE_ROOM_ERROR));
-    }
-
     public Top5DebatesResponse getTop5Debates() {
         // 인기순 5개 sessionId 검색
         ZSetOperations<String, DebateInfoResponse> zSet = redisTemplate.opsForZSet();
         return Top5DebatesResponse.builder()
-                .debateInfoResponses(zSet.range(RoomsKey.ROOM_ALL_KEY, 0, -1).stream().toList())
+                .debateInfoResponses(zSet.reverseRange(RoomsKey.ROOM_POPULAR_KEY, 0, -1).stream().toList())
                 .build();
     }
 

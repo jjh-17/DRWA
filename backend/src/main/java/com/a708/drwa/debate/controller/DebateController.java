@@ -1,10 +1,6 @@
 package com.a708.drwa.debate.controller;
 
-import com.a708.drwa.debate.data.dto.request.DebateCreateRequestDto;
-import com.a708.drwa.debate.data.dto.request.DebateJoinRequestDto;
 import com.a708.drwa.debate.data.dto.request.DebateStartRequestDto;
-import com.a708.drwa.debate.data.dto.response.CreateRoomResponseDto;
-import com.a708.drwa.debate.enums.DebateCategory;
 import com.a708.drwa.debate.service.DebateService;
 import com.a708.drwa.openvidu.service.OpenViduService;
 import jakarta.servlet.http.HttpServletRequest;

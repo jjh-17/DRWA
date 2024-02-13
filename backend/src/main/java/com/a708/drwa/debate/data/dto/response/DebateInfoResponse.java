@@ -31,14 +31,14 @@ public class DebateInfoResponse {
             String thumbnail2,
             int totalCnt
     ) {
-        this.sessionId = getSessionId();
-        this.hostName = getHostName();
-        this.title = getTitle();
-        this.debateCategory = getDebateCategory();
-        this.leftKeyword = getLeftKeyword();
-        this.rightKeyword = getRightKeyword();
-        this.thumbnail1 = getThumbnail1();
-        this.thumbnail2 = getThumbnail2();
-        this.totalCnt = getTotalCnt();
+        this.sessionId = sessionId;
+        this.hostName = hostName;
+        this.title = title;
+        this.debateCategory = debateCategory;
+        this.leftKeyword = leftKeyword;
+        this.rightKeyword = rightKeyword;
+        this.thumbnail1 = thumbnail1;
+        this.thumbnail2 = thumbnail2;
+        this.totalCnt = totalCnt;
     }
 }

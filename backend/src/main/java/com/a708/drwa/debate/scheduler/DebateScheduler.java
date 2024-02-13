@@ -27,7 +27,7 @@ public class DebateScheduler {
     private final DebateRoomRepository debateRoomRepository;
 
     @Async
-    @Scheduled(fixedDelay = 10, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedDelay = 45, timeUnit = TimeUnit.SECONDS)
     public void updatePopularDebates() {
         log.info("Update Popular rooms....");
         // 인기 랭킹 초기화
@@ -36,6 +36,7 @@ public class DebateScheduler {
         // debateInfo zset에 넣기
         Iterable<DebateRoomInfo> debateRoomInfos = debateRoomRepository.findTop5ByOrderByTotalCnt();
         for (DebateRoomInfo debateRoomInfo : debateRoomInfos) {
+            log.info("found debateInfo ! : {}", debateRoomInfo.getSessionId());
             zset.add(RoomsKey.ROOM_POPULAR_KEY,
                     debateRoomInfo.toResponse(),
                     debateRoomInfo.getTotalCnt());
