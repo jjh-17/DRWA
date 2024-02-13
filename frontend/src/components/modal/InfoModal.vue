@@ -218,4 +218,7 @@ border-bottom-right-radius: 20px;
 .btnE:hover {
   background-color: #28054b;
 }
+h4{
+  font-weight:bold;
+}
 </style>
