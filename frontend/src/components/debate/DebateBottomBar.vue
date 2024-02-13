@@ -1,13 +1,26 @@
 <template>
   <q-toolbar class="custom-toolbar">
-    <q-avatar class="q-mr-lg">
-      <img src="@/assets/img/micon.png" style="height: 100%" class="avatar-img" />
+    <!-- 
+      참가자인 경우에만 화상 아이콘이 보임
+      사용 권한이 있는 경우에만 클릭을 가능하게 함
+    -->
+    <q-avatar v-if="props.team==team[0].english || props.team==team[1].english" class="q-mr-lg">
+      <img v-if="props.isMicOn" src="@/assets/img/micon.png" style="height: 100%" 
+            class="avatar-img" @click="props.handleMicByUser" />
+      <img v-else src="@/assets/img/micoff.png" :aria-disabled="!props.handleMicByUser"
+            style="height: 100%" class="avatar-img" @click="props.handleMicByUser" />
     </q-avatar>
-    <q-avatar class="q-mr-lg">
-      <img src="@/assets/img/cameraon.png" style="height: 100%" class="avatar-img" />
+    <q-avatar v-if="props.team==team[0].english || props.team==team[1].english" class="q-mr-lg">
+      <img v-if="props.isCameraOn" src="@/assets/img/cameraon.png" style="height: 100%" class="avatar-img"
+            @click="props.handleCameraByUser"/>
+      <img v-else src="@/assets/img/cameraoff.png" v-bind:aria-disabled="!props.isCameraHandleAvailable"
+            style="height: 100%" class="avatar-img" @click="props.handleCameraByUser"/> 
     </q-avatar>
-    <q-avatar class="q-mr-lg">
-      <img src="@/assets/img/shareon.png" style="height: 100%" class="avatar-img" />
+    <q-avatar v-if="props.team==team[0].english || props.team==team[1].english" class="q-mr-lg">
+      <img v-if="props.isShareOn" src="@/assets/img/shareon.png" style="height: 100%" class="avatar-img"
+            @click="props.handleShareByUser" />
+      <img v-else src="@/assets/img/shareoff.png" v-bind:aria-disabled="!props.isShareHandleAvailable"
+            style="height: 100%" class="avatar-img" @click="props.handleShareByUser" />
     </q-avatar>
 
     <!-- 가운데 정렬을 위한 공간 배분 -->
@@ -25,11 +38,29 @@
     <!-- 이것은 나머지 요소들을 오른쪽으로 밀어냅니다 -->
     <q-space />
 
-    <q-btn class="end-speech" label="발언 종료" />
+    <q-btn v-if="props.team==team[0].english || props.team==team[1].english" class="end-speech" label="발언 종료" />
   </q-toolbar>
 </template>
 
 <script setup>
+import { ref, defineProps, defineEmits } from "vue";
+import { team } from '@/components/common/Team.js'
+
+// 전달 받을 정보
+const props = defineProps({
+  isMicHandleAvailable: Boolean,
+  isCameraHandleAvailable: Boolean,
+  isShareHandleAvailable: Boolean,
+  isMicOn: Boolean,
+  isCameraOn: Boolean,
+  isShareOn: Boolean,
+  team: String,
+  handleMicByUser: Function,
+  handleCameraByUser: Function,
+  handleShareByUser: Function,
+});
+
+console.log(props.team);
 
 </script>
 
