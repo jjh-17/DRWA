@@ -19,6 +19,7 @@ import com.a708.drwa.member.service.Impl.NaverLoginServiceImpl;
 import com.a708.drwa.member.type.SocialType;
 import com.a708.drwa.profile.dto.request.AddProfileRequest;
 import com.a708.drwa.profile.dto.response.ProfileResponse;
+import com.a708.drwa.profile.service.ProfileImageService;
 import com.a708.drwa.profile.service.ProfileService;
 import com.a708.drwa.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final AuthRepository authRepository;
     private final ProfileService profileService;
+    private final ProfileImageService profileImageService;
     private final GoogleLoginServiceImpl googleLoginService;
     private final NaverLoginServiceImpl naverLoginService;
     private final KakaoLoginServiceImpl kakaoLoginService;
@@ -107,6 +109,9 @@ public class MemberService {
         // 프로필 조회
         ProfileResponse profile = profileService.findProfileByMemberId(jwtMemberInfo.getMemberId());
 
+        // 프로필 이미지 URL 조회
+        String profileImageUrl = profileImageService.findProfileImageUrlByMemberId(jwtMemberInfo.getMemberId());
+
         // 응답 DTO 반환
         return SocialLoginResponse.builder()
                 .memberId(jwtMemberInfo.getMemberId())
@@ -114,6 +119,7 @@ public class MemberService {
                 .accessToken(jwtAccessToken)
                 .interests(memberInterests)
                 .profile(profile)
+                .profileImageUrl(profileImageUrl)
                 .build();
     }
 

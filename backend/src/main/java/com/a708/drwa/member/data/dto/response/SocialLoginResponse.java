@@ -21,6 +21,7 @@ public class SocialLoginResponse {
     private String accessToken;
     private List<MemberInterest> interests; // 사용자의 관심 카테고리 목록
     private ProfileResponse profile; // 사용자의 프로필 정보
+    private String profileImageUrl;
 
     @Builder
     public SocialLoginResponse(
@@ -28,11 +29,14 @@ public class SocialLoginResponse {
             String userId,
             String accessToken,
             List<MemberInterest> interests,
-            ProfileResponse profile) {
+            ProfileResponse profile,
+            String profileImageUrl) {
         this.memberId = memberId;
         this.userId = userId;
         this.accessToken = accessToken;
         this.interests = interests;
         this.profile = profile;
+        this.profileImageUrl = profileImageUrl;
+
     }
 }
