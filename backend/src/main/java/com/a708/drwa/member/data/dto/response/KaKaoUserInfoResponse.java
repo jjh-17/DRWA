@@ -1,4 +1,4 @@
-package com.a708.drwa.member.dto.response;
+package com.a708.drwa.member.data.dto.response;
 
 public class KaKaoUserInfoResponse extends SocialUserInfoResponse{
 }

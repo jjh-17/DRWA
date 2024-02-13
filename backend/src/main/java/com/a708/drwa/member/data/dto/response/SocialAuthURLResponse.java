@@ -1,20 +1,16 @@
-package com.a708.drwa.member.dto.response;
+package com.a708.drwa.member.data.dto.response;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 /**
  * 소셜 로그인 인증 URL을 반환하기 위한 DTO
  */
 @Getter
-@Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SocialAuthURLResponse {
     private String authorizationUrl;
-    private String state;
-    private String errorMessage;
 
+    @Builder
     public SocialAuthURLResponse(String authorizationUrl) {
         this.authorizationUrl = authorizationUrl;
     }
