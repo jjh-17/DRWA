@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
+import { httpService } from '@/api/axios'
+
 
 const REST_ROOM_API = `http://i10a708.p.ssafy.io/room`
 export const useRoomStore = defineStore('room', {
@@ -7,6 +9,7 @@ export const useRoomStore = defineStore('room', {
     roomsPopular: [],
     roomsInterestCateg: [],
     roomsCategory:{},
+    roomsAll: [],
   }),
   actions: {
     async fetchRoomsCategory(categoryName) {
@@ -19,10 +22,20 @@ export const useRoomStore = defineStore('room', {
     },
     async fetchRoomsPopular() {
       try {
-        const response = await axios.get(`${REST_ROOM_API}/popular`);
-        this.roomsPopular = response.data;
+        const response = await httpService.get(`debate/popular`);
+        console.log(response.data);
+        this.roomsPopular = response.data.debateInfoResponses;
       } catch (error) {
         console.error('Error fetching roomsPopular:', error);
+      }
+    },
+    async fetchRoomsAll() {
+      try {
+        const response = await httpService.get(`debate/all`);
+        console.log(response.data);
+        this.roomsAll = response.data.debateInfoResponses;
+      } catch (error) {
+        console.error('Error fetching roomsAll:', error);
       }
     },
     async fetchRoomsInterestCateg(userId) {
