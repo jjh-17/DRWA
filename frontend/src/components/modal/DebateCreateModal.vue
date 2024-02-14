@@ -243,7 +243,10 @@ const submitForm = async () => {
     const response = await debateStore.createRoom(roomDto);
     console.log('방 생성 응답:', response.data)
     sessionId.value = response.data.sessionId
-    makeDebateRoom()
+    // await makeDebateRoom()
+
+    router.push(`/debate/${sessionId.value}`);
+
     closeModal()
   } catch (error) {
     console.error('방 생성 에러:', error)
@@ -256,6 +259,7 @@ const makeDebateRoom = async () => {
     const response = await debateStore.joinDebate(sessionId.value);
     console.log('연결 정보 응답:', response.data);
     gameStore.sessionId = sessionId.value;
+    gameStore.token = response.data.connection.token;
     router.push(`/debate/${sessionId.value}`);
 
     // const response = await debateStore.joinDebate(sessionId.useDalue)

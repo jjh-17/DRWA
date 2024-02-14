@@ -32,7 +32,8 @@ const { setRoomInfo } = useRoomInfo()
 
 const joinDebate = async (sessionId) => {
   try {
-    const response = await httpService.get(`/openvidu/session/${sessionId}`)
+    // const response = await httpService.get(`/openvidu/session/${sessionId}`)
+    const response = await debateStore.joinDebate(sessionId)
     console.log('연결 정보 응답:', response.data)
 
     // connectionId를 키로, debateInfoResponse를 값으로 사용하여 스토어 업데이트
