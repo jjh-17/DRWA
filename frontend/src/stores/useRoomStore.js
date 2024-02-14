@@ -38,10 +38,10 @@ export const useRoomStore = defineStore('room', {
         console.error('Error fetching roomsAll:', error);
       }
     },
-    async fetchRoomsInterestCateg(userId) {
+    async fetchRoomsInterestCateg() {
       try {
-        const response = await axios.get(`${REST_ROOM_API}/${userId}`);
-        this.roomsCategory = response.data;
+        const response = await httpService.get(`debate`);
+        this.roomsInterestCateg = response.data.debateInfoResponses;
       } catch (error) {
         console.error('Error fetching roomsInterestCateg:', error);
       }
