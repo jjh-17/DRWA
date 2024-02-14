@@ -19,25 +19,23 @@
 <script setup>
 import { defineProps } from 'vue'
 import { useRouter } from 'vue-router';
-import { httpService } from '@/api/axios'
+import { useDebateStore } from "@/stores/useDebateStore";
+import { useGameStore } from "@/stores/useGameStore";
 
 const router = useRouter();
-
-
-const joinDebate = async (sessionId) => {
-  try {
-    const response = await httpService.get(`/openvidu/session/${sessionId}`);
-    console.log('연결 정보 응답:', response.data);
-    router.push(`/debate/${sessionId}`);
-  } catch (error) {
-    console.error('연결 정보 가져오기 에러:', error);
-  }
-}
+const debateStore = useDebateStore();
+const gameStore = useGameStore();
 
 
 const props = defineProps({
   room: Object,
 })
+
+async function joinDebate(sessionId) {
+  await debateStore.joinDebate(sessionId)
+  gameStore.sessionId = sessionId;
+  // router.push(`debate/${sessionId}`)
+}
 </script>
 
 <style scoped>

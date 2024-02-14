@@ -149,10 +149,13 @@ import { QToggle } from 'quasar'
 import ThumbnailImg from '../room/ThumbnailImg.vue'
 import { useAuthStore } from '@/stores/useAuthStore.js'
 import {useRouter} from 'vue-router'
+import { useDebateStore } from "@/stores/useDebateStore"
+import { useGameStore } from "@/stores/useGameStore"
 
 const router = useRouter();
-
+const debateStore = useDebateStore();
 const authStore = useAuthStore()
+const gameStore = useGameStore();
 const memberId = authStore.memberId
 
 
@@ -236,7 +239,8 @@ const submitForm = async () => {
     roomDto = { ...roomDto, password: password.value }
   }
   try {
-    const response = await httpService.post('/openvidu/session', roomDto)
+    // const response = await httpService.post('/openvidu/session', roomDto)
+    const response = await debateStore.createRoom(roomDto);
     console.log('방 생성 응답:', response.data)
     sessionId.value = response.data.sessionId
     makeDebateRoom()
@@ -248,9 +252,16 @@ const submitForm = async () => {
 
 const makeDebateRoom = async () => {
   try {
-    const response = await httpService.get(`/openvidu/session/${sessionId.value}`);
+    // const response = await httpService.get(`/openvidu/session/${sessionId.value}`);
+    const response = await debateStore.joinDebate(sessionId.value);
     console.log('연결 정보 응답:', response.data);
+    gameStore.sessionId = sessionId.value;
     router.push(`/debate/${sessionId.value}`);
+
+    // const response = await debateStore.joinDebate(sessionId.useDalue)
+    // const data = response.data
+    // console.log(`연결 정보 응답: ${data.}`);
+    // router.push(`/debate/${sessionId.value}`);
   } catch (error) {
     console.error('연결 정보 가져오기 에러:', error);
   }

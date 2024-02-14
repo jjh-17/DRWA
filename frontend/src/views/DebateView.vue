@@ -13,6 +13,7 @@ import UserVideo from '@/components/debate/UserVideo.vue'
 import { team } from '@/components/common/Team.js'
 import { onMounted } from "vue"
 import { storeToRefs } from "pinia"
+import { useGameStore } from "@/stores/useGameStore"
 
 // === 변수 ===
 const roomInfo = reactive({
@@ -36,7 +37,7 @@ const roomInfo = reactive({
 const route = useRoute()
 const debateId = route.params.debateId
 const debateStore = useDebateStore()
-const debate = debateStore.getDebate(debateId)
+const gameStore = useGameStore();
 const headerBarTitle = ref('[임시]제목입니다.')
 // headerBarTitle = debate.getTitle();
 
@@ -54,10 +55,9 @@ const sessionInfo = reactive({
 
 // 참가자 정보
 const authStore = useAuthStore();
-const { memberId,  } = storeToRefs(authStore);
 const playerInfo = reactive({
-  memberId: 'memberId' + Math.floor(Math.random() * 100),
-  nickname: 'nickname'+ Math.floor(Math.random() * 100),
+  memberId: authStore.memberId,
+  nickname: authStore.nickname,
   team: team[3].english,
   order: -1,
 
@@ -360,10 +360,15 @@ function leaveSession() {
 }
 
 // API 호출 메서드를 이용하여 토큰 반환
-async function getToken(category, team) {
+async function getToken() {
+  console.log(`getToken 발생! => sessionId = ${gameStore.sessionId}`)
+
   // API 호출 필요
-  await createSession(`${debateId}_${category}_${team}`)
-  const token = await createToken(`${debateId}_${category}_${team}`)
+  const response = await debateStore.joinDebate(gameStore.sessionId);
+  console.log(response)
+
+  const token = response.data.connection.token;
+  console.error(`sessionId : ${gameStore.sessionId}, 토큰 : ${token}`);
   return token
 }
 
