@@ -36,8 +36,9 @@ public class DebateController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getDebateByMemberInterests(HttpServletRequest request) {
-        return ResponseEntity.ok().build();
+    public ResponseEntity<DebateInfoListResponse> getDebateByMemberInterests(HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(debateService.getDebatesByMemberInterests(request.getHeader("Authorization")));
     }
 
     @PostMapping("/start")

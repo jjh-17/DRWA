@@ -1,9 +1,9 @@
 package com.a708.drwa.member.controller;
 
 import com.a708.drwa.annotation.AuthRequired;
-import com.a708.drwa.debate.enums.DebateCategory;
 import com.a708.drwa.member.data.dto.request.SocialLoginRequest;
 import com.a708.drwa.member.data.dto.request.UpdateInterestRequestDto;
+import com.a708.drwa.member.data.dto.response.MemberInterestCategoriesResponse;
 import com.a708.drwa.member.data.dto.response.SocialAuthURLResponse;
 import com.a708.drwa.member.data.dto.response.SocialLoginResponse;
 import com.a708.drwa.member.service.MemberInterestService;
@@ -12,10 +12,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.parser.ParseException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -100,11 +99,17 @@ public class MemberController {
      * @throws ParseException
      */
     @AuthRequired
-    @PostMapping("/update/interests")
-    public ResponseEntity<Void> updateInterests(@RequestBody UpdateInterestRequestDto updateInterestRequestDto, HttpServletRequest request) throws ParseException {
+    @PostMapping("/interests")
+    public ResponseEntity<Void> updateInterests(@RequestBody UpdateInterestRequestDto updateInterestRequestDto, HttpServletRequest request) {
+        log.info("debateCategories : {}", updateInterestRequestDto.getDebateCategories().toString());
         memberInterestService.updateMemberInterests(request.getHeader("Authorization"), updateInterestRequestDto);
         return ResponseEntity.ok().build();
     }
 
-
+    @AuthRequired
+    @GetMapping("/interests")
+    public ResponseEntity<MemberInterestCategoriesResponse> updateInterests(HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(memberInterestService.findInterestsByMemberId(request.getHeader("Authorization")));
+    }
 }

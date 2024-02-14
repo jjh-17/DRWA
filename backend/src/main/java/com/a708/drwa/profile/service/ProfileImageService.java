@@ -1,6 +1,5 @@
 package com.a708.drwa.profile.service;
 
-import com.a708.drwa.annotation.AuthRequired;
 import com.a708.drwa.member.data.JWTMemberInfo;
 import com.a708.drwa.member.domain.Member;
 import com.a708.drwa.member.exception.MemberErrorCode;
@@ -10,7 +9,6 @@ import com.a708.drwa.profile.domain.ProfileImage;
 import com.a708.drwa.profile.repository.ProfileImageRepository;
 import com.a708.drwa.utils.JWTUtil;
 import com.a708.drwa.utils.S3Uploader;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

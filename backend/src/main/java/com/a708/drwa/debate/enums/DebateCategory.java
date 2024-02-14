@@ -1,6 +1,7 @@
 package com.a708.drwa.debate.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,5 +40,10 @@ public enum DebateCategory {
             }
         }
         throw new IllegalArgumentException("Invalid category: " + value);
+    }
+
+    @JsonValue
+    public String getValue() {
+        return value;
     }
 }
