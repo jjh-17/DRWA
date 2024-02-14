@@ -21,7 +21,7 @@ public class RoomController {
     public ResponseEntity<List<Room>> searchRoomsByTitle(@RequestParam String query) {
         List<Room> rooms = roomSearchService.searchRooms("title", query); // Elasticsearch에서 제목으로 방 검색
         List<Room> fullRoomDetails = rooms.stream()
-                .map(room -> roomService.findRoomById(room.getDebateId())) // 각 Room 객체의 debateId를 사용하여 Redis에서 방 정보 조회
+                .map(room -> roomService.findRoomById(room.getSessionId())) // 각 Room 객체의 debateId를 사용하여 Redis에서 방 정보 조회
                 .collect(Collectors.toList());
         return ResponseEntity.ok(fullRoomDetails);
     }
@@ -31,7 +31,7 @@ public class RoomController {
     public ResponseEntity<List<Room>> searchRoomsByKeyword(@RequestParam String query) {
         List<Room> rooms = roomSearchService.searchRooms("keyword", query); // Elasticsearch에서 제목으로 방 검색
         List<Room> fullRoomDetails = rooms.stream()
-                .map(room -> roomService.findRoomById(room.getDebateId())) // 각 Room 객체의 debateId를 사용하여 Redis에서 방 정보 조회
+                .map(room -> roomService.findRoomById(room.getSessionId())) // 각 Room 객체의 debateId를 사용하여 Redis에서 방 정보 조회
                 .collect(Collectors.toList());
         return ResponseEntity.ok(fullRoomDetails);
     }

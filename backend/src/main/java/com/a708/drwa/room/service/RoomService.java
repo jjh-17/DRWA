@@ -11,18 +11,18 @@ public class RoomService {
 
     public RoomService(RedisTemplate<String, Object> redisTemplate) { this.redisTemplate = redisTemplate; }
 
-    public Room findRoomById(String roomId) {
-        return (Room) redisTemplate.opsForValue().get("room:" + roomId);
+    public Room findRoomById(String sessionId) {
+        return (Room) redisTemplate.opsForValue().get("room:" + sessionId);
     }
 
     public void saveRoomInRedis(Room room) {
-        if (room != null && room.getDebateId() != null) {
-            redisTemplate.opsForValue().set("room:" + room.getDebateId(), room);
+        if (room != null && room.getSessionId() != null) {
+            redisTemplate.opsForValue().set("room:" + room.getSessionId(), room);
         }
     }
 
     public void updateRoomThumbnail(Room.ThumbnailUpdateInfo thumbnailUpdateInfo) {
-        Room room = findRoomById(thumbnailUpdateInfo.getRoomId());
+        Room room = findRoomById(thumbnailUpdateInfo.getSessionId());
         if (room != null) {
             room.updateThumbnail(thumbnailUpdateInfo);
             saveRoomInRedis(room); // 업데이트된 정보를 레디스에 저장
