@@ -3,19 +3,24 @@ import DebateHeaderBar from '@/components/debate/DebateHeaderBar.vue'
 import DebateVideos from '@/components/debate/DebateVideos.vue'
 import ChattingBar from '@/components/debate/ChattingBar.vue'
 import DebateBottomBar from '@/components/debate/DebateBottomBar.vue'
+import GameStartModal from '@/components/modal/GameStartModal.vue'
 import { createSession, createToken } from '@/api/debate'
 import { ref, reactive, toRefs, computed, defineProps } from 'vue'
+import { onMounted, onUnmounted } from 'vue';
 import { useDebateStore } from '@/stores/useDebateStore'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useRoute } from 'vue-router'
 import { OpenVidu } from 'openvidu-browser'
 import UserVideo from '@/components/debate/UserVideo.vue'
 import { team } from '@/components/common/Team.js'
-import { onMounted } from "vue"
 import { storeToRefs } from "pinia"
+import { useRoomInfo } from '@/stores/useRoomInfo'
 import { useGameStore } from "@/stores/useGameStore"
 
+const { roomInfos } = useRoomInfo()
+
 // === 변수 ===
+// const roomInfo = roomInfos[connectionId]
 const roomInfo = reactive({
   category: 'category', // 토론 카테고리
   hostId: 1, // 방장 Id
@@ -201,6 +206,7 @@ function joinSession() {
     sessionInfo.session
       .connect(token, { clientData: `${playerInfo.memberId},${playerInfo.nickname},${playerInfo.team}` })
       .then(() => {
+        console.error(`${token}, ${route.params.sessionId}`)
         // 사용자 publisher 설정 및 publish
         if (playerInfo.team == team[0].english || playerInfo.team == team[1].english) {
           sessionInfo.publisher = getDefaultPublisher()
@@ -359,6 +365,8 @@ function leaveSession() {
   window.removeEventListener('beforeunload', leaveSession)
 }
 
+
+
 // API 호출 메서드를 이용하여 토큰 반환
 async function getToken() {
   console.log(`getToken 발생! => sessionId = ${gameStore.sessionId}`)
@@ -371,6 +379,31 @@ async function getToken() {
   console.error(`sessionId : ${gameStore.sessionId}, 토큰 : ${token}`);
   return token
 }
+
+
+// 시작하기 message 수신
+const showModal = ref(false);
+let eventSource;
+
+onMounted(() => {
+    eventSource = new EventSource('/events/gameStart');
+
+    eventSource.addEventListener('GAME_START', function(event) {
+        showModal.value = true; // '게임 시작' 이벤트를 수신하면 모달 활성화
+        console.log('게임 시작 이벤트 수신:', event.data);
+    });
+
+    eventSource.onerror = function(error) {
+        console.error('SSE 오류 발생:', error);
+    };
+});
+
+onUnmounted(() => {
+    if (eventSource) {
+        eventSource.close(); // 컴포넌트 언마운트 시 SSE 연결 종료
+    }
+});
+
 
 // === 투표 ===
 // 팀 투표 메서드
@@ -623,6 +656,8 @@ joinSession();
         @send-message="sendMessage"></ChattingBar>      
 
     </div>
+
+    <GameStartModal v-if="showModal" :roomInfo="roomInfo"/>
 
     <footer>
       <DebateBottomBar

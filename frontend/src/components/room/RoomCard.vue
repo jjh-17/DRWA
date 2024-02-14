@@ -25,17 +25,29 @@ import { useGameStore } from "@/stores/useGameStore";
 const router = useRouter();
 const debateStore = useDebateStore();
 const gameStore = useGameStore();
+import { httpService } from '@/api/axios'
+import { useRoomInfo } from '@/stores/useRoomInfo'
+const { setRoomInfo } = useRoomInfo()
+
+
+const joinDebate = async (sessionId) => {
+  try {
+    const response = await httpService.get(`/openvidu/session/${sessionId}`)
+    console.log('연결 정보 응답:', response.data)
+
+    // connectionId를 키로, debateInfoResponse를 값으로 사용하여 스토어 업데이트
+    setRoomInfo(response.data.connection.connectionId, response.data.debateInfoResponse)
+
+    router.push(`/debate/${sessionId}`)
+  } catch (error) {
+    console.error('연결 정보 가져오기 에러:', error)
+  }
+}
 
 
 const props = defineProps({
   room: Object,
 })
-
-async function joinDebate(sessionId) {
-  await debateStore.joinDebate(sessionId)
-  gameStore.sessionId = sessionId;
-  // router.push(`debate/${sessionId}`)
-}
 </script>
 
 <style scoped>
@@ -52,6 +64,7 @@ async function joinDebate(sessionId) {
   border: 1px solid #ccc;
   border-radius: 8px;
   background-color: #34227c;
+  cursor:pointer;
 }
 
 .thumbnail-part {

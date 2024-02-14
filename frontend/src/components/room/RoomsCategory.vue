@@ -193,11 +193,12 @@ const rooms = ref([])
 watch(
   () => props.activeCategory,
   async (newCategory) => {
-    if (newCategory === '전체') {
+    if (newCategory === 'ALL') {
       await roomStore.fetchRoomsAll(); 
       rooms.value = roomStore.roomsAll; 
     } else {
-      // rooms = roomStore.fetchRoomsCategory(newCategory)
+      await roomStore.fetchRoomsCategory(newCategory);
+      rooms.value = roomStore.roomsCategory;
     }
   },
   { immediate: true }

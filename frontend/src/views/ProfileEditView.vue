@@ -11,7 +11,7 @@ const authStore = useAuthStore();
 
 
 // '전체'와 '기타' 카테고리를 제외합니다.
-const filteredCategories = importedCategories.filter(category => category.english !== 'all' && category.english !== 'etc');
+const filteredCategories = importedCategories.filter(category => category.english !== 'ALL' && category.english !== 'ETC');
 
 // 필터링된 카테고리로 categories 데이터를 반응형으로 만듭니다.
 const categories = ref(filteredCategories.map(category => ({
@@ -30,7 +30,7 @@ const selectedFile = ref(null);
 // 컴포넌트 마운트 시 관심 카테고리를 확인하여 선택 상태 업데이트
 onMounted(() => {
     categories.value.forEach(category => {
-        if (authStore.interests.map(interest => interest.toLowerCase()).includes(category.english)) {
+        if (authStore.interests.includes(category.english)) {
             category.selected = true;
         }
     });
@@ -94,7 +94,7 @@ async function submitProfile() {
         .map(category => category.english.toUpperCase());
 
     // 관심 카테고리를 UpdateInterestRequestDto 객체 형식에 맞게 구성
-    const updateInterestRequest = {
+    const updateInterestRequestDto = {
         debateCategories: selectedCategories,
     };
 
@@ -106,7 +106,7 @@ async function submitProfile() {
     try {
         // 여기서 실제로 API 요청을 보냅니다. 예시로는 console.log로 대체합니다.
         console.log('보낼 데이터:', selectedCategories);
-        let response = await httpService.post('/member/update/interests', updateInterestRequest);
+        let response = await httpService.post('/member/interests', updateInterestRequestDto);
         if (response.status === 200) {
             // 성공적으로 관심 카테고리가 업데이트되면 Pinia 스토어의 상태를 직접 업데이트
             authStore.interests = selectedCategories;
@@ -169,7 +169,8 @@ async function uploadProfileImage(file) {
     <div class="q-pa-md" style="max-width: 700px; margin:auto;">
         <q-card class="q-pa-md" style="background: #E8EBF9; color: #34227C; width:100%;">
             <div class="text-h5 text-center q-mb-md" style="color: #34227C; margin-top:40px; font-weight:bold;">정보 수정</div>
-            <div class="text-subtitle2 text-center q-mb-md" style="color: grey;margin-bottom:20px;">회원 가입에 필요한 정보를 입력해주세요.</div>
+            <div class="text-subtitle2 text-center q-mb-md" style="color: grey;margin-bottom:20px;">회원 가입에 필요한 정보를 입력해주세요.
+            </div>
 
             <q-separator />
 
@@ -206,7 +207,9 @@ async function uploadProfileImage(file) {
                 </div>
             </div>
 
-            <q-btn label="수정 완료" class="full-width q-mt-md" style="background-color: #34227C; color: #E8EBF9; margin-top:25px; margin-bottom:30px;" @click="submitProfile" rounded />
+            <q-btn label="수정 완료" class="full-width q-mt-md"
+                style="background-color: #34227C; color: #E8EBF9; margin-top:25px; margin-bottom:30px;"
+                @click="submitProfile" rounded />
         </q-card>
     </div>
 </template>
