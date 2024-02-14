@@ -39,22 +39,25 @@ public class Member {
     private String authority;
 
     @OneToMany(mappedBy = "member", orphanRemoval = true)
-    private List<MemberInterest> memberInterestList;
+    private List<MemberInterest> memberInterestList = new ArrayList<>();
 
     @Builder
     public Member(String userId, SocialType socialType) {
         this.userId = userId;
         this.socialType = socialType;
-        this.memberInterestList = new ArrayList<>();
+    }
+
+    public void addInterest(MemberInterest memberInterest) {
+        memberInterestList.add(memberInterest);
     }
 
     public void removeInterest(MemberInterest memberInterest) {
-        this.memberInterestList.remove(memberInterest);
+        memberInterest.removeAssociations();
+        memberInterestList.remove(memberInterest);
     }
 
-    public void removeAllInterests() {
-        for(MemberInterest memberInterest : this.memberInterestList) {
-            this.removeInterest(memberInterest);
-        }
+    public void removeAllInterest() {
+        memberInterestList.forEach(MemberInterest::removeAssociations);
+        memberInterestList.clear();
     }
 }

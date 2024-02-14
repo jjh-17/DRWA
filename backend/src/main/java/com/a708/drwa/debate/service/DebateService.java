@@ -13,10 +13,16 @@ import com.a708.drwa.debate.exception.DebateException;
 import com.a708.drwa.debate.repository.DebateRepository;
 import com.a708.drwa.debate.repository.DebateRoomRepository;
 import com.a708.drwa.debate.scheduler.RoomsKey;
+import com.a708.drwa.member.data.JWTMemberInfo;
+import com.a708.drwa.member.domain.MemberInterest;
+import com.a708.drwa.member.exception.MemberErrorCode;
+import com.a708.drwa.member.exception.MemberException;
+import com.a708.drwa.member.repository.MemberRepository;
 import com.a708.drwa.redis.domain.DebateRedisKey;
 import com.a708.drwa.redis.exception.RedisErrorCode;
 import com.a708.drwa.redis.exception.RedisException;
 import com.a708.drwa.redis.util.RedisKeyUtil;
+import com.a708.drwa.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.HashOperations;
@@ -26,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -39,10 +46,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class DebateService {
+    private final MemberRepository memberRepository;
     private final DebateRepository debateRepository;
     private final DebateRoomRepository debateRoomRepository;
     private final RedisTemplate<String, DebateInfoResponse> redisTemplate;
     private final RedisKeyUtil redisKeyUtil;
+    private final JWTUtil jwtUtil;
     private final Map<String, ScheduledFuture<?>> scheduledFutures;
 
     /**
@@ -86,7 +95,32 @@ public class DebateService {
                 .build();
     }
 
+    public DebateInfoListResponse getDebatesByMemberInterests(String token) {
+        // user info
+        JWTMemberInfo memberInfo = jwtUtil.getMember(token);
 
+        // member Interests
+        List<DebateCategory> debateCategories = memberRepository.findById(memberInfo.getMemberId())
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND))
+                .getMemberInterestList().stream()
+                .map(MemberInterest::getDebateCategory)
+                .toList();
+
+        log.info("debateCategories : {}", debateCategories.toString());
+        // get debates
+        List<DebateInfoResponse> list = new ArrayList<>();
+        for (DebateCategory debateCategory : debateCategories) {
+            list.addAll(debateRoomRepository.findAllByDebateCategoryOrderByTotalCntDesc(debateCategory).stream()
+                    .map(DebateRoomInfo::toResponse)
+                    .toList());
+        }
+        log.info("get Infos Successed ! Size -> {}", list.size());
+        // 정렬 후 5개 잘라서 보내기
+        list.sort(Comparator.comparingInt(DebateInfoResponse::getTotalCnt).reversed());
+        return DebateInfoListResponse.builder()
+                .debateInfoResponses(list.subList(0, 5))
+                .build();
+    }
 
     /**
      * 토론 시작

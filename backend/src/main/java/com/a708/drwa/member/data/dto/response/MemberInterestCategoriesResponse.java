@@ -1,8 +1,8 @@
-package com.a708.drwa.member.data.dto.request;
+package com.a708.drwa.member.data.dto.response;
 
 import com.a708.drwa.debate.enums.DebateCategory;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,11 +10,11 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UpdateInterestRequestDto {
-    @JsonProperty(value = "debateCategories")
+public class MemberInterestCategoriesResponse {
     private List<DebateCategory> debateCategories;
 
-    public UpdateInterestRequestDto(List<DebateCategory> debateCategories) {
+    @Builder
+    public MemberInterestCategoriesResponse(List<DebateCategory> debateCategories) {
         this.debateCategories = debateCategories;
     }
 }
