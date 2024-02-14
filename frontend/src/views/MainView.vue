@@ -4,38 +4,78 @@
   </header>
   <div class="most-viewers-rooms">
     <div class="select-rooms">
-      <div class="select-box" @click="setActiveBox('pop')">🤍 인기토론방</div>
-      <div class="select-box" @click="setActiveBox('categ')">💛 관심 주제</div>
+      <div
+        class="select-box"
+        :class="{ active: activeCarousel === 'pop' }"
+        @click="setActiveBox('pop')"
+      >
+        🤍 인기토론방
+      </div>
+      <div
+        class="select-box"
+        :class="{ active: activeCarousel === 'categ' }"
+        @click="setActiveBox('categ')"
+      >
+        💛 관심 주제
+      </div>
     </div>
 
-    <div class="carousel">
-      <div class="carousel__prev1" @click="navigateToPrev">&lt;</div>
+    <div class="carousel" v-if="activeCarousel === 'pop'">
+      <div class="carousel__prev1" @click="navigateToPrev">
+        <img src="@/assets/img/left_arrow.png" />
+      </div>
       <div class="carousel-container">
         <Carousel ref="carousel" :itemsToShow="2.95" :wrapAround="true" :transition="500">
-          <Slide v-for="slide in images" :key="slide">
-            <div class="carousel-item"><img :src="slide" /></div>
+          <Slide v-for="room in popularRooms" :key="room.sessionId">
+            <div class="carousel-item"><RoomCard :room="room" /></div>
           </Slide>
         </Carousel>
       </div>
-      <div class="carousel__next1" @click="navigateToNext">&gt;</div>
+      <div class="carousel__next1" @click="navigateToNext">
+        <img src="@/assets/img/right_arrow.png" />
+      </div>
+    </div>
+
+    <div class="carousel" v-if="activeCarousel === 'categ'">
+      <div class="carousel__prev1" @click="navigateToPrev">
+        <img src="@/assets/img/left_arrow.png" />
+      </div>
+      <div class="carousel-container">
+        <Carousel ref="carousel" :itemsToShow="2.95" :wrapAround="true" :transition="500">
+          <Slide v-for="room in interestRooms" :key="room.hostId">
+            <div class="carousel-item"><RoomCard :room="room" /></div>
+          </Slide>
+        </Carousel>
+      </div>
+      <div class="carousel__next1" @click="navigateToNext">
+        <img src="@/assets/img/right_arrow.png" />
+      </div>
     </div>
   </div>
   <div class="categories">
     <div class="debate-category">토론 카테고리</div>
 
     <div class="category-container">
-      <div v-for="category in categories" :key="category.name"
-        :class="['category-box', { active: activeCategory === category.name }]" @click="setActiveCategory(category)">
+      <div
+        v-for="category in categories"
+        :key="category.english"
+        :class="['category-box', { active: activeCategory === category.english }]"
+        @click="setActiveCategory(category)"
+      >
         {{ category.name }}
       </div>
     </div>
   </div>
-  <div class="roomList">
+  <div class="roomList" ref="roomList">
     <RoomsCategory v-if="activeCategory" :activeCategory="activeCategory" />
   </div>
   <div class="room-create">
     <button @click="openModal"><img src="@/assets/img/create.png" /></button>
-    <DebateCreateModal :isVisible="isModalVisible" @update:isVisible="isModalVisible = $event" />
+    <DebateCreateModal
+  :isVisible="isModalVisible"
+  :disableOptions="false"
+  @update:isVisible="isModalVisible = $event"
+/>
   </div>
   <div class="goto-top">
     <button @click="scrollToTop"><img src="@/assets/img/top.png" /></button>
@@ -44,26 +84,30 @@
 
 <script setup>
 import HeaderComponent from '@/components/common/HeaderComponent.vue'
-import { ref, reactive, toRefs } from 'vue'
+import { onMounted, ref, reactive, toRefs, watch } from 'vue'
 import { Carousel, Slide } from 'vue3-carousel'
 import { categories } from '@/components/category/Category.js'
 import 'vue3-carousel/dist/carousel.css'
 import RoomsCategory from '@/components/room/RoomsCategory.vue'
 import DebateCreateModal from '@/components/modal/DebateCreateModal.vue'
+import { useRoomStore } from '@/stores/useRoomStore.js'
+import RoomCard from '@/components/room/RoomCard.vue'
+import { useAuthStore } from '@/stores/useAuthStore.js'
 
+const activeCarousel = ref('pop') // 'pop' 또는 'categ'를 가지는 변수
+
+// select-box 클릭 핸들러
+const setActiveBox = (boxType) => {
+  activeCarousel.value = boxType
+}
 
 // Composition API의 ref와 reactive를 사용하여 데이터 정의
 const state = reactive({
-  images: [
-    'https://cdn.quasar.dev/img/mountains.jpg',
-    'https://cdn.quasar.dev/img/parallax1.jpg',
-    'https://cdn.quasar.dev/img/parallax2.jpg'
-    // [임시] 여기에 방 thumbnail이 들어감. pinia로
-  ],
   activeIndex: 0,
   activeCategory: null,
   activeBox: null
 })
+
 
 const carousel = ref(null)
 
@@ -80,32 +124,73 @@ const navigateToNext = () => {
   }
 }
 
-const setActiveCategory = (category) => {
-  state.activeCategory = category.name
-}
+// 룸리스트
+// 인기토론방 받아오기
+const roomStore = useRoomStore();
 
-const setActiveBox = (boxType) => {
-  state.activeBox = boxType
+const popularRooms = ref([]);
+onMounted(async () => {
+  await roomStore.fetchRoomsPopular();
+
+  watch(
+    () => roomStore.roomsPopular,
+    (newPopularRooms) => {
+      popularRooms.value = newPopularRooms;
+      console.log(popularRooms.value)
+    },
+    { immediate: true }
+  );
+});
+
+const interestRooms = ref([]);
+onMounted(async () => {
+  await roomStore.fetchRoomsInterestCateg();
+
+  watch(
+    () => roomStore.roomsInterestCateg,
+    (newInterestCategRooms) => {
+      interestRooms.value = newInterestCategRooms;
+      console.log(interestRooms.value)
+    },
+    { immediate: true }
+  );
+});
+
+const roomList = ref(null)
+const setActiveCategory = (category) => {
+  state.activeCategory = category.english
+  if (roomList.value) {
+    roomList.value.scrollIntoView({ behavior: 'smooth' })
+  }
 }
 
 // toRefs를 사용하여 반응성 있는 데이터를 반환
 const { activeCategory, images } = toRefs(state)
 
-const isModalVisible = ref(false);
+
+
+const isModalVisible = ref(false)
 
 const openModal = () => {
-  isModalVisible.value = true;
-};
+  isModalVisible.value = true
+}
 
 const scrollToTop = () => {
   window.scrollTo({
     top: 0,
     behavior: 'smooth' // 부드러운 스크롤 효과
-  });
-};
+  })
+}
 </script>
 
 <style scoped>
+.select-box.active {
+  opacity: 1;
+}
+
+.select-box:not(.active) {
+  opacity: 0.5;
+}
 .most-viewers-rooms {
   background-color: rgba(47, 41, 73, 0.5);
   padding: 10px 30px 30px 30px;
@@ -127,9 +212,11 @@ const scrollToTop = () => {
   border-radius: 4px;
   width: 150px;
   height: 40px;
+  cursor:pointer;
 }
 
-.carousel {}
+.carousel {
+}
 
 .carousel-container {
   padding: 20px;
@@ -158,7 +245,7 @@ const scrollToTop = () => {
   transform: rotateY(-20deg) scale(0.8);
 }
 
-.carousel__slide--active~.carousel__slide {
+.carousel__slide--active ~ .carousel__slide {
   transform: rotateY(20deg) scale(0.8);
 }
 
@@ -193,24 +280,20 @@ const scrollToTop = () => {
   /* 상위 요소의 중앙에 위치 */
   transform: translateY(-50%);
   /* Y축 기준 중앙 정렬 */
-  background-color: rgba(0, 0, 0, 0);
-  /* 버튼 배경색 설정 */
   z-index: 10;
-  /* 다른 요소 위에 표시 */
-  height: 50%;
-  line-height: 200px;
-  font-size: calc(50vh / 2);
-  color: #34227c;
+  height: 60%;
+  opacity: 1;
 }
-
+.carousel__prev1 img,
+.carousel__next1 img {
+  height: 100%;
+}
 .carousel__prev1 {
-  left: 15%;
-  /* 왼쪽에서부터의 거리 */
+  left: 27%;
 }
 
 .carousel__next1 {
-  right: 15%;
-  /* 오른쪽에서부터의 거리 */
+  right: 27%;
 }
 
 .categories {
@@ -224,6 +307,7 @@ const scrollToTop = () => {
   color: #34227c;
   width: 200px;
   height: 40px;
+  font-weight: bold;
 }
 
 .category-container {
@@ -260,7 +344,6 @@ const scrollToTop = () => {
 
 .select-box {
   padding-right: 10px;
-  ;
 }
 
 .room-create {
@@ -291,4 +374,5 @@ const scrollToTop = () => {
   /* 이미지 주위의 공간 제거 */
   width: 60px;
   height: 60px;
-}</style>
+}
+</style>
