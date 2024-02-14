@@ -216,7 +216,7 @@ const submitForm = async () => {
     alert("모든 필드를 채워주세요.");
     return; // 함수 실행 중단
   }
-  const roomDto = {
+  let roomDto = {
     debateCategory: category.value,
     hostId: memberId,
     title: title.value,
@@ -239,14 +239,14 @@ const submitForm = async () => {
     const response = await httpService.post('/openvidu/session', roomDto)
     console.log('방 생성 응답:', response.data)
     sessionId.value = response.data.sessionId
-    makeDebateRoom(sessionId)
+    makeDebateRoom()
     closeModal()
   } catch (error) {
     console.error('방 생성 에러:', error)
   }
 }
 
-const makeDebateRoom = async (sessionId) => {
+const makeDebateRoom = async () => {
   try {
     const response = await httpService.get(`/openvidu/session/${sessionId.value}`);
     console.log('연결 정보 응답:', response.data);
