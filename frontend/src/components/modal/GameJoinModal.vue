@@ -50,25 +50,24 @@ const showModal = ref(true)
 const selectedRole = ref('')
 const debateStore = useDebateStore();
 
-const closeModal = (action) => {
+const closeModal = async (action) => {
   if (action === 'confirm' && !selectedRole.value) {
     alert('역할을 선택해주세요.')
     return
   }
   if (action === 'confirm') {
-    async (sessionId) => {
-      try {
-        // const response = await httpService.get(`/openvidu/session/${sessionId}`)
-        const response = await debateStore.joinDebate(sessionId)
-        console.log('연결 정보 응답:', response.data)
+    try {
+      // const response = await httpService.get(`/openvidu/session/${sessionId}`)
+      const sessionId = props.room.sessionId;
+      const response = await debateStore.joinDebate(sessionId)
+      console.log('연결 정보 응답:', response.data)
 
-        // connectionId를 키로, debateInfoResponse를 값으로 사용하여 스토어 업데이트
-        setRoomInfo(response.data.connection.connectionId, response.data.debateInfoResponse)
+      // connectionId를 키로, debateInfoResponse를 값으로 사용하여 스토어 업데이트
+      setRoomInfo(response.data.connection.connectionId, response.data.debateInfoResponse)
 
-        router.push(`/debate/${sessionId}`)
-      } catch (error) {
-        console.error('연결 정보 가져오기 에러:', error)
-      }
+      router.push(`/debate/${sessionId}`)
+    } catch (error) {
+      console.error('연결 정보 가져오기 에러:', error)
     }
   }
 
