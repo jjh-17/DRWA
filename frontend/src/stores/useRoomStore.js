@@ -8,17 +8,17 @@ export const useRoomStore = defineStore('room', {
   state: () => ({   
     roomsPopular: [],
     roomsInterestCateg: [],
-    roomsCategory:{},
+    roomsCategory:[],
     roomsAll: [],
   }),
   actions: {
     async fetchRoomsCategory(categoryName) {
-      // try {
-      //   const response = await axios.get(`${REST_ROOM_API}/${categoryName}`);
-      //   this.roomsCategory = response.data;
-      // } catch (error) {
-      //   console.error('Error fetching roomsCategory:', error);
-      // }
+      try {
+        const response = await httpService.get(`debate/${categoryName}`);
+        this.roomsCategory = response.data.debateInfoResponses;
+      } catch (error) {
+        console.error('Error fetching roomsCategory:', error);
+      }
     },
     async fetchRoomsPopular() {
       try {
