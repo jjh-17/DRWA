@@ -1,5 +1,6 @@
 package com.a708.drwa.member.service;
 
+import com.a708.drwa.annotation.AuthRequired;
 import com.a708.drwa.auth.domain.RefreshToken;
 import com.a708.drwa.auth.exception.AuthErrorCode;
 import com.a708.drwa.auth.exception.AuthException;
@@ -26,10 +27,14 @@ import com.a708.drwa.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -196,6 +201,17 @@ public class MemberService {
         return memberInterests.stream()
                 .map(interest -> new InterestDto(interest.getDebateCategory()))
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void reportUser(String userId) {
+        Member member = memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        int reportedCnt = member.getReportedCnt();
+        member.setReportedCnt(reportedCnt + 1);
+
+        memberRepository.save(member);
     }
 
 
