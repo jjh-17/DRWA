@@ -26,7 +26,7 @@
       </div>
       <div class="carousel-container">
         <Carousel ref="carousel" :itemsToShow="2.95" :wrapAround="true" :transition="500">
-          <Slide v-for="room in popularRooms" :key="room.hostId">
+          <Slide v-for="room in popularRooms" :key="room.sessionId">
             <div class="carousel-item"><RoomCard :room="room" /></div>
           </Slide>
         </Carousel>
@@ -108,187 +108,205 @@ const state = reactive({
   activeBox: null
 })
 
-// // 인기토론방 받아오기
-// const roomStore = useRoomStore();
 
-// const popularRooms = ref([]);
-// onMounted(async () => {
-//   await roomStore.fetchRoomsPopular();
+const carousel = ref(null)
 
-//   watch(
-//     () => roomStore.roomsPopular,
-//     (newPopularRooms) => {
-//       popularRooms.value = newPopularRooms;
-//     },
-//     { immediate: true }
-//   );
-// });
+// 함수 정의
+const navigateToPrev = () => {
+  if (carousel.value) {
+    carousel.value.prev()
+  }
+}
+
+const navigateToNext = () => {
+  if (carousel.value) {
+    carousel.value.next()
+  }
+}
+
+// 룸리스트
+// 인기토론방 받아오기
+const roomStore = useRoomStore();
+
+const popularRooms = ref([]);
+onMounted(async () => {
+  await roomStore.fetchRoomsPopular();
+
+  watch(
+    () => roomStore.roomsPopular,
+    (newPopularRooms) => {
+      popularRooms.value = newPopularRooms;
+      console.log(popularRooms.value)
+    },
+    { immediate: true }
+  );
+});
 
 // 아래는 임시 rooms정보
-const popularRooms = ref([
-  {
-    thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
-    thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
-    leftKeyword: '산',
-    rightKeyword: '바다',
-    title: '어디서 살고 싶나요?',
-    hostId: '나는자연인이다',
-    totalNum: 10
-  },
-  {
-    thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
-    thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
-    leftKeyword: '치킨',
-    rightKeyword: '피자',
-    title: '당신의 선호 음식은?',
-    hostId: '장사의신',
-    totalNum: 8
-  },
-  {
-    thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
-    thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
-    leftKeyword: '산',
-    rightKeyword: '바다',
-    title: '어디서 살고 싶나요?',
-    hostId: '나는자연인이다1',
-    totalNum: 10
-  },
-  {
-    thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
-    thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
-    leftKeyword: '치킨',
-    rightKeyword: '피자',
-    title: '당신의 선호 음식은?',
-    hostId: '장사의신1',
-    totalNum: 8
-  },
-  {
-    thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
-    thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
-    leftKeyword: '산',
-    rightKeyword: '바다',
-    title: '어디서 살고 싶나요?',
-    hostId: '나는자연인이다2',
-    totalNum: 10
-  },
-  {
-    thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
-    thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
-    leftKeyword: '치킨',
-    rightKeyword: '피자',
-    title: '당신의 선호 음식은?',
-    hostId: '장사의신2',
-    totalNum: 8
-  },
-  {
-    thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
-    thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
-    leftKeyword: '산',
-    rightKeyword: '바다',
-    title: '어디서 살고 싶나요?',
-    hostId: '나는자연인이다3',
-    totalNum: 10
-  },
-  {
-    thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
-    thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
-    leftKeyword: '치킨',
-    rightKeyword: '피자',
-    title: '당신의 선호 음식은?',
-    hostId: '장사의신3',
-    totalNum: 8
-  },
-  {
-    thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
-    thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
-    leftKeyword: '산',
-    rightKeyword: '바다',
-    title: '어디서 살고 싶나요?',
-    hostId: '나는자연인이다4',
-    totalNum: 10
-  },
-  {
-    thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
-    thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
-    leftKeyword: '치킨',
-    rightKeyword: '피자',
-    title: '당신의 선호 음식은?',
-    hostId: '장사의신4',
-    totalNum: 8
-  },
-  {
-    thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
-    thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
-    leftKeyword: '산',
-    rightKeyword: '바다',
-    title: '어디서 살고 싶나요?',
-    hostId: '나는자연인이다5',
-    totalNum: 10
-  },
-  {
-    thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
-    thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
-    leftKeyword: '치킨',
-    rightKeyword: '피자',
-    title: '당신의 선호 음식은?',
-    hostId: '장사의신5',
-    totalNum: 8
-  },
-  {
-    thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
-    thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
-    leftKeyword: '산',
-    rightKeyword: '바다',
-    title: '어디서 살고 싶나요?',
-    hostId: '나는자연인이다6',
-    totalNum: 10
-  },
-  {
-    thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
-    thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
-    leftKeyword: '치킨',
-    rightKeyword: '피자',
-    title: '당신의 선호 음식은?',
-    hostId: '장사의신6',
-    totalNum: 8
-  },
-  {
-    thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
-    thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
-    leftKeyword: '산',
-    rightKeyword: '바다',
-    title: '어디서 살고 싶나요?',
-    hostId: '나는자연인이다7',
-    totalNum: 10
-  },
-  {
-    thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
-    thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
-    leftKeyword: '치킨',
-    rightKeyword: '피자',
-    title: '당신의 선호 음식은?',
-    hostId: '장사의신7',
-    totalNum: 8
-  },
-  {
-    thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
-    thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
-    leftKeyword: '산',
-    rightKeyword: '바다',
-    title: '어디서 살고 싶나요?',
-    hostId: '나는자연인이다8',
-    totalNum: 10
-  },
-  {
-    thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
-    thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
-    leftKeyword: '치킨',
-    rightKeyword: '피자',
-    title: '당신의 선호 음식은?',
-    hostId: '장사의신8',
-    totalNum: 8
-  }
-])
+// const popularRooms = ref([
+//   {
+//     thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
+//     thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
+//     leftKeyword: '산',
+//     rightKeyword: '바다',
+//     title: '어디서 살고 싶나요?',
+//     hostId: '나는자연인이다',
+//     totalNum: 10
+//   },
+//   {
+//     thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
+//     thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
+//     leftKeyword: '치킨',
+//     rightKeyword: '피자',
+//     title: '당신의 선호 음식은?',
+//     hostId: '장사의신',
+//     totalNum: 8
+//   },
+//   {
+//     thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
+//     thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
+//     leftKeyword: '산',
+//     rightKeyword: '바다',
+//     title: '어디서 살고 싶나요?',
+//     hostId: '나는자연인이다1',
+//     totalNum: 10
+//   },
+//   {
+//     thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
+//     thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
+//     leftKeyword: '치킨',
+//     rightKeyword: '피자',
+//     title: '당신의 선호 음식은?',
+//     hostId: '장사의신1',
+//     totalNum: 8
+//   },
+//   {
+//     thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
+//     thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
+//     leftKeyword: '산',
+//     rightKeyword: '바다',
+//     title: '어디서 살고 싶나요?',
+//     hostId: '나는자연인이다2',
+//     totalNum: 10
+//   },
+//   {
+//     thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
+//     thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
+//     leftKeyword: '치킨',
+//     rightKeyword: '피자',
+//     title: '당신의 선호 음식은?',
+//     hostId: '장사의신2',
+//     totalNum: 8
+//   },
+//   {
+//     thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
+//     thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
+//     leftKeyword: '산',
+//     rightKeyword: '바다',
+//     title: '어디서 살고 싶나요?',
+//     hostId: '나는자연인이다3',
+//     totalNum: 10
+//   },
+//   {
+//     thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
+//     thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
+//     leftKeyword: '치킨',
+//     rightKeyword: '피자',
+//     title: '당신의 선호 음식은?',
+//     hostId: '장사의신3',
+//     totalNum: 8
+//   },
+//   {
+//     thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
+//     thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
+//     leftKeyword: '산',
+//     rightKeyword: '바다',
+//     title: '어디서 살고 싶나요?',
+//     hostId: '나는자연인이다4',
+//     totalNum: 10
+//   },
+//   {
+//     thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
+//     thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
+//     leftKeyword: '치킨',
+//     rightKeyword: '피자',
+//     title: '당신의 선호 음식은?',
+//     hostId: '장사의신4',
+//     totalNum: 8
+//   },
+//   {
+//     thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
+//     thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
+//     leftKeyword: '산',
+//     rightKeyword: '바다',
+//     title: '어디서 살고 싶나요?',
+//     hostId: '나는자연인이다5',
+//     totalNum: 10
+//   },
+//   {
+//     thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
+//     thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
+//     leftKeyword: '치킨',
+//     rightKeyword: '피자',
+//     title: '당신의 선호 음식은?',
+//     hostId: '장사의신5',
+//     totalNum: 8
+//   },
+//   {
+//     thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
+//     thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
+//     leftKeyword: '산',
+//     rightKeyword: '바다',
+//     title: '어디서 살고 싶나요?',
+//     hostId: '나는자연인이다6',
+//     totalNum: 10
+//   },
+//   {
+//     thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
+//     thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
+//     leftKeyword: '치킨',
+//     rightKeyword: '피자',
+//     title: '당신의 선호 음식은?',
+//     hostId: '장사의신6',
+//     totalNum: 8
+//   },
+//   {
+//     thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
+//     thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
+//     leftKeyword: '산',
+//     rightKeyword: '바다',
+//     title: '어디서 살고 싶나요?',
+//     hostId: '나는자연인이다7',
+//     totalNum: 10
+//   },
+//   {
+//     thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
+//     thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
+//     leftKeyword: '치킨',
+//     rightKeyword: '피자',
+//     title: '당신의 선호 음식은?',
+//     hostId: '장사의신7',
+//     totalNum: 8
+//   },
+//   {
+//     thumbnail1: 'https://cdn.quasar.dev/img/mountains.jpg',
+//     thumbnail2: 'https://cdn.quasar.dev/img/parallax1.jpg',
+//     leftKeyword: '산',
+//     rightKeyword: '바다',
+//     title: '어디서 살고 싶나요?',
+//     hostId: '나는자연인이다8',
+//     totalNum: 10
+//   },
+//   {
+//     thumbnail1: 'https://cdn.quasar.dev/img/parallax2.jpg',
+//     thumbnail2: 'https://cdn.quasar.dev/img/mountains.jpg',
+//     leftKeyword: '치킨',
+//     rightKeyword: '피자',
+//     title: '당신의 선호 음식은?',
+//     hostId: '장사의신8',
+//     totalNum: 8
+//   }
+// ])
 
 // // 관심토론방 받아오기
 // const authStore = useAuthStore()
@@ -477,20 +495,6 @@ const interestRooms = ref([
   }
 ])
 
-const carousel = ref(null)
-
-// 함수 정의
-const navigateToPrev = () => {
-  if (carousel.value) {
-    carousel.value.prev()
-  }
-}
-
-const navigateToNext = () => {
-  if (carousel.value) {
-    carousel.value.next()
-  }
-}
 const roomList = ref(null)
 const setActiveCategory = (category) => {
   state.activeCategory = category.name
@@ -501,6 +505,8 @@ const setActiveCategory = (category) => {
 
 // toRefs를 사용하여 반응성 있는 데이터를 반환
 const { activeCategory, images } = toRefs(state)
+
+
 
 const isModalVisible = ref(false)
 
@@ -621,11 +627,11 @@ const scrollToTop = () => {
   height: 100%;
 }
 .carousel__prev1 {
-  left: 20%;
+  left: 27%;
 }
 
 .carousel__next1 {
-  right: 20%;
+  right: 27%;
 }
 
 .categories {
