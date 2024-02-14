@@ -58,8 +58,8 @@
     <div class="category-container">
       <div
         v-for="category in categories"
-        :key="category.name"
-        :class="['category-box', { active: activeCategory === category.name }]"
+        :key="category.english"
+        :class="['category-box', { active: activeCategory === category.english }]"
         @click="setActiveCategory(category)"
       >
         {{ category.name }}
@@ -497,7 +497,7 @@ const interestRooms = ref([
 
 const roomList = ref(null)
 const setActiveCategory = (category) => {
-  state.activeCategory = category.name
+  state.activeCategory = category.english
   if (roomList.value) {
     roomList.value.scrollIntoView({ behavior: 'smooth' })
   }
@@ -551,6 +551,7 @@ const scrollToTop = () => {
   border-radius: 4px;
   width: 150px;
   height: 40px;
+  cursor:pointer;
 }
 
 .carousel {
