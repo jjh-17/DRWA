@@ -38,6 +38,7 @@ import { ref, defineProps } from 'vue'
 import { useRouter } from 'vue-router';
 import { httpService } from '@/api/axios'
 import { useRoomInfo } from '@/stores/useRoomInfo'
+import { useDebateStore } from "@/stores/useDebateStore";
 
 const props = defineProps({
   room: Object
@@ -47,6 +48,7 @@ const router = useRouter()
 
 const showModal = ref(true)
 const selectedRole = ref('')
+const debateStore = useDebateStore();
 
 const closeModal = (action) => {
   if (action === 'confirm' && !selectedRole.value) {
@@ -56,7 +58,8 @@ const closeModal = (action) => {
   if (action === 'confirm') {
     async (sessionId) => {
       try {
-        const response = await httpService.get(`/openvidu/session/${sessionId}`)
+        // const response = await httpService.get(`/openvidu/session/${sessionId}`)
+        const response = await debateStore.joinDebate(sessionId)
         console.log('연결 정보 응답:', response.data)
 
         // connectionId를 키로, debateInfoResponse를 값으로 사용하여 스토어 업데이트

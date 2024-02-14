@@ -113,7 +113,7 @@ function joinSession() {
     // 새로운 stream의 클라이언트 정보(memberId, nickname, team)를 받아옴
     const clientDatas = stream.connection.data.split('"');
     const datas = clientDatas[3].split(',');
-
+  
     // 새로운 subscriber
     const subscriber = sessionInfo.session.subscribe(stream)
 
@@ -133,11 +133,16 @@ function joinSession() {
     } else {
       console.error(`잘못된 팀 - ${datas[2]} 입니다.`)
     }
+
+    console.log(`streamCreated!!, ${sessionInfo.teamLeftList.length}, ${sessionInfo.teamRightList.length}, 
+    ${playerInfo.playerLeftList.length}, ${playerInfo.playerRightList.length}`)
   });
 
   // 다른 사용자의 stream 종료 감지(juror, watcher는 해당 X)
   sessionInfo.session.on('streamDestroyed', ({ stream }) => {
     leaveTeam(stream.streamManager);
+    console.log(`streamDestroyed!!, ${sessionInfo.teamLeftList.length}, ${sessionInfo.teamRightList.length}, 
+    ${playerInfo.playerLeftList.length}, ${playerInfo.playerRightList.length}`)
   })
 
   // 채팅 이벤트 수신 처리(닉네임, 목표 팀, 메시지 내용) => targetTeam에 따라 메시지 저장 공간 변화
@@ -202,25 +207,24 @@ function joinSession() {
       .then(() => {
         console.log(`세션 연결!, ${gameStore.team}`)
         if (gameStore.team == team[0].english || gameStore.team == team[1].english) {
+          initCommunication(gameStore.team)
           sessionInfo.publisher = getDefaultPublisher()
           sessionInfo.session.publish(sessionInfo.publisher)
 
           if (gameStore.team == team[0].english) {
             sessionInfo.teamLeftList.push(sessionInfo.publisher);
-            gameStore.playerLeftList.push({
+            playerInfo.playerLeftList.push({
               memberId: gameStore.memberId,
               nickname: gameStore.nickname,
             })
           } else if (gameStore.team == team[1].english) {
             sessionInfo.teamRightList.push(sessionInfo.publisher);
-            gameStore.playerRightList.push({
+            playerInfo.playerRightList.push({
               memberId: gameStore.memberId,
               nickname: gameStore.nickname,
             })
           }
         }
-
-        initCommunication(gameStore.team)
       })
       .catch((error) => {
         console.error(`세션 연결 실패 : ${error}`)
@@ -538,7 +542,11 @@ joinSession();
             v-for="sub in sessionInfo.teamLeftList"
             :key="sub.stream.connection.connectionId"
             :stream-manager="sub"/>
-          <div v-for="num in (roomInfo.playerNum - sessionInfo.teamLeftList.length)" :key="num">
+          <!-- <div v-for="num in (roomInfo.playerNum - sessionInfo.teamLeftList.length)" :key="num">
+            <div class="player">+</div>
+          </div> -->
+
+          <div v-for="num in (roomInfo.playerNum - playerInfo.playerLeftList.length)" :key="num">
             <div class="player">+</div>
           </div>
         </div>
@@ -557,7 +565,11 @@ joinSession();
             v-for="sub in sessionInfo.teamRightList"
             :key="sub.stream.connection.connectionId"
             :stream-manager="sub"/>
-          <div v-for="num in (roomInfo.playerNum - sessionInfo.teamRightList.length)" :key="num">
+          <!-- <div v-for="num in (roomInfo.playerNum - sessionInfo.teamRightList.length)" :key="num">
+            <div class="player">+</div>
+          </div> -->
+
+          <div v-for="num in (roomInfo.playerNum - playerInfo.playerLeftList.length)" :key="num">
             <div class="player">+</div>
           </div>
         </div>
