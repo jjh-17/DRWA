@@ -2,24 +2,14 @@ import { defineStore } from 'pinia'
 import axios from 'axios'
 import { httpService } from "@/api/axios"
 
-const REST_DEBATE_API = `http://i10a708.p.ssafy.io/debate`
 export const useDebateStore = defineStore('debate', {
   state: () => ({   
     debate: [],
   }),
   actions: {
-    async getDebate(debateId) {
-      // try {
-      //   const response = await axios.get(`${REST_DEBATE_API}/${debateId}`);
-      //   this.debate = response.data;
-      // } catch (error) {
-      //   console.error('Error fetching debate:', error);
-      // }
-    },
-
     async createRoom(roomDto) {
       try {
-        const response = await httpService.post('/openvidu/session', roomDto)
+        const response = await httpService.post('openvidu/session', roomDto)
         console.log(`방 생성 정보 : ${response.data}`)
         return response
       } catch (error) {
@@ -28,7 +18,7 @@ export const useDebateStore = defineStore('debate', {
     },
     async joinDebate(sessionId) {
       try {
-        const response = await httpService.get(`/openvidu/session/${sessionId}`);
+        const response = await httpService.get(`openvidu/session/${sessionId}`);
         console.log('연결 정보 응답:', response.data);
         return response
       } catch (error) {

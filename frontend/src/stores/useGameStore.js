@@ -1,12 +1,13 @@
 import { httpService } from "@/api/axios"
 import { defineStore } from 'pinia'
-
-const REST_DEBATE_API = `http://i10a708.p.ssafy.io/debate`
+import { team } from "@/components/common/Team"
 
 export const useGameStore = defineStore('game', {
   state: () => ({   
     sessionId: '',
-
+    token: '',
+    team: team[0].english,
+    connectionId : '',
   }),
   actions: {
 
