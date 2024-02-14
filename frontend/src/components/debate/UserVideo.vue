@@ -4,7 +4,6 @@ import { computed } from 'vue';
 import OvVideo from "./OvVideo.vue";
 const props = defineProps({
   streamManager: Object,
-  connectionId: String,
 })
 
 // clientData는 computed로 진행됨
@@ -17,8 +16,6 @@ function getConnectionData() {
   const { connection } = props.streamManager.stream;
   return JSON.parse(connection.data);
 }
-
-console.log(`uservideo : ${props.connectionId}`)
 </script>
 
 <template>
