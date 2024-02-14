@@ -166,27 +166,27 @@ async function uploadProfileImage(file) {
     <header>
         <HeaderComponent />
     </header>
-    <div class="q-pa-md" style="max-width: 700px; margin: auto;">
-        <q-card class="q-pa-md" style="background: #f8f8ff; color: purple;">
-            <div class="text-h5 text-center q-mb-md" style="color: purple;">정보 수정</div>
-            <div class="text-subtitle2 text-center q-mb-md" style="color: grey;">회원 가입에 필요한 정보를 입력해주세요.</div>
+    <div class="q-pa-md" style="max-width: 700px; margin:auto;">
+        <q-card class="q-pa-md" style="background: #E8EBF9; color: #34227C; width:100%;">
+            <div class="text-h5 text-center q-mb-md" style="color: #34227C; margin-top:40px; font-weight:bold;">정보 수정</div>
+            <div class="text-subtitle2 text-center q-mb-md" style="color: grey;margin-bottom:20px;">회원 가입에 필요한 정보를 입력해주세요.</div>
 
             <q-separator />
 
 
 
-            <div class="q-mt-md">
-                <div class="text-bold q-mb-xs">닉네임</div>
+            <div class="q-mt-md" style="margin-bottom:20px; margin-top:30px;">
+                <div class="text-bold q-mb-xs" style="padding:  0 12px;">닉네임</div>
                 <div class="q-input q-ma-none q-pa-none" style="display: flex; align-items: center;">
                     <q-input rounded outlined v-model="nickname" class="nickname-input"
                         style="flex-grow: 1; border-right: none;" />
-                    <q-btn flat label="중복확인" color="purple" @click="checkNickname" class="q-ml-md rounded-borders"
+                    <q-btn flat label="중복확인" color="#34227C" @click="checkNickname" class="q-ml-md rounded-borders"
                         style="max-height: 54px;" />
                 </div>
             </div>
 
-            <div class="q-mt-md">
-                <div class="text-bold q-mb-xs">관심 카테고리</div>
+            <div class="q-mt-md" style="margin-top:20px; margin-bottom:20px;">
+                <div class="text-bold q-mb-xs" style="padding:  0 12px;">관심 카테고리</div>
                 <div class="q-gutter-sm q-mt-xs">
                     <q-chip v-for="category in categories" :key="category.english" clickable
                         :color="category.selected ? 'purple' : 'grey'" @click="toggleCategory(category)">
@@ -195,17 +195,18 @@ async function uploadProfileImage(file) {
                 </div>
             </div>
 
-
-            <div class="text-bold q-mb-xs">프로필 이미지(선택)</div>
-            <div class="q-mt-md flex items-center profile-section">
-                <q-avatar size="100px" class="q-mr-md">
-                    <img v-if="profileImage" :src="profileImage" />
-                    <img v-else src="https://cdn.quasar.dev/img/avatar.png" alt=" 디폴트 프로필 이미지" />
-                </q-avatar>
-                <q-file filled label="파일 선택" accept="image/*" @update:model-value="onFileChange" class="file-input" />
+            <div style="margin-top:20px; margin-bottom:20px;">
+                <div class="text-bold q-mb-xs" style="padding:  0 12px;">프로필 이미지(선택)</div>
+                <div class="q-mt-md flex items-center profile-section" style="padding:  0 12px;">
+                    <q-avatar size="100px" class="q-mr-md">
+                        <img v-if="profileImage" :src="profileImage" />
+                        <img v-else src="https://cdn.quasar.dev/img/avatar.png" alt=" 디폴트 프로필 이미지" />
+                    </q-avatar>
+                    <q-file filled label="파일 선택" accept="image/*" @update:model-value="onFileChange" class="file-input" />
+                </div>
             </div>
 
-            <q-btn color="dark" label="수정 완료" class="full-width q-mt-md" @click="submitProfile" rounded />
+            <q-btn label="수정 완료" class="full-width q-mt-md" style="background-color: #34227C; color: #E8EBF9; margin-top:25px; margin-bottom:30px;" @click="submitProfile" rounded />
         </q-card>
     </div>
 </template>
@@ -216,7 +217,7 @@ async function uploadProfileImage(file) {
 }
 
 .nickname-input {
-    border-color: purple;
+    border-color: #34227C;
 }
 
 .profile-section {
