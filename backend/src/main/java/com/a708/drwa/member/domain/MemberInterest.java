@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
@@ -27,13 +26,16 @@ public class MemberInterest {
 
     @Builder
     public MemberInterest(Member member, DebateCategory debateCategory) {
-        this.member = member;
         this.debateCategory = debateCategory;
-        member.getMemberInterestList().add(this);
+        setMember(member);
+    }
+
+    public void setMember(Member member) {
+        this.member = member;
+        member.addInterest(this);
     }
 
     public void removeAssociations() {
-        this.member.removeInterest(this);
         this.member = null;
     }
 }
