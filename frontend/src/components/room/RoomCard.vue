@@ -1,5 +1,5 @@
 <template>
-  <div class="room-card" @click="joinDebate(room.sessionId)">
+  <div class="room-card" @click="openModal">
     <div class="top-container"></div>
     <div class="thumbnail-part">
       <div class="image-container">
@@ -13,42 +13,24 @@
     <div class="title">제목 : {{ room.title }}</div>
     <div class="keyword">제시어 : {{ room.leftKeyword }} vs {{ room.rightKeyword }}</div>
     <div class="host">방장 : {{ room.hostName }}</div>
+    <div class="totalNum"> 현재 인원수 : {{ room.totalCnt }}</div>
+    <GameJoinModal v-if="showModal" :room="selectedRoom" @close="showModal = false" />
   </div>
 </template>
 
 <script setup>
-import { defineProps } from 'vue'
-import { useRouter } from 'vue-router';
-import { useDebateStore } from "@/stores/useDebateStore";
-import { useGameStore } from "@/stores/useGameStore";
-
-const router = useRouter();
-const debateStore = useDebateStore();
-const gameStore = useGameStore();
-import { httpService } from '@/api/axios'
-import { useRoomInfo } from '@/stores/useRoomInfo'
-const { setRoomInfo } = useRoomInfo()
-
-
-const joinDebate = async (sessionId) => {
-  try {
-    // const response = await httpService.get(`/openvidu/session/${sessionId}`)
-    const response = await debateStore.joinDebate(sessionId)
-    console.log('연결 정보 응답:', response.data)
-
-    // connectionId를 키로, debateInfoResponse를 값으로 사용하여 스토어 업데이트
-    setRoomInfo(response.data.connection.connectionId, response.data.debateInfoResponse)
-
-    router.push(`/debate/${sessionId}`)
-  } catch (error) {
-    console.error('연결 정보 가져오기 에러:', error)
-  }
-}
-
+import { defineProps,ref } from 'vue'
+import GameJoinModal from '@/components/modal/GameJoinModal.vue';
 
 const props = defineProps({
   room: Object,
 })
+const showModal = ref(false); 
+const selectedRoom = ref(null);
+const openModal = () => {
+  showModal.value = true;
+  selectedRoom.value = props.room; // 선택된 room 정보를 저장
+};
 </script>
 
 <style scoped>
@@ -78,7 +60,8 @@ const props = defineProps({
 }
 .title,
 .keyword,
-.host {
+.host,
+.totalNum {
   color: #f9f9f9;
   text-align: left;
   font-weight: bold;

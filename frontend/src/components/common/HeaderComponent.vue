@@ -147,9 +147,12 @@ function onLogoClick() {
 
                 <q-card-section class="q-pt-none flex flex-center column">
                     <div class="text-h6 text-center q-mb-md">소셜 로그인</div>
-                    <img class="login-btn" src="@\assets\img\google_login_btn.png" @click="fetchSocialLoginUrl('google')">
-                    <img class="login-btn" src="@\assets\img\naver_login_btn.png" @click="fetchSocialLoginUrl('naver')">
-                    <img class="login-btn" src="@\assets\img\kakao_login_btn.png" @click="fetchSocialLoginUrl('kakao')">
+                    <img class="login-btn cursor-pointer" src="@\assets\img\google_login_btn.png"
+                        @click="fetchSocialLoginUrl('google')">
+                    <img class="login-btn cursor-pointer" src="@\assets\img\naver_login_btn.png"
+                        @click="fetchSocialLoginUrl('naver')">
+                    <img class="login-btn cursor-pointer" src="@\assets\img\kakao_login_btn.png"
+                        @click="fetchSocialLoginUrl('kakao')">
                 </q-card-section>
             </q-card>
         </q-dialog>
