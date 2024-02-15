@@ -9,16 +9,16 @@ export const useDebateStore = defineStore('debate', {
   actions: {
     async createRoom(roomDto) {
       try {
-        const response = await httpService.post('openvidu/session', roomDto)
+        const response = await httpService.post('openvidu/session/create', roomDto)
         console.log(`방 생성 정보 : ${response.data}`)
         return response
       } catch (error) {
         console.error(`방 생성 에러: ${error}`)
       }
     },
-    async joinDebate(sessionId) {
+    async joinDebate(joinRoom) {
       try {
-        const response = await httpService.get(`openvidu/session/${sessionId}`);
+        const response = await httpService.post(`openvidu/session/enter`, joinRoom);
         console.log('연결 정보 응답:', response.data);
         return response
       } catch (error) {

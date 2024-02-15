@@ -263,7 +263,11 @@ const submitForm = async () => {
 const makeDebateRoom = async () => {
   try {
     // const response = await httpService.get(`/openvidu/session/${sessionId.value}`);
-    const response = await debateStore.joinDebate(sessionId.value);
+    const response = await debateStore.joinDebate({
+      sessionId: sessionId.value,
+      nickname: authStore.nickname,
+      role: team[0].english,
+    });
     console.log('연결 정보 응답:', response.data);
     gameStore.sessionId = sessionId.value;
     gameStore.token = response.data.connection.token;

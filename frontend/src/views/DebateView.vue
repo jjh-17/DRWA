@@ -58,12 +58,16 @@ const sessionInfo = reactive({
 // 참가자 정보
 const authStore = useAuthStore()
 const playerInfo = reactive({
-  team: '',
+  // team: '',
   // index == 각 팀에서의 순서
   // 각 팀 플레이어의 {memberId, nickname } 저장
   playerLeftList: [],
   playerRightList: []
 })
+
+const playerInfoConst = {
+  team: '',
+}
 
 // 화상 정보
 const communication = reactive({
@@ -112,24 +116,24 @@ function joinSession() {
           clientData: `${authStore.memberId},${authStore.nickname},${gameStore.team}`
         })
       .then(() => {
-        console.log(`세션 연결!, ${gameStore.team}`)
-        playerInfo.team = gameStore.team
-        if (gameStore.team == team[0].english || gameStore.team == team[1].english) {
-          initCommunication(gameStore.team)
+        playerInfoConst.team = gameStore.team
+        console.log(`세션 연결!, ${playerInfoConst.team}`)
+        if (playerInfoConst.team == team[0].english || playerInfoConst.team == team[1].english) {
+          initCommunication(playerInfoConst.team)
           sessionInfo.publisher = getDefaultPublisher()
           sessionInfo.session.publish(sessionInfo.publisher)
   
-          if (gameStore.team == team[0].english) {
+          if (playerInfoConst.team == team[0].english) {
             sessionInfo.teamLeftList.push(sessionInfo.publisher);
             playerInfo.playerLeftList.push({
-              memberId: gameStore.memberId,
-              nickname: gameStore.nickname,
+              memberId: authStore.memberId,
+              nickname: authStore.nickname,
             })
-          } else if (gameStore.team == team[1].english) {
+          } else if (playerInfoConst.team == team[1].english) {
             sessionInfo.teamRightList.push(sessionInfo.publisher);
             playerInfo.playerRightList.push({
-              memberId: gameStore.memberId,
-              nickname: gameStore.nickname,
+              memberId: authStore.memberId,
+              nickname: authStore.nickname,
             })
           }
         }
@@ -138,7 +142,7 @@ function joinSession() {
         console.error(`세션 연결 실패 : ${error}`)
       })
   })
-  sessionInfo.session.on('streamCreated', ({ stream, undefined }) => {
+  sessionInfo.session.on('streamCreated', ({ stream }) => {
     // 새로운 stream의 클라이언트 정보(memberId, nickname, team)를 받아옴
     const clientDatas = stream.connection.data.split('"');
     const datas = clientDatas[3].split(',');
@@ -149,14 +153,12 @@ function joinSession() {
     // data에 따라 팀A, 팀B에 데이터 저장
     if (datas[2] == team[0].english) {
       sessionInfo.teamLeftList.push(subscriber)
-      // sessionInfo.teamLeftList.push(stream)
       playerInfo.playerLeftList.push({
         memberId: datas[0],
         nickname: datas[1],
       });
     } else if (datas[2] == team[1].english) {
       sessionInfo.teamRightList.push(subscriber)
-      // sessionInfo.teamRightList.push(stream)
       playerInfo.playerRightList.push({
         memberId: datas[0],
         nickname: datas[1],
@@ -234,7 +236,11 @@ function joinSession() {
 }
 
 async function getToken() {
-  const response = await debateStore.joinDebate(route.params.sessionId)
+  const response = await debateStore.joinDebate({
+    sessionId: route.params.sessionId,
+    nickname: authStore.nickname,
+    role: gameStore.team,
+  })
   return response.data.connection.token
 }
 
@@ -478,8 +484,6 @@ function handleCameraByUser() {
   // 비디오 상태 변경
   communication.isCameraOn = !communication.isCameraOn
   sessionInfo.publisher.publishVideo(communication.isCameraOn)
-
-  console.log('handleCameraByUser')
 }
 
 // 사용자가 마이크 제어
@@ -490,8 +494,6 @@ function handleMicByUser() {
   // 마이크 상태 변경
   communication.isMicOn = !communication.isMicOn
   sessionInfo.publisher.publishAudio(communication.isMicOn)
-
-  console.log(`handleMicByUser : ${communication.isMicOn}`)
 }
 
 function handleShareByUser() {
@@ -608,7 +610,7 @@ joinSession()
 
       <!-- 채팅방 -->
       <ChattingBar
-        :nickname="playerInfo.nickname" :role="playerInfo.team"
+        :nickname="playerInfo.nickname" :role="playerInfoConst.team"
         :messages-left="chatting.messagesLeft" :messages-right="chatting.messagesRight" :messages-all="chatting.messagesAll"
         @send-message="sendMessage"></ChattingBar>      
 
@@ -618,7 +620,7 @@ joinSession()
 
     <footer>
       <DebateBottomBar
-        :team="playerInfo.team"
+        :team="playerInfoConst.team"
         :is-mic-handle-available="communication.isMicHandleAvailable"
         :is-camera-handle-available="communication.isCameraHandleAvailable"
         :is-share-handle-available="communication.isShareHandleAvailable"

@@ -6,12 +6,12 @@
       <div class="btn">
         <label class="radio-container"
           >팀A
-          <input type="radio" name="role" value="teamA" v-model="selectedRole" />
+          <input type="radio" name="role" value='left' v-model="selectedRole" />
           <span class="checkmark"></span>
         </label>
         <label class="radio-container"
           >팀B
-          <input type="radio" name="role" value="teamB" v-model="selectedRole" />
+          <input type="radio" name="role" value="right" v-model="selectedRole" />
           <span class="checkmark"></span>
         </label>
         <label class="radio-container"
@@ -21,7 +21,7 @@
         </label>
         <label class="radio-container"
           >관전자
-          <input type="radio" name="role" value="viewer" v-model="selectedRole" />
+          <input type="radio" name="role" value="watcher" v-model="selectedRole" />
           <span class="checkmark"></span>
         </label>
       </div>
@@ -40,6 +40,7 @@ import { httpService } from '@/api/axios'
 import { useRoomInfo } from '@/stores/useRoomInfo'
 import { useDebateStore } from "@/stores/useDebateStore";
 import { useGameStore } from "@/stores/useGameStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 const props = defineProps({
   room: Object
@@ -51,6 +52,7 @@ const showModal = ref(true)
 const selectedRole = ref('')
 const debateStore = useDebateStore();
 const gameStore = useGameStore();
+const authStore = useAuthStore();
 
 const closeModal = async (action) => {
   if (action === 'confirm' && !selectedRole.value) {
@@ -61,7 +63,13 @@ const closeModal = async (action) => {
     try {
       // const response = await httpService.get(`/openvidu/session/${sessionId}`)
       const sessionId = props.room.sessionId;
-      const response = await debateStore.joinDebate(sessionId)
+      console.log(`Enter Room : ${sessionId.value}, ${authStore.nickname}, ${selectedRole.value}`)
+      const response = await debateStore.joinDebate({
+        sessionId: sessionId,
+        nickname: authStore.nickname,
+        role: selectedRole.value,
+      })
+
       console.log('연결 정보 응답:', response.data)
 
       // connectionId를 키로, debateInfoResponse를 값으로 사용하여 스토어 업데이트
