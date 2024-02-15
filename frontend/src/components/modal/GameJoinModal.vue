@@ -65,7 +65,7 @@ const closeModal = async (action) => {
       const sessionId = props.room.sessionId;
       const response = await debateStore.joinDebate({
         sessionId: sessionId,
-        nickname: authStore.nickname,
+        nickName: authStore.nickname,
         role: selectedRole.value,
       })
 
