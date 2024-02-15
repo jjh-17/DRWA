@@ -27,7 +27,7 @@ const sessionInfo = reactive({
   session: undefined,
   OV: undefined,
   publisher: undefined, // 자기 자신
-  phase:undefined,
+  phase:0,
 
   // index == 각 팀에서의 순서
   teamLeftList: [], // 팀 A 리스트(자기 자신 포함 가능)
@@ -98,7 +98,6 @@ function joinSession() {
     // 새로운 stream의 클라이언트 정보(memberId, nickname, team)를 받아옴
     const clientDatas = stream.connection.data.split('"');
     const datas = clientDatas[3].split(',');
-    sessionInfo.phase = 0
     // 새로운 subscriber
     const subscriber = sessionInfo.session.subscribe(stream)
 
@@ -204,6 +203,14 @@ function joinSession() {
         playerInfo.watcherList.splice(i);
       }
     }
+  })
+  sessionInfo.session.on('signal:startGame', () => {
+    sessionInfo.phase += 1
+    console.log('Game phase updated:', sessionInfo.phase)
+  })
+  sessionInfo.session.on('signal:timeSet', () => {
+    sessionInfo.phase += 1
+    console.log('Game phase updated:', sessionInfo.phase)
   })
 
   // 비동기 관련 오류 처리
@@ -515,13 +522,44 @@ function handleShareByUser() {
 }
 
 // 게임 시작
-function sendGameStartMessage() {
-  
+function startGame() {
+    sessionInfo.session
+      .signal({
+        type: 'startGame',
+        data: '' // 필요한 경우 여기에 추가 데이터를 전달할 수 있습니다.
+      })
+      .then(() => {
+        console.log('Game start signal sent successfully.')
+        console.log('@@@@@@@@@@@@@페이즈확인' + sessionInfo.phase)
+      })
+      .catch((error) => {
+        console.error('Error sending start game signal:', error)
+      })
+  }
+function nextPhase() {
+  sessionInfo.session
+    .signal({
+      type: 'timeSet',
+      data: '' // 필요한 경우 여기에 추가 데이터를 전달할 수 있습니다.
+    })
+    .then(() => {
+      console.log('next Phase signal sent successfully.')
+      console.log('@@@@@@@@@@@@@페이즈확인' + sessionInfo.phase)
+    })
+    .catch((error) => {
+      console.error('Error sending start game signal:', error)
+    })
 }
 
 const isHost = computed(() => constInfo.roomInfo.hostName === authStore.nickname);
 console.log('방장이니?' + isHost.value)
 
+if (sessionInfo.phase % 2 == 1) {
+    setTimeout(() => {
+      nextPhase()
+      console.log('지정된 시간이 지났습니다.')
+    }, constInfo.roomInfo.speakingTime)
+  }
 joinSession()
 </script>
 
@@ -547,7 +585,7 @@ joinSession()
       </div>  
 
       <div class="share-container">
-        <div class="play-button" v-if="isHost">시작하기</div>
+        <div class="play-button" v-if="isHost" @click="startGame">시작하기</div>
         <div class="waiting-button" v-else>대기중...</div>
         <div class="juror-button">배심원 : ({{ playerInfo.jurorList.length }} / {{ constInfo.roomInfo.jurorNum }})</div>
         <div class="viewer-button">관전자 : {{ playerInfo.watcherList.length }}</div>
