@@ -21,7 +21,7 @@ function getConnectionData() {
 <template>
   <div v-if="streamManager">
     <!-- {{ clientData }}이게 내 현재 이름임 -->
-    <div><p>{{ clientData }}</p></div>
+    <!-- <div><p>{{ clientData }}</p></div> -->
     <ov-video :stream-manager="streamManager"/>
   </div>
 </template>

@@ -10,8 +10,11 @@ import { team } from '@/components/common/Team.js'
 // === 변수 ===
 // 부모
 const props = defineProps({
-  subscribersLeft: Array,
-  subscribersRight: Array,
+  teamLeftList: Array,
+  teamRightList: Array,
+  playerLeftList: Array,
+  playerRightList: Array,
+  playerNum: Number,
 });
 
 // Debate 정보
