@@ -114,11 +114,10 @@ public class MemberService {
         List<MemberInterest> memberInterests = memberRepository.findById(jwtMemberInfo.getMemberId())
                 .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND))
                 .getMemberInterestList();
-
         // 프로필 조회
         ProfileResponse profile = profileService.findProfileByMemberId(jwtMemberInfo.getMemberId());
 
-        // 프로필 이미지 URL 조회ㄱ
+        // 프로필 이미지 URL 조회
         String profileImageUrl = profileImageService.findProfileImageUrlByMemberId(jwtMemberInfo.getMemberId());
 
         // 응답 DTO 반환
