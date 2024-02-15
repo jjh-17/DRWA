@@ -5,6 +5,7 @@ import com.a708.drwa.auth.exception.AuthErrorCode;
 import com.a708.drwa.auth.exception.AuthException;
 import com.a708.drwa.auth.repository.AuthRepository;
 import com.a708.drwa.member.data.JWTMemberInfo;
+import com.a708.drwa.member.data.dto.InterestDto;
 import com.a708.drwa.member.data.dto.response.SocialAuthURLResponse;
 import com.a708.drwa.member.data.dto.response.SocialLoginResponse;
 import com.a708.drwa.member.data.dto.response.SocialUserInfoResponse;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -117,7 +119,7 @@ public class MemberService {
                 .memberId(jwtMemberInfo.getMemberId())
                 .userId(jwtMemberInfo.getUserId())
                 .accessToken(jwtAccessToken)
-                .interests(memberInterests)
+                .interests(convertToInterestDtoList(memberInterests))
                 .profile(profile)
                 .profileImageUrl(profileImageUrl)
                 .build();
@@ -184,4 +186,17 @@ public class MemberService {
             throw new AuthException(AuthErrorCode.TOKEN_NOT_EXIST_ERROR);
         authRepository.deleteById(userId);
     }
+
+    /**
+     * 사용자의 관심사 목록 엔티티를 InterestDto 목록으로 변환한다.
+     * @param memberInterests : 사용자의 관심사 목록 엔티티
+     * @return : 사용자의 관심사 목록 DTO
+     */
+    private List<InterestDto> convertToInterestDtoList(List<MemberInterest> memberInterests) {
+        return memberInterests.stream()
+                .map(interest -> new InterestDto(interest.getDebateCategory()))
+                .collect(Collectors.toList());
+    }
+
+
 }
