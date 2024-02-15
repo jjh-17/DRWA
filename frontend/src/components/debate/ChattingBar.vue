@@ -76,6 +76,7 @@ const inputMessage = ref('');
   border-left: 1px solid #ccc;
   box-shadow: -4px 0 5px -2px rgba(0, 0, 0, 0.2); /* 왼쪽 그림자 설정 */
   flex-direction:column;
+  width:600px;
 }
 .chatting-tabs {
   height:10%;
