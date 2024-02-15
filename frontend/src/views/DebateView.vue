@@ -214,10 +214,6 @@ function joinSession() {
     sessionInfo.phase += 1
     console.log('Game phase updated by nextPhase:', sessionInfo.phase)
   })
-  sessionInfo.session.on('signal:nextPhase', () => {
-    sessionInfo.phase += 1
-    console.log('Game phase updated by nextPhase:', sessionInfo.phase)
-  })
   sessionInfo.session.on('signal:endGame', () => {
     isEnd.value = true
     sessionInfo.phase = 0
@@ -582,8 +578,8 @@ watch(
   (newPhase) => {
     if (constInfo.roomInfo.hostName === authStore.nickname) {
       // 토론 시작했냐
-      if(newPhase != 0) isPhaseZero.value = false
-      else isPhaseZero.value = true
+      if(newPhase != 0) {isPhaseZero.value = false}
+      else {isPhaseZero.value = true}
 
       if (newPhase === constInfo.roomInfo.playerNum * 4 + 1) {
         endGame()
@@ -679,9 +675,9 @@ joinSession()
       </div>
 
       <div class="share-container">
-        <div class="play-button1" v-if="isHost && canStart&& !isPhaseZero" @click="startGame">시작하기</div>
-        <div class="play-button2" v-else-if="isHost&& !isPhaseZero">시작하기</div>
-        <div class="waiting-button" v-else-if="!isPhaseZero">대기중...</div>
+        <div class="play-button1" v-if="isHost && canStart&& isPhaseZero" @click="startGame">시작하기</div>
+        <div class="play-button2" v-else-if="isHost&& isPhaseZero">시작하기</div>
+        <div class="waiting-button" v-else-if="isPhaseZero">대기중...</div>
         <div class="juror-button">
           배심원 : ({{ playerInfo.jurorList.length }} / {{ constInfo.roomInfo.jurorNum }})
         </div>
