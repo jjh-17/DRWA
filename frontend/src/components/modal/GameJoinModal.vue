@@ -81,7 +81,7 @@ const closeModal = async (action) => {
       if ((selectedRole.value == team[0].english && debateInfoResponse.teamAMembers.length <= debateInfoResponse.playerNum)
         || (selectedRole.value == team[1].english && debateInfoResponse.teamBMembers.length <= debateInfoResponse.playerNum)
         || (selectedRole.value == team[2].english && debateInfoResponse.jurors.length <= debateInfoResponse.jurorNum)
-        || selectedRole.value == team[3]) {
+        || selectedRole.value == team[3].english) {
         gameStore.token = connection.token
         gameStore.team = selectedRole.value
         gameStore.roomInfo = debateInfoResponse;

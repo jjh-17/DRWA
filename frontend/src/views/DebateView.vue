@@ -115,28 +115,17 @@ function joinSession() {
         memberId: datas[0],
         nickname: datas[1],
       });
-    } else if (datas[2] == team[2].english) {
-      playerInfo.jurorList.push({
-        memberId: datas[0],
-        nickname: datas[1],
-      })
-    } else if (datas[2] == team[3].english) {
-      playerInfo.watcherList.push({
-        memberId: datas[0],
-        nickname: datas[1],
-      })
     } else {
       console.error(`잘못된 팀 - ${datas[2]} 입니다.`)
     }
 
-    console.log('streamCreated :', playerInfo)
+    console.log(`streamCreated ${datas[2]} :`, playerInfo)
   });
 
   // 다른 사용자의 stream 종료 감지(juror, watcher는 해당 X)
   sessionInfo.session.on('streamDestroyed', ({ stream }) => {
     leaveTeam(stream.streamManager);
-    console.log(`streamDestroyed!!, ${sessionInfo.teamLeftList.length}, ${sessionInfo.teamRightList.length}, 
-    ${playerInfo.playerLeftList.length}, ${playerInfo.playerRightList.length}`)
+    console.log(`streamDestroyed :`, playerInfo)
   })
 
   // 채팅 이벤트 수신 처리(닉네임, 목표 팀, 메시지 내용) => targetTeam에 따라 메시지 저장 공간 변화
@@ -185,6 +174,38 @@ function joinSession() {
     }
   })
 
+  // 배심원, 관전자 참가, 나가기 시 시그널
+  sessionInfo.session.on('signal:jurorIn', (event) => {
+    const messageData = JSON.parse(event.data)
+    playerInfo.jurorList.push({
+      memberId: messageData.memberId,
+      nickname: messageData.nickname,
+    })
+  })
+  sessionInfo.session.on('signal:jurorOut', (event) => {
+    const messageData = JSON.parse(event.data)
+    for (let i = 0; i < playerInfo.jurorList.length; i++){
+      if (playerInfo.jurorList[i].memberId == messageData.memberId) {
+        playerInfo.jurorList.splice(i);
+      }
+    }
+  })
+  sessionInfo.session.on('signal:watcherIn', (event) => {
+    const messageData = JSON.parse(event.data)
+    playerInfo.watcherList.push({
+      memberId: messageData.memberId,
+      nickname: messageData.nickname,
+    })
+  })
+  sessionInfo.session.on('signal:watcherOut', (event) => {
+    const messageData = JSON.parse(event.data)
+    for (let i = 0; i < playerInfo.watcherList.length; i++){
+      if (playerInfo.watcherList[i].memberId == messageData.memberId) {
+        playerInfo.watcherList.splice(i);
+      }
+    }
+  })
+
   // 비동기 관련 오류 처리
   sessionInfo.session.on('exception', ({ exception }) => {
     console.warn(exception)
@@ -226,6 +247,10 @@ function joinSession() {
             nickname: authStore.nickname,
           })
         }
+      } else if (constInfo.team == team[2].english) {
+        sendJurorInMessage()
+      } else if (constInfo.team == team[3].english) {
+        sendWatcherInMessage();
       }
     })
     .catch((error) => {
@@ -320,6 +345,9 @@ function getDefaultPublisher() {
 
 // 세션 나가기 메서드
 function leaveSession() {
+  if (constInfo.team == team[2].english) sendJurorOutMessage()
+  else if (constInfo.team == team[3].english) sendWatcherOutMessage();
+
   // 세션 연결 종료
   if (sessionInfo.session) sessionInfo.session.disconnect()
 
@@ -383,6 +411,61 @@ function sendVoteTeamMessage(event, team, beforeTeam, targetTeam) {
       team: team
     }),
     type: 'voteTeam' // 신호 타입을 'chat'으로 설정
+  })
+}
+
+// === 배심원, 관전자 ===
+// 배심원 합류 메시지 송신 메서드
+function sendJurorInMessage() {
+  console.log("call sendJurorInMessage!")
+
+  // event.preventDefault()
+  sessionInfo.session.signal({
+    data: JSON.stringify({
+      memberId: constInfo.memberId,
+      nickname: constInfo.nickname,
+    }),
+    type: 'jurorIn'
+  })
+}
+
+// 관전자 합류 메시지 송신 메서드
+function sendWatcherInMessage() {
+  console.log("call sendWatcherInMessage!")
+
+  // event.preventDefault()
+  sessionInfo.session.signal({
+    data: JSON.stringify({
+      memberId: constInfo.memberId,
+      nickname: constInfo.nickname,
+    }),
+    type: 'watcherIn'
+  })
+}
+
+// 배심원 나감 메시지 송신 메서드
+function sendJurorOutMessage() {
+  console.log("call sendJurorOutMessage!")
+
+  // event.preventDefault()
+  sessionInfo.session.signal({
+    data: JSON.stringify({
+      memberId: constInfo.memberId,
+    }),
+    type: 'jurorOut'
+  })
+}
+
+// 관전자 나감 메시지 송신 메서드
+function sendWatcherOutMessage() {
+  console.log("call sendWatcherOutMessage!")
+
+  // event.preventDefault()
+  sessionInfo.session.signal({
+    data: JSON.stringify({
+      memberId: constInfo.memberId,
+    }),
+    type: 'watcherOut'
   })
 }
 
