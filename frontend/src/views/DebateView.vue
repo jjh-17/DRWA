@@ -683,7 +683,8 @@ joinSession()
   /* header와 footer를 제외한 모든 공간을 차지 */
   display: flex;
   /* Flexbox 레이아웃 사용 */
-  margin-bottom: 70px;
+  height: calc(100vh - 140px);
+  padding-bottom: 70px;
 }
 
 .teamA-container,
@@ -746,12 +747,11 @@ joinSession()
 
 .chatting-container {
   display: flex;
-  flex: 1.5;
-  border-left: 1px solid #ccc;
-  box-shadow: -4px 0 5px -2px rgba(0, 0, 0, 0.2);
-  /* 왼쪽 그림자 설정 */
   flex-direction: column;
-  width: 600px;
+  max-height: 610px; 
+  border-left: 1px solid #ccc;
+  box-shadow: -4px 0 5px -2px rgba(0, 0, 0, 0.2); 
+  overflow-y: auto;
 }
 
 .chatting-tabs {
