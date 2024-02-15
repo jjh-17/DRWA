@@ -69,8 +69,8 @@ color: #34227C;
 left: 90px; 
 }
 .balloon2 {
-top: 30px; 
-right: 400px; 
+  bottom: 50px; 
+left: 400px; 
 
 }
 .balloon3 {
