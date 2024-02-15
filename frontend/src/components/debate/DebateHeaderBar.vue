@@ -11,8 +11,8 @@
     <q-space />
 
     <!-- 현재 진행 상태 및 남은시간 -->
-    <div class="q-pa-md q-ma-md text-center">
-      {{ headerBarTitle }} - {{ phase[props.nowPhase].korean }}
+    <div class="q-pa-md q-ma-md text-center" style="font-size: 40px;">
+      {{ headerBarTitle }}  {{ phase[props.nowPhase].korean }}
     </div>
 
     <!-- 이것은 나머지 요소들을 오른쪽으로 밀어냅니다 -->

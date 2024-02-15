@@ -206,11 +206,11 @@ function joinSession() {
   })
   sessionInfo.session.on('signal:startGame', () => {
     sessionInfo.phase += 1
-    console.log('Game phase updated:', sessionInfo.phase)
+    console.log('Game phase updated by startGame:', sessionInfo.phase)
   })
   sessionInfo.session.on('signal:nextPhase', () => {
     sessionInfo.phase += 1
-    console.log('Game phase updated:', sessionInfo.phase)
+    console.log('Game phase updated by nextPhase:', sessionInfo.phase)
   })
 
   // 비동기 관련 오류 처리
@@ -564,6 +564,22 @@ watch(
     }
   }
 )
+const canStart = ref(false)
+watch(
+  [() => playerInfo.playerLeftList, () => playerInfo.playerRightList, () => playerInfo.jurorList],
+  ([leftList, rightList, jurorList]) => {
+    if (
+      leftList.length == constInfo.roomInfo.playerNum &&
+      rightList.length == constInfo.roomInfo.playerNum &&
+      jurorList.length == constInfo.roomInfo.jurorNum
+    ) {
+      canStart.value = true
+    } else {
+      canStart.value = false
+    }
+  },
+  { deep: true } // deep 사용 객체 내부의 변화까지 감지
+)
 
 function speakingTime() {
   setTimeout(() => {
@@ -586,7 +602,11 @@ joinSession()
 <template>
   <div class="app-container">
     <header>
-      <DebateHeaderBar :headerBarTitle="constInfo.roomInfo.title" :leave-session="leaveSession" :nowPhase="sessionInfo.phase"/>
+      <DebateHeaderBar
+        :headerBarTitle="constInfo.roomInfo.title"
+        :leave-session="leaveSession"
+        :nowPhase="sessionInfo.phase"
+      />
     </header>
 
     <div class="main-container">
@@ -609,7 +629,8 @@ joinSession()
       </div>
 
       <div class="share-container">
-        <div class="play-button" v-if="isHost" @click="startGame">시작하기</div>
+        <div class="play-button1" v-if="isHost && canStart" @click="startGame">시작하기</div>
+        <div class="play-button2" v-else-if="isHost">시작하기</div>
         <div class="waiting-button" v-else>대기중...</div>
         <div class="juror-button">
           배심원 : ({{ playerInfo.jurorList.length }} / {{ constInfo.roomInfo.jurorNum }})
@@ -698,7 +719,8 @@ joinSession()
   flex: 4.5;
 }
 
-.play-button,
+.play-button1,
+.play-button2,
 .waiting-button {
   position: absolute;
   /* 절대 위치 지정 */
@@ -717,6 +739,10 @@ joinSession()
   color: #34227c;
   font-size: 30px;
   font-weight: bold;
+}
+.play-button1 {
+  border: 5px solid red;
+  cursor:pointer;
 }
 
 .juror-button,
