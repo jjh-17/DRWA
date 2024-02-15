@@ -10,6 +10,8 @@ public enum DebateErrorCode implements ErrorCode {
     OPENVIDU_INTERNAL_ERROR(404, "DEBATE_03", "서버 에러"),
     INTERNAL_ERROR(500, "DEBATE_04", "내부 에러"),
     CATEGORY_NOT_FOUND(400, "DEBATE_05", "존재하지 않는 카테고리입니다"),
+    CAN_NOT_ENTER_AS_DEBATER(400, "DEBATE_06", "자리가 가득 차 참여자로 입장할 수 없습니다."),
+    INVALID_ROLE(400, "DEBATE_07", "잘못된 역할로 요청했습니다."),
     ;
 
     private final int statusCode;

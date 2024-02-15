@@ -1,18 +1,32 @@
 package com.a708.drwa.debate.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum Role {
-    A_TEAM("teamA"),
-    B_TEAM("teamB"),
+    LEFT("left"),
+    RIGHT("right"),
     JUROR("juror"),
     WATCHER("watcher");
 
-    private final String string;
+    private final String value;
 
-    Role(String string) {
-        this.string = string;
+    @JsonCreator
+    public static Role forValue(String value) {
+        for (Role role : Role.values()) {
+            if (role.name().equalsIgnoreCase(value)) {
+                return role;
+            }
+        }
+        throw new IllegalArgumentException("Invalid role: " + value);
     }
 
-    public String string() {
-        return string;
+    @JsonValue
+    public String getValue() {
+        return value;
     }
 }

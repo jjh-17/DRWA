@@ -1,10 +1,13 @@
 package com.a708.drwa.openvidu.service;
 
 
+import com.a708.drwa.debate.data.DebateMember;
 import com.a708.drwa.debate.data.dto.response.DebateInfoResponse;
+import com.a708.drwa.debate.util.DebateUtil;
 import com.a708.drwa.global.exception.GlobalException;
 import com.a708.drwa.member.data.JWTMemberInfo;
 import com.a708.drwa.openvidu.data.dto.request.CreateRoomRequestDto;
+import com.a708.drwa.openvidu.data.dto.request.JoinRoomRequestDto;
 import com.a708.drwa.openvidu.data.dto.response.CreateRoomResponseDto;
 import com.a708.drwa.openvidu.data.dto.response.GetConnectionResponseDto;
 import com.a708.drwa.openvidu.exception.OpenViduErrorCode;
@@ -28,6 +31,7 @@ public class OpenViduService {
     private final ProfileRepository profileRepository;
     private final OpenVidu openVidu;
     private final JWTUtil jwtUtil;
+    private final DebateUtil debateUtil;
 
     public CreateRoomResponseDto createSession(CreateRoomRequestDto createRoomDto, String token) {
         // get userId from jwt
@@ -62,49 +66,18 @@ public class OpenViduService {
                 .build();
     }
 
-    public GetConnectionResponseDto getConnection(String sessionId, String jwt) {
+    public GetConnectionResponseDto getConnection(JoinRoomRequestDto joinRoomRequestDto, String jwt) {
         log.info("----------- create connection START -----------");
-        log.info("url 패스에 들어있는 session Id : {}", sessionId);
+        log.info("url 패스에 들어있는 session Id : {}", joinRoomRequestDto.getSessionId());
         log.info("JWT : {}", jwt);
-
-        //이미 있는 세션을 sessionId를 통해 가져오게 된다.
-        Session session = openVidu.getActiveSession(sessionId);
-
-        //세션이 존재하지 않는다면 연결을 만들 수 없다.
-        if (session == null || !debateRoomRepository.existsById(sessionId))
-            throw new OpenViduException(OpenViduErrorCode.OPENVIDU_NOT_FOUND_SESSION);
-
-        ConnectionProperties properties;
-        Connection connection;
-
-        //연결과 토큰 만들기
-        JWTMemberInfo memberInfo = jwtUtil.getMember(jwt);
-
-        // 로그인 된 userId와 sessionId가 같을 때
-        try {
-            if(sessionId.startsWith(memberInfo.getUserId()+"-"))
-            {
-                properties = new ConnectionProperties.Builder()
-                        .role(OpenViduRole.PUBLISHER)
-                        .build();
-                connection = session.createConnection(properties);
-            }else {
-                properties = new ConnectionProperties.Builder()
-                        .role(OpenViduRole.SUBSCRIBER)
-                        .build();
-                connection = session.createConnection(properties);
-            }
-        } catch (OpenViduJavaClientException | OpenViduHttpException e) {
-            throw new OpenViduException(OpenViduErrorCode.OPENVIDU_CAN_NOT_CREATE_SESSION);
-        }
-
-        DebateInfoResponse debateInfoResponse = debateRoomRepository.findById(sessionId)
-                .orElseThrow(() -> new OpenViduException(OpenViduErrorCode.OPENVIDU_NOT_FOUND_SESSION))
-                .toResponse();
-
-        return GetConnectionResponseDto.builder()
-                .connection(connection)
-                .debateInfoResponse(debateInfoResponse)
-                .build();
+        int memberId = jwtUtil.getMember(jwt).getMemberId();
+        return debateUtil.join(
+                joinRoomRequestDto.getSessionId(),
+                joinRoomRequestDto.getRole(),
+                DebateMember.builder()
+                        .memberId(memberId)
+                        .nickName(joinRoomRequestDto.getNickName())
+                        .role(joinRoomRequestDto.getRole())
+                        .build());
     }
 }

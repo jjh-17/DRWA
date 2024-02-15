@@ -80,29 +80,29 @@ public class GameService {
             throw new RedisException(RedisErrorCode.REDIS_READ_FAIL);
 
         // DB에 게임 정보, 전적을 저장하기 위해 필요한 데이터 도출
-        List<Profile> profiles = findProfiles(debateMembers.getLeftMembers(), debateMembers.getRightMembers(), debateMembers.getJurors());
-        List<DebateMember> mvpList = getMvpList(mvpMap, debateMembers.getLeftMembers(), debateMembers.getRightMembers());
+        List<Profile> profiles = findProfiles(debateMembers.getTeamAMembers(), debateMembers.getTeamBMembers(), debateMembers.getJurors());
+        List<DebateMember> mvpList = getMvpList(mvpMap, debateMembers.getTeamAMembers(), debateMembers.getTeamBMembers());
         int mvpMemberId = mvpList.isEmpty()
                 ? -1
                 : mvpList.get(random.nextInt(mvpList.size())).getMemberId();
         WinnerTeam winnerTeam = getWinnerTeam(voteInfo);
         List<DebateMember> winnerTeamList = getWinnerTeamList(
-                debateMembers.getLeftMembers(),
-                debateMembers.getRightMembers(),
+                debateMembers.getTeamAMembers(),
+                debateMembers.getTeamBMembers(),
                 winnerTeam);
         int mvpPoint = getMvpPoint(mvpList);
-        int winnerPoint = winnerTeamList.size()==debateMembers.getLeftMembers().size()+debateMembers.getRightMembers().size()
+        int winnerPoint = winnerTeamList.size()==debateMembers.getTeamAMembers().size()+debateMembers.getTeamBMembers().size()
                 ? WINNER_POINT / 2
                 : WINNER_POINT;
 
         // Db에 게임정보, 전적 저장
         GameInfo savedGameInfo = updateDB(roomInfo, debateMembers, profiles, voteMap, mvpMemberId, winnerTeam);
-        
+
         // REDIS 데이터 수정
         String redisCategory = constants.getConstantsByCategory(roomInfo.getDebateCategory());
         updateRedis(voteMap, profiles, winnerTeamList, mvpList, debateMembers, savedGameInfo, winnerTeam, redisCategory,
                 winnerPoint, mvpPoint, mvpMemberId, savedGameInfo.isPrivate());
-        
+
         // 전적 저장 이후 클라이언트에게 전달할 데이터
         return AddGameResponseDto.builder()
                 .teamAVoteNum(voteInfo.getLeftVote())
@@ -131,8 +131,8 @@ public class GameService {
         List<Record> records = new ArrayList<>();
         for(Profile profile : profiles) {
             Member member = profile.getMember();
-            DebateMember debateMember = checkIdInDebateMembers(debateMembers.getLeftMembers(), member.getId());
-            if(debateMember==null) debateMember = checkIdInDebateMembers(debateMembers.getRightMembers(), member.getId());
+            DebateMember debateMember = checkIdInDebateMembers(debateMembers.getTeamAMembers(), member.getId());
+            if(debateMember==null) debateMember = checkIdInDebateMembers(debateMembers.getTeamBMembers(), member.getId());
             if(debateMember==null) debateMember = checkIdInDebateMembers(debateMembers.getJurors(), member.getId());
             if(debateMember==null) throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
 
@@ -149,8 +149,8 @@ public class GameService {
     }
 
     private Team getTeam(Role role) {
-        if(role == Role.A_TEAM)         return Team.A;
-        else if(role == Role.B_TEAM)    return Team.B;
+        if(role == Role.LEFT)         return Team.A;
+        else if(role == Role.RIGHT)    return Team.B;
         return Team.JUROR;
     }
 
@@ -162,9 +162,9 @@ public class GameService {
         Map<Integer, Role> roleMap = new HashMap<>();
 
         // id - Role Map 초기화
-        for(DebateMember left : debateMembers.getLeftMembers())
+        for(DebateMember left : debateMembers.getTeamAMembers())
             roleMap.put(left.getMemberId(), left.getRole());
-        for(DebateMember right : debateMembers.getRightMembers())
+        for(DebateMember right : debateMembers.getTeamBMembers())
             roleMap.put(right.getMemberId(), right.getRole());
         for(DebateMember juror : debateMembers.getJurors())
             roleMap.put(juror.getMemberId(), juror.getRole());
@@ -275,7 +275,7 @@ public class GameService {
                     memberHashOperations.put(key, MemberRedisKey.LOSE_COUNT, ++loseCount);
             }
         } 
-        
+
         // 플레이어
         else{
             // 비김, 이김, 짐
@@ -284,7 +284,7 @@ public class GameService {
                 if(!gameInfo.isPrivate())
                     memberHashOperations.put(key, MemberRedisKey.TIE_COUNT, ++tieCount);
             }
-            else if(role.string().equals(winnerTeam.string())) {
+            else if(role.name().equals(winnerTeam.string())) {
                 result = Result.WIN;
                 if(!gameInfo.isPrivate())
                     memberHashOperations.put(key, MemberRedisKey.WIN_COUNT, ++winCount);
@@ -329,8 +329,8 @@ public class GameService {
     }
 
     private Team getTeamByRole(Role role) {
-        if(role == Role.A_TEAM)         return Team.A;
-        else if(role == Role.B_TEAM)    return Team.B;
+        if(role == Role.LEFT)         return Team.A;
+        else if(role == Role.RIGHT)    return Team.B;
         return Team.JUROR;
     }
 
@@ -422,7 +422,7 @@ public class GameService {
             return Result.TIE;
 
         // 이김
-        if(debateMember.getRole().string().equals(winnerTeam.string()))
+        if(debateMember.getRole().name().equals(winnerTeam.string()))
             return Result.WIN;
 
         // 짐
