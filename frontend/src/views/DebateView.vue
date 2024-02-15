@@ -50,6 +50,7 @@ const sessionInfo = reactive({
   session: undefined,
   OV: undefined,
   publisher: undefined, // 자기 자신
+  host: undefined,
 
   // index == 각 팀에서의 순서
   teamLeftList: [], // 팀 A 리스트(자기 자신 포함 가능)
@@ -114,6 +115,7 @@ function joinSession() {
         })
       .then(() => {
         console.log(`세션 연결!, ${gameStore.team}`)
+        sessionInfo.host = roomInfo.hostName
         playerInfo.team = gameStore.team
         if (gameStore.team == team[0].english || gameStore.team == team[1].english) {
           initCommunication(gameStore.team)
@@ -555,7 +557,7 @@ async function replaceAudioTrack(deviceId) {
     console.error('오디오 기기 변경 에러 : ', error)
   }
 }
-
+const isHost = computed(() => sessionInfo.host === authStore.nickname);
 joinSession()
 </script>
 
@@ -585,7 +587,8 @@ joinSession()
       </div>
 
       <div class="share-container">
-        <div class="play-button">시작하기</div>
+        <div class="play-button" v-if="isHost">시작하기</div>
+        <div class="play-button" v-else>대기중...</div>
         <div class="juror-button">배심원으로 입장 ( / )</div>
         <div class="viewer-button">관전자로 입장 ( / )</div>
       </div>
