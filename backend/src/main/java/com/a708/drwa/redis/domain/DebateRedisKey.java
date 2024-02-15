@@ -27,6 +27,8 @@ public enum DebateRedisKey {
     KEYWORD_B("keywordB"),
     // 투표 정보
     VOTE_INFO("voteInfo"),
+    VOTE_MAP("voteMap"),
+    POPULAR("popular"),
     ;
 
     private final String string;

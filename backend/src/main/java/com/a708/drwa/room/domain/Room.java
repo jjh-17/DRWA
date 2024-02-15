@@ -14,34 +14,55 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 @Document(indexName = "room_index")
 public class Room { // Elasticsearch에 저장되는 방 정보
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String debateId;
+    private String sessionId;
 
     @Field(type = FieldType.Text, analyzer = "korean")
     private String title;
 
     @Field(type = FieldType.Text, analyzer = "korean")
-    private String keyword;
+    private String leftKeyword;
 
-    private String host;
+    @Field(type = FieldType.Text, analyzer = "korean")
+    private String rightKeyword;
 
-    private String totalNum;
+    private String hostName;
 
-    private String thumbnailUrl;
+    private String thumbnail1;
 
-    private String thumbnailId;
+    private String thumbnail2;
+
+    private String debateCategory;
+
+    private Integer playerNum;
+
+    private Integer jurorNum;
+
+    private Boolean isPrivate;
+
+    private String password;
+
+    private Integer speakingTime;
+
+    private Integer readyTime;
+
+    private Integer qnaTime;;
+
+    private Integer totalCnt;
 
     @Getter
     @Setter
     public static class ThumbnailUpdateInfo {
-        private String roomId;
-        private String thumbnailId;
-        private String thumbnailUrl;
+        private String sessionId;
+        private String thumbnailUrl; // 새로운 썸네일 URL
+        private String thumbnailType; // '1' 또는 '2'
     }
 
     public void updateThumbnail(ThumbnailUpdateInfo thumbnailUpdateInfo) {
-        this.thumbnailId = thumbnailUpdateInfo.getThumbnailId();
-        this.thumbnailUrl = thumbnailUpdateInfo.getThumbnailUrl();
+        if ("1".equals(thumbnailUpdateInfo.getThumbnailType())) {
+            this.thumbnail1 = thumbnailUpdateInfo.getThumbnailUrl();
+        } else if ("2".equals(thumbnailUpdateInfo.getThumbnailType())) {
+            this.thumbnail2 = thumbnailUpdateInfo.getThumbnailUrl();
+        }
     }
 
 }

@@ -1,17 +1,14 @@
 package com.a708.drwa.debate.controller;
 
-import com.a708.drwa.debate.data.dto.request.DebateCreateRequestDto;
-import com.a708.drwa.debate.data.dto.request.DebateJoinRequestDto;
 import com.a708.drwa.debate.data.dto.request.DebateStartRequestDto;
+import com.a708.drwa.debate.data.dto.response.DebateInfoListResponse;
 import com.a708.drwa.debate.service.DebateService;
-import com.a708.drwa.debate.service.OpenViduService;
+import com.a708.drwa.openvidu.service.OpenViduService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,33 +17,28 @@ public class DebateController {
     private final DebateService debateService;
     private final OpenViduService openViduService;
 
-    /**
-     * 방 생성 API
-     * debateCreateDto -> debateRepository -> roomId
-     * getToken by roomId -> openvidu.createSession()
-     * @param debateCreateRequestDto
-     * @return
-     */
-    @PostMapping("/create")
-    public ResponseEntity<Void> create(@RequestBody DebateCreateRequestDto debateCreateRequestDto) {
-        openViduService.create(debateService
-                .create(debateCreateRequestDto));
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .build();
+    @GetMapping("/{categoryName}")
+    public ResponseEntity<?> getDebatesByCategory(@PathVariable String categoryName) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(debateService.getDebatesByCategory(categoryName));
     }
 
-    /**
-     * 방 입장 API
-     * debateJoinRequestDto -> get session from OpenVidu Session
-     * -> get token by session -> return session
-     * @param debateJoinRequestDto
-     * @return
-     */
-    @PostMapping("/join")
-    public ResponseEntity<?> join(@RequestBody DebateJoinRequestDto debateJoinRequestDto) {
-        String token = openViduService.join(debateJoinRequestDto.getDebateId());
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(token);
+    @GetMapping("/all")
+    public ResponseEntity<DebateInfoListResponse> findAll() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(debateService.findAll());
+    }
+
+    @GetMapping("/popular")
+    public ResponseEntity<DebateInfoListResponse> getDebatesByTotalCnt() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(debateService.getTop5Debates());
+    }
+
+    @GetMapping
+    public ResponseEntity<DebateInfoListResponse> getDebateByMemberInterests(HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(debateService.getDebatesByMemberInterests(request.getHeader("Authorization")));
     }
 
     @PostMapping("/start")

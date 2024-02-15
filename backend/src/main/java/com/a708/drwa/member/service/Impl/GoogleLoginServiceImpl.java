@@ -1,6 +1,6 @@
 package com.a708.drwa.member.service.Impl;
 
-import com.a708.drwa.member.dto.GoogleUserInfoResponse;
+import com.a708.drwa.member.data.dto.response.GoogleUserInfoResponse;
 import com.a708.drwa.member.service.SocialLoginService;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;

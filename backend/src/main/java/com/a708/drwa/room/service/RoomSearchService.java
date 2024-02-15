@@ -19,20 +19,33 @@ public class RoomSearchService {
     private RedisTemplate<String, Room> redisTemplate;
 
     public List<Room> searchRooms(String field, String query) {
-        SearchRequest request = new SearchRequest.Builder()
-                .index("room_index")
-                .query(q -> q.match(m -> m.field(field).query(query)))
-                .build();
-
+        SearchRequest.Builder searchRequestBuilder = new SearchRequest.Builder().index("room_index");
+        if ("title".equals(field)) {
+            // 제목으로 검색
+            searchRequestBuilder.query(q -> q.match(m -> m.field("title").query(query)));
+        } else if ("keyword".equals(field)) {
+            // keywordA 또는 keywordB로 검색
+            searchRequestBuilder.query(q -> q.bool(b -> b
+                    .should(s -> s.match(m -> m.field("leftKeyword").query(query)))
+                    .should(s -> s.match(m -> m.field("rightKeyword").query(query)))
+            ));
+        } else {
+            // 지원하지 않는 검색 필드의 경우 빈 결과 반환
+            return Collections.emptyList();
+        }
+        SearchRequest request = searchRequestBuilder.build();
         try {
             SearchResponse<Room> response = elasticsearchClient.search(request, Room.class);
             return response.hits().hits().stream()
                     .map(hit -> {
                         Room room = hit.source();
-                        room.setTotalNum(hit.source().getTotalNum());
-                        room.setHost(hit.source().getHost());
+                        room.setTotalCnt(hit.source().getTotalCnt());
+                        room.setHostName(hit.source().getHostName());
                         room.setTitle(hit.source().getTitle());
-                        room.setKeyword(hit.source().getKeyword());
+                        room.setLeftKeyword(hit.source().getLeftKeyword());
+                        room.setRightKeyword(hit.source().getRightKeyword());
+                        room.setThumbnail1(hit.source().getThumbnail1());
+                        room.setThumbnail2(hit.source().getThumbnail2());
                         return room;
                     })
                     .collect(Collectors.toList());

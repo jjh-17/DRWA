@@ -98,17 +98,18 @@ public class ProfileService {
         if(winCount + loseCount != 0)
             winRate = (int) ((double) winCount / (winCount + loseCount + tieCount) * 100.0);
 
-        RankingMember memberRankInfo = members
-                .stream()
-                .filter(rankMember -> rankMember.getMemberId().equals(memberId))
-                .findAny()
-                .orElseThrow(() -> new GlobalException(MemberErrorCode.MEMBER_NOT_FOUND));
+//        RankingMember memberRankInfo = members
+//                .stream()
+//                .filter(rankMember -> rankMember.getMemberId().equals(memberId))
+//                .findAny()
+//                .orElseThrow(() -> new GlobalException(MemberErrorCode.MEMBER_NOT_FOUND));
 
         return ProfileResponse.builder()
                 .profileId(profile.getId())
                 .memberId(memberId)
                 .nickname(profile.getNickname())
-                .point(memberRankInfo.getPoint())
+//                .point(memberRankInfo.getPoint())
+                .point(1000)
                 .rankName(profile.getRank().getRankName())
                 .winCount(winCount)
                 .loseCount(loseCount)
@@ -190,11 +191,17 @@ public class ProfileService {
         rankMemberRedisTemplate.opsForZSet().add(RANK_FOOD_REDIS_KEY, rankingMember, -profile.getPoint());
         rankMemberRedisTemplate.opsForZSet().add(RANK_LOVE_REDIS_KEY, rankingMember, -profile.getPoint());
         rankMemberRedisTemplate.opsForZSet().add(RANK_PERSON_REDIS_KEY, rankingMember, -profile.getPoint());
-        rankMemberRedisTemplate.opsForZSet().add(RANK_SHOPPING_REDIS_KEY, rankingMember, -profile.getPoint());
+        rankMemberRedisTemplate.opsForZSet().add(RANK_MUSIC_REDIS_KEY, rankingMember, -profile.getPoint());
         rankMemberRedisTemplate.opsForZSet().add(RANK_POLITICS_REDIS_KEY, rankingMember, -profile.getPoint());
-        rankMemberRedisTemplate.opsForZSet().add(RANK_SOCIAL_REDIS_KEY, rankingMember, -profile.getPoint());
+        rankMemberRedisTemplate.opsForZSet().add(RANK_SOCIETY_REDIS_KEY, rankingMember, -profile.getPoint());
         rankMemberRedisTemplate.opsForZSet().add(RANK_SPORTS_REDIS_KEY, rankingMember, -profile.getPoint());
         rankMemberRedisTemplate.opsForZSet().add(RANK_ETC_REDIS_KEY, rankingMember, -profile.getPoint());
+    }
+
+    public boolean isNicknameAvailable(String nickname) {
+        // 닉네임 중복 검사 로직 구현
+        // 예를 들어, 데이터베이스에서 닉네임을 조회하여 존재하지 않으면 true, 존재하면 false 반환
+        return !profileRepository.existsByNickname(nickname);
     }
 
 
