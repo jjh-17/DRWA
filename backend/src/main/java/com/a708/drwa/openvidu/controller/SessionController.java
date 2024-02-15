@@ -2,6 +2,7 @@ package com.a708.drwa.openvidu.controller;
 
 import com.a708.drwa.openvidu.data.dto.request.CreateRoomRequestDto;
 import com.a708.drwa.openvidu.data.dto.request.JoinRoomRequestDto;
+import com.a708.drwa.openvidu.data.dto.request.LeaveRoomRequestDto;
 import com.a708.drwa.openvidu.data.dto.response.CreateRoomResponseDto;
 import com.a708.drwa.openvidu.data.dto.response.GetConnectionResponseDto;
 import com.a708.drwa.openvidu.service.OpenViduService;
@@ -37,5 +38,11 @@ public class SessionController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(openViduService.getConnection(joinRoomRequestDto, request.getHeader("Authorization")));
+    }
+
+    @PostMapping("/session/leave")
+    public ResponseEntity<Void> disconnect(@RequestBody LeaveRoomRequestDto leaveRoomRequestDto, HttpServletRequest request) {
+        openViduService.disconnect(leaveRoomRequestDto, request.getHeader("Authorization"));
+        return ResponseEntity.ok().build();
     }
 }
