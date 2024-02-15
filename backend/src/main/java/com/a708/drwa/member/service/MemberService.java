@@ -1,6 +1,5 @@
 package com.a708.drwa.member.service;
 
-import com.a708.drwa.annotation.AuthRequired;
 import com.a708.drwa.auth.domain.RefreshToken;
 import com.a708.drwa.auth.exception.AuthErrorCode;
 import com.a708.drwa.auth.exception.AuthException;
@@ -27,14 +26,10 @@ import com.a708.drwa.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -110,10 +105,10 @@ public class MemberService {
                 .expiredTime(refreshTokenExpireTime)
                 .build());
 
+        log.info("jwtMemberInfo: {}", jwtMemberInfo);
         // 사용자 ID로 관심사 조회
-        List<MemberInterest> memberInterests = memberRepository.findById(jwtMemberInfo.getMemberId())
-                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND))
-                .getMemberInterestList();
+        List<MemberInterest> memberInterests = member.getMemberInterestList();
+
         // 프로필 조회
         ProfileResponse profile = profileService.findProfileByMemberId(jwtMemberInfo.getMemberId());
 
