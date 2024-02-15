@@ -73,7 +73,7 @@ const closeModal = async (action) => {
       console.log('연결 정보 응답:', response.data)
 
       // connectionId를 키로, debateInfoResponse를 값으로 사용하여 스토어 업데이트
-      setRoomInfo(response.data.connection.connectionId, response.data.debateInfoResponse)
+      useRoomInfo.setRoomInfo(response.data.connection.connectionId, response.data.debateInfoResponse)
       gameStore.team = selectedRole.value
       router.push(`/debate/${sessionId}`)
     } catch (error) {

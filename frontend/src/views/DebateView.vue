@@ -5,10 +5,10 @@ import ChattingBar from '@/components/debate/ChattingBar.vue'
 import DebateBottomBar from '@/components/debate/DebateBottomBar.vue'
 import GameStartModal from '@/components/modal/GameStartModal.vue'
 import { ref, reactive, toRefs, computed, defineProps } from 'vue'
+import {useRoute} from 'vue-router'
 import { onMounted, onUnmounted } from 'vue'
 import { useDebateStore } from '@/stores/useDebateStore'
 import { useAuthStore } from '@/stores/useAuthStore'
-import { useRoute } from 'vue-router' 
 import { OpenVidu } from 'openvidu-browser'
 import UserVideo from '@/components/debate/UserVideo.vue'
 import { team } from '@/components/common/Team.js'
@@ -16,28 +16,30 @@ import { storeToRefs } from 'pinia'
 import { useRoomInfo } from '@/stores/useRoomInfo'
 import { useGameStore } from '@/stores/useGameStore'
 
+const route = useRoute();
 const { getRoomInfo } = useRoomInfo()
 
 // === 변수 ===
-const roomInfo = reactive({
-  category: 'category', // 토론 카테고리
-  hostId: 1, // 방장 Id
-  title: 'title', // 제목
-  keywordLeft: 'keywordA', // 제시어 A
-  keywordRight: 'keywordB', // 제시어 B
-  playerNum: 2, // 플레이어 수 제한
-  jurorNum: 10, // 배심원 수 제한
-  isPrivate: false, // 사설방 여부
-  password: 'password', // 비밀번호
-  readyTime: 1, // 준비 시간
-  speakingTime: 5, // 발언 시간
-  qnaTime: 4, // qna 시간
-  thumbnailA: '', // 썸네일 A
-  thumbnailB: '' // 썸네일 B
-})
+const sessionId = route.params.sessionId
+const roomInfo = getRoomInfo(sessionId)
+// const roomInfo = reactive({
+//   category: 'category', // 토론 카테고리
+//   hostId: 1, // 방장 Id
+//   title: 'title', // 제목
+//   keywordLeft: 'keywordA', // 제시어 A
+//   keywordRight: 'keywordB', // 제시어 B
+//   playerNum: 2, // 플레이어 수 제한
+//   jurorNum: 10, // 배심원 수 제한
+//   isPrivate: false, // 사설방 여부
+//   password: 'password', // 비밀번호
+//   readyTime: 1, // 준비 시간
+//   speakingTime: 5, // 발언 시간
+//   qnaTime: 4, // qna 시간
+//   thumbnailA: '', // 썸네일 A
+//   thumbnailB: '' // 썸네일 B
+// })
 
 // Debate 정보
-const route = useRoute()
 const debateStore = useDebateStore()
 const gameStore = useGameStore()
 const headerBarTitle = ref('[임시]제목입니다.')
@@ -141,7 +143,7 @@ function joinSession() {
         console.error(`세션 연결 실패 : ${error}`)
       })
   })
-  sessionInfo.session.on('streamCreated', ({ stream }) => {
+  sessionInfo.session.on('streamCreated', ({ stream}) => {
     // 새로운 stream의 클라이언트 정보(memberId, nickname, team)를 받아옴
     const clientDatas = stream.connection.data.split('"');
     const datas = clientDatas[3].split(',');
