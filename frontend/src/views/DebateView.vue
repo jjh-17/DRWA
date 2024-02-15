@@ -14,6 +14,7 @@ import UserVideo from '@/components/debate/UserVideo.vue'
 import { team } from '@/components/common/Team.js'
 import { useGameStore } from '@/stores/useGameStore'
 import { httpService } from '@/api/axios'
+import VotingResult from '@/components/modal/VotingResult.vue'
 
 const route = useRoute()
 
@@ -217,8 +218,9 @@ function joinSession() {
     sessionInfo.phase += 1
     console.log('Game phase updated by nextPhase:', sessionInfo.phase)
   })
-  sessionInfo.session.on('signal:nextPhase', () => {
-    isEnd.value = true;
+  sessionInfo.session.on('signal:endGame', () => {
+    isEnd.value = true
+    sessionInfo.phase = 0
     console.log('@@@@@@@@@@@@토론끝@@@@@@@@@@')
   })
 
@@ -573,12 +575,16 @@ function nextPhase() {
 
 const isHost = computed(() => constInfo.roomInfo.hostName === authStore.nickname)
 console.log('방장이니?' + isHost.value)
-
+const isPhaseZero = ref(true)
 // phase에 따라서 함수 실행
 watch(
   () => sessionInfo.phase,
   (newPhase) => {
     if (constInfo.roomInfo.hostName === authStore.nickname) {
+      // 토론 시작했냐
+      if(newPhase != 0) isPhaseZero.value = false
+      else isPhaseZero.value = true
+
       if (newPhase === constInfo.roomInfo.playerNum * 4 + 1) {
         endGame()
       } else {
@@ -673,9 +679,9 @@ joinSession()
       </div>
 
       <div class="share-container">
-        <div class="play-button1" v-if="isHost && canStart" @click="startGame">시작하기</div>
-        <div class="play-button2" v-else-if="isHost">시작하기</div>
-        <div class="waiting-button" v-else>대기중...</div>
+        <div class="play-button1" v-if="isHost && canStart&& !isPhaseZero" @click="startGame">시작하기</div>
+        <div class="play-button2" v-else-if="isHost&& !isPhaseZero">시작하기</div>
+        <div class="waiting-button" v-else-if="!isPhaseZero">대기중...</div>
         <div class="juror-button">
           배심원 : ({{ playerInfo.jurorList.length }} / {{ constInfo.roomInfo.jurorNum }})
         </div>

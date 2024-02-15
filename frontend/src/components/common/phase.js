@@ -12,6 +12,6 @@ export const phase = [
     { phaseNum: 10, korean: '질문 시간' },
     { phaseNum: 11, korean: 'teamB 발언시간' },
     { phaseNum: 12, korean: '질문 시간' },
-    { phaseNum: 20, korean: '토론 끝'},
+    { phaseNum: 13, korean: '토론 끝'},
   ]
   
