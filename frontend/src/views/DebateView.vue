@@ -341,60 +341,6 @@ const showModal = ref(false)
 const eventSource = ref(null)
 const listening = ref(false)
 
-// SSE 연결 설정 및 이벤트 처리
-/*function setupEventSource() {
-  if (!listening.value) {
-    listening.value = true
-    console.log('Listening:', listening.value)
-
-    eventSource.value = new EventSource(`httpService/subscribe/${sessionId}`)
-    console.log('EventSource:', eventSource.value)
-
-    eventSource.value.onopen = (event) => {
-      console.log('Connection opened')
-    }
-
-    eventSource.value.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-
-      // SSE 수신 데이터 처리
-      console.log(data)
-
-      switch (data.event) {
-        case 'start':
-          // playerA, playerB, juror 다차면 
-
-          break;
-        case 'nextPhase':
-          // time이 지나면
-          break;
-        case 'voteResult':
-          // 투표 결과
-          break
-        case 'updateTotalNum':
-          // 관전자 들어올때마다
-          break
-      }
-    }
-
-    eventSource.value.onerror = (event) => {
-      console.log('EventSource error:', event)
-      eventSource.value.close()
-    }
-  }
-}
-
-onMounted(() => {
-  setupEventSource()
-})
-
-onUnmounted(() => {
-  if (eventSource.value) {
-    eventSource.value.close()
-    console.log('EventSource closed')
-  }
-}) */
-
 // === 투표 ===
 // 팀 투표 메서드
 function sendVoteTeamMessage(event, team, beforeTeam, targetTeam) {
@@ -430,52 +376,6 @@ function sendMessage(event, inputMessage, targetTeam) {
   }
 }
 
-// === 미디어 관련 메서드 ===
-// 카메라, 오디오를 가져오는 메서드
-async function getMedia() {
-  try {
-    // 현 기기에서 가용 가능한 카메라, 오디오 정보를 불러옴
-    // deviceId, label
-    const devices = await navigator.mediaDevices.enumerateDevices()
-    communication.micList = devices.filter((device) => device.kind === 'videoinput')
-    communication.cameraList = devices.filter((device) => device.kind === 'audioinput')
-  } catch (error) {
-    console.error('미디어 정보 불러오기 실패 : ', error)
-  }
-}
-
-// 시스템이 사용자의 마이크 설정 제어
-function handleMicBySystem(micStatus) {
-  // 미디어 정보가 없으면 무시
-  if (!sessionInfo.publisher) return
-
-  // true면 마이크 제어권 부여
-  // false면 마이크 제어권 박탈, 마이크 강제 OFF
-  if (micStatus) {
-    communication.isMicHandleAvailable = true
-  } else {
-    communication.isMicHandleAvailable = false
-    communication.isMicOn = false
-    sessionInfo.publisher.publishVideo = false
-  }
-}
-
-// 시스템이 사용자의 카메라 설정 제어
-function handleCameraBySystem(cameraStatus) {
-  // 세션 미참가자이면 무시
-  if (!sessionInfo.publisher) return
-
-  // true면 마이크 제어권 부여
-  // false면 마이크 제어권 박탈, 마이크 강제 OFF
-  if (cameraStatus) {
-    communication.isCameraHandleAvailable = true
-  } else {
-    communication.isCameraHandleAvailable = false
-    communication.isCameraOn = false
-    sessionInfo.publisher.publishAudio = false
-  }
-}
-
 // 사용자가 카메라 제어
 function handleCameraByUser() {
   // 세션에 참가하지 않았으면 무시
@@ -503,60 +403,6 @@ function handleShareByUser() {
   console.log('handleShareByUser')
 }
 
-// 비디오 리스트에서 사용할 기기 선택 시 이벤트
-async function handleVideoChange(event) {
-  communication.selectedCamera = event.target.value
-  await replaceVideoTrack(communication.selectedCamera)
-}
-
-// 마이크 리스트에서 사용할 기기 선택 시 이벤트
-async function handleAudioChange(event) {
-  communication.selectedMic = event.target.value
-  await replaceAudioTrack(communication.selectedMic)
-}
-
-// 비디오 변경
-async function replaceVideoTrack(deviceId) {
-  // 세션에 참가하지 않은 경우 넘어감
-  if (!sessionInfo.publisher) return
-
-  const newConstraints = {
-    audio: false,
-    video: {
-      deviceId: { exact: deviceId }
-    }
-  }
-
-  try {
-    const newStream = await navigator.mediaDevices.getUserMedia(newConstraints)
-    const newVideoTrack = newStream.getVideoTracks()[0]
-    await sessionInfo.publisher.replaceTrack(newVideoTrack)
-  } catch (error) {
-    console.error('비디오 기기 변경 에러 : ', error)
-  }
-}
-
-// 오디오 변경
-async function replaceAudioTrack(deviceId) {
-  // 세션에 참가하지 않은 경우 넘어감
-  if (!sessionInfo.publisher) return
-
-  const newConstraints = {
-    video: false,
-    audio: {
-      deviceId: { exact: deviceId }
-    }
-  }
-
-  try {
-    const newStream = await navigator.mediaDevices.getUserMedia(newConstraints)
-    const newAudioTrack = newStream.getAudioTracks()[0]
-    await sessionInfo.publisher.replaceTrack(newAudioTrack)
-  } catch (error) {
-    console.error('오디오 기기 변경 에러 : ', error)
-  }
-}
-
 joinSession()
 </script>
 
@@ -575,11 +421,7 @@ joinSession()
             v-for="sub in sessionInfo.teamLeftList"
             :key="sub.stream.connection.connectionId"
             :stream-manager="sub"/>
-          <!-- <div v-for="num in (roomInfo.playerNum - sessionInfo.teamLeftList.length)" :key="num">
-            <div class="player">+</div>
-          </div> -->
-
-          <div v-for="num in (roomInfo.playerNum - playerInfo.playerLeftList.length)" :key="num">
+          <div v-for="num in (roomInfo.playerNum - sessionInfo.teamLeftList.length)" :key="num">
             <div class="player">+</div>
           </div>
         </div>
@@ -598,11 +440,7 @@ joinSession()
             v-for="sub in sessionInfo.teamRightList"
             :key="sub.stream.connection.connectionId"
             :stream-manager="sub"/>
-          <!-- <div v-for="num in (roomInfo.playerNum - sessionInfo.teamRightList.length)" :key="num">
-            <div class="player">+</div>
-          </div> -->
-
-          <div v-for="num in (roomInfo.playerNum - playerInfo.playerRightList.length)" :key="num">
+          <div v-for="num in (roomInfo.playerNum - sessionInfo.teamRightList.length)" :key="num">
             <div class="player">+</div>
           </div>
         </div>
