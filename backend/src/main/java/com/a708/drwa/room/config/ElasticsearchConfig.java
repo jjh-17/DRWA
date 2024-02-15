@@ -82,9 +82,22 @@ public class ElasticsearchConfig {
                 var response = elasticsearchClient.indices().create(c -> c
                         .index("room_index")
                         .mappings(m -> m
+                                .properties("sessionId", p -> p.text(t -> t))
+                                .properties("debateCategory", p -> p.text(t -> t))
+                                .properties("hostName", p -> p.text(t -> t))
                                 .properties("title", p -> p.text(t -> t.analyzer("nori")))
-                                .properties("keywordA", p -> p.text(t -> t.analyzer("nori")))
-                                .properties("keywordB", p -> p.text(t -> t.analyzer("nori")))
+                                .properties("leftKeyword", p -> p.text(t -> t.analyzer("nori")))
+                                .properties("rightKeyword", p -> p.text(t -> t.analyzer("nori")))
+                                .properties("playerNum", p -> p.integer(t -> t))
+                                .properties("jurorNum", p -> p.integer(t -> t))
+                                .properties("isPrivate", p -> p.boolean_(t -> t))
+                                .properties("password", p -> p.text(t -> t))
+                                .properties("speakingTime", p -> p.integer(t -> t))
+                                .properties("readyTime", p -> p.integer(t -> t))
+                                .properties("qnaTime", p -> p.integer(t -> t))
+                                .properties("thumbnail1", p -> p.text(t -> t))
+                                .properties("thumbnail2", p -> p.text(t -> t))
+                                .properties("totalCnt", p -> p.integer(t -> t))
                         )
                 );
                 return response.acknowledged();
