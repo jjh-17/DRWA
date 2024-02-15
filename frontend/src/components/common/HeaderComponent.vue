@@ -59,12 +59,12 @@ async function searchRooms() {
         console.warn('검색어를 입력해주세요.');
         return;
     }
-    await roomStore.searchRooms(searchQuery.value, type.value);
     if (!type.value) {
         alert('검색 유형을 선택해주세요.');
         return;
     }
-
+    
+    await roomStore.searchRooms(searchQuery.value, type.value);
     // `type`과 `query`를 URL의 동적 세그먼트로 전달
     router.push({ name: 'SearchResults', params: { type: type.value, query: searchQuery.value } });
 }
