@@ -53,7 +53,7 @@ const playerInfo = reactive({
   // 각 팀 플레이어의 {memberId, nickname } 저장
   playerLeftList: [],
   playerRightList: [],
-  jurorList: constInfo.roomInfo.jurors==null ? [] : constInfo.roomInfo.jurors,
+  jurorList: [],
   watcherList: []
 })
 
@@ -179,10 +179,12 @@ function joinSession() {
   // 배심원, 관전자 참가, 나가기 시 시그널
   sessionInfo.session.on('signal:jurorIn', (event) => {
     const messageData = JSON.parse(event.data)
-    playerInfo.jurorList.push({
-      memberId: messageData.memberId,
-      nickname: messageData.nickname
-    })
+    if (constInfo.memberId != messageData.memberId) {
+      playerInfo.jurorList.push({
+        memberId: messageData.memberId,
+        nickname: messageData.nickname
+      })
+    }
   })
   sessionInfo.session.on('signal:jurorOut', (event) => {
     const messageData = JSON.parse(event.data)
@@ -194,10 +196,12 @@ function joinSession() {
   })
   sessionInfo.session.on('signal:watcherIn', (event) => {
     const messageData = JSON.parse(event.data)
-    playerInfo.watcherList.push({
-      memberId: messageData.memberId,
-      nickname: messageData.nickname
-    })
+    if (constInfo.memberId != messageData.memberId) {
+      playerInfo.watcherList.push({
+        memberId: messageData.memberId,
+        nickname: messageData.nickname
+      })
+    }
   })
   sessionInfo.session.on('signal:watcherOut', (event) => {
     const messageData = JSON.parse(event.data)
@@ -282,6 +286,28 @@ function joinSession() {
     })
     .then(() => {
       console.log('세션 연결', constInfo)
+
+      // 기존 배심원
+      if (constInfo.roomInfo.jurors != null) {
+        constInfo.roomInfo.jurors.forEach((juror) => {
+          playerInfo.jurorList.push({
+            memberId: juror.memberId,
+            nickname: juror.nickName,
+          })
+        })
+      }
+
+      // 기존 시청자
+      if (constInfo.roomInfo.watchers != null) {
+        constInfo.roomInfo.watchers.forEach((watcher) => {
+          playerInfo.watcherList.push({
+            memberId: watcher.memberId,
+            nickname: watcher.nickName,
+          })
+        })
+      }
+
+      
       if (constInfo.team == team[0].english || constInfo.team == team[1].english) {
         initCommunication(constInfo.team)
         sessionInfo.publisher = getDefaultPublisher()
@@ -296,16 +322,6 @@ function joinSession() {
         } else if (constInfo.team == team[1].english) {
           sessionInfo.teamRightList.push(sessionInfo.publisher)
           playerInfo.playerRightList.push({
-            memberId: authStore.memberId,
-            nickname: authStore.nickname
-          })
-        } else if (constInfo.team == team[2].english) {
-          playerInfo.jurorList.push({
-            memberId: authStore.memberId,
-            nickname: authStore.nickname
-          })
-        } else if (constInfo.team == team[3].english) {
-          playerInfo.watcherList.push({
             memberId: authStore.memberId,
             nickname: authStore.nickname
           })
