@@ -457,11 +457,11 @@ function leaveSession() {
     sessionInfo.session.unpublish(sessionInfo.publisher);
     sessionInfo.session.disconnect()
   }
-  // server redis에서 참여자 정보 삭제
+  // server redis에서 참여자 정보 삭제Leave
   debateStore.leaveDebate({
     sessionId: route.params.sessionId,
-    nickName: authStore.nickname,
-    role: gameStore.team
+    nickName: constInfo.nickname,
+    role: constInfo.team
   })
 
   // 세션 정보 초기화
@@ -670,7 +670,7 @@ function nextPhase() {
     })
 }
 
-const isHost = computed(() => constInfo.roomInfo.hostName === authStore.nickname)
+const isHost = computed(() => constInfo.roomInfo.hostName === constInfo.nickname)
 console.log('방장이니?' + isHost.value)
 const isPhaseZero = ref(true)
 // phase에 따라서 함수 실행
