@@ -90,6 +90,7 @@ const vote = reactive({
 function joinSession() {
   // 팀 세션 생성
   sessionInfo.OV = new OpenVidu()
+
   sessionInfo.session = sessionInfo.OV.initSession()
 
   // 다른 사용자의 stream(publisher) 생성 감지 이벤트
@@ -212,11 +213,32 @@ function joinSession() {
     sessionInfo.phase += 1
     console.log('Game phase updated by nextPhase:', sessionInfo.phase)
   })
+  sessionInfo.session.on('signal:nextPhase', () => {
+    sessionInfo.phase += 1
+    console.log('Game phase updated by nextPhase:', sessionInfo.phase)
+  })
+  sessionInfo.session.on('signal:nextPhase', () => {
+    isEnd.value = true;
+    console.log('@@@@@@@@@@@@토론끝@@@@@@@@@@')
+  })
 
   // 비동기 관련 오류 처리
   sessionInfo.session.on('exception', ({ exception }) => {
     console.warn(exception)
   })
+
+  // 화면공유
+  // sessionInfo.session.on('streamCreated', (event) => {
+  //   if (event.stream.typeOfVideo == 'SCREEN') {
+  //     // Subscribe to the Stream to receive it. HTML video will be appended to element with 'container-screens' id
+  //     var subscriberScreen = session.subscribe(event.stream, 'container-screens')
+  //     // When the HTML video has been appended to DOM...
+  //     subscriberScreen.on('videoElementCreated', (event) => {
+  //       // Add a new <p> element for the user's nickname just below its video
+  //       appendUserData(event.element, subscriberScreen.stream.connection)
+  //     })
+  //   }
+  // })
 
   sessionInfo.session
     .connect(constInfo.token, {
@@ -552,18 +574,40 @@ function nextPhase() {
 const isHost = computed(() => constInfo.roomInfo.hostName === authStore.nickname)
 console.log('방장이니?' + isHost.value)
 
+// phase에 따라서 함수 실행
 watch(
   () => sessionInfo.phase,
   (newPhase) => {
     if (constInfo.roomInfo.hostName === authStore.nickname) {
-      if (newPhase % 2 === 1) {
-        speakingTime()
-      } else if (newPhase !== 0 && newPhase % 2 === 0) {
-        qnaTime()
+      if (newPhase === constInfo.roomInfo.playerNum * 4 + 1) {
+        endGame()
+      } else {
+        if (newPhase % 2 === 1) {
+          speakingTime()
+        } else if (newPhase !== 0 && newPhase % 2 === 0) {
+          qnaTime()
+        }
       }
     }
   }
 )
+
+const isEnd = ref(false)
+
+function endGame() {
+  sessionInfo.session
+    .signal({
+      type: 'endGame',
+      data: '' // 필요한 경우 여기에 추가 데이터를 전달할 수 있습니다.
+    })
+    .then(() => {
+      console.log('@@@@@@@@@토론끝@@@@@@@@@@')
+    })
+    .catch((error) => {
+      console.error('Error sending end game signal:', error)
+    })
+}
+
 const canStart = ref(false)
 watch(
   [() => playerInfo.playerLeftList, () => playerInfo.playerRightList, () => playerInfo.jurorList],
@@ -667,6 +711,7 @@ joinSession()
     </div>
 
     <GameStartModal v-if="showModal" :roomInfo="constInfo.roomInfo" />
+    <VotingResult v-if="isEnd" />
 
     <footer>
       <DebateBottomBar
@@ -743,7 +788,7 @@ joinSession()
 }
 .play-button1 {
   border: 5px solid red;
-  cursor:pointer;
+  cursor: pointer;
 }
 
 .juror-button,
@@ -774,9 +819,9 @@ joinSession()
 .chatting-container {
   display: flex;
   flex-direction: column;
-  max-height: 610px; 
+  max-height: 610px;
   border-left: 1px solid #ccc;
-  box-shadow: -4px 0 5px -2px rgba(0, 0, 0, 0.2); 
+  box-shadow: -4px 0 5px -2px rgba(0, 0, 0, 0.2);
   overflow-y: auto;
 }
 
