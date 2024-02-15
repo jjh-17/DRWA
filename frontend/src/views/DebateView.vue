@@ -19,7 +19,6 @@ import { useGameStore } from '@/stores/useGameStore'
 const { getRoomInfo } = useRoomInfo()
 
 // === 변수 ===
-// const roomInfo = roomInfos[connectionId]
 const roomInfo = reactive({
   category: 'category', // 토론 카테고리
   hostId: 1, // 방장 Id
@@ -402,6 +401,12 @@ function handleShareByUser() {
 
   console.log('handleShareByUser')
 }
+
+// 게임 시작
+function sendGameStartMessage() {
+  
+}
+
 
 joinSession()
 </script>
