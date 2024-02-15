@@ -29,6 +29,7 @@ const sessionInfo = reactive({
   session: undefined,
   OV: undefined,
   publisher: undefined, // 자기 자신
+  phase:undefined,
 
   // index == 각 팀에서의 순서
   teamLeftList: [], // 팀 A 리스트(자기 자신 포함 가능)
@@ -94,7 +95,7 @@ function joinSession() {
     // 새로운 stream의 클라이언트 정보(memberId, nickname, team)를 받아옴
     const clientDatas = stream.connection.data.split('"');
     const datas = clientDatas[3].split(',');
-
+    sessionInfo.phase = 0
     // 새로운 subscriber
     const subscriber = sessionInfo.session.subscribe(stream)
 
@@ -384,6 +385,7 @@ function sendGameStartMessage() {
   
 }
 
+const isHost = computed(() => constInfo.roomInfo.hostName === authStore.nickname);
 
 joinSession()
 </script>
@@ -410,7 +412,8 @@ joinSession()
       </div>
 
       <div class="share-container">
-        <div class="play-button">시작하기</div>
+        <div class="play-button" v-if="isHost">시작하기</div>
+        <div class="waiting-button" v-else>대기중...</div>
         <div class="juror-button">배심원으로 입장 ( / )</div>
         <div class="viewer-button">관전자로 입장 ( / )</div>
       </div>
@@ -482,7 +485,7 @@ joinSession()
   flex: 4.5;
 }
 
-.play-button {
+.play-button,.waiting-button {
   position: absolute;
   /* 절대 위치 지정 */
   top: 50%;
