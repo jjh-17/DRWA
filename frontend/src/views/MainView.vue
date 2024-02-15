@@ -221,6 +221,7 @@ const scrollToTop = () => {
 .carousel-container {
   padding: 20px;
   position: relative;
+  z-index:3;
   /* 내부 절대 위치 요소의 기준이 됨 */
 }
 
@@ -280,7 +281,7 @@ const scrollToTop = () => {
   /* 상위 요소의 중앙에 위치 */
   transform: translateY(-50%);
   /* Y축 기준 중앙 정렬 */
-  z-index: 10;
+  z-index: 1;
   height: 60%;
   opacity: 1;
 }
