@@ -12,8 +12,8 @@ export const useGameStore = defineStore('game', {
   actions: {
 
   },
-  // persist: {
-  //   enabled: true, // 상태를 로컬 스토리지에 저장합니다.
-  //   strategies: [{ storage: localStorage }] // 로컬 스토리지에 저장합니다.
-  // }
+  persist: {
+    enabled: true, // 상태를 로컬 스토리지에 저장합니다.
+    strategies: [{ storage: localStorage }] // 로컬 스토리지에 저장합니다.
+  }
 })
