@@ -12,7 +12,7 @@
 
     <!-- 현재 진행 상태 및 남은시간 -->
     <div class="q-pa-md q-ma-md text-center">
-      {{ headerBarTitle }}
+      {{ headerBarTitle }} - {{ phase[props.nowPhase].korean }}
     </div>
 
     <!-- 이것은 나머지 요소들을 오른쪽으로 밀어냅니다 -->
@@ -46,6 +46,7 @@ import InfoModal from '@/components/modal/InfoModal.vue'
 import ReportModal from '@/components/modal/ReportModal.vue'
 import ExitModal from '@/components/modal/ExitModal.vue'
 import DebateCreateModal from '@/components/modal/DebateCreateModal.vue'
+import { phase } from '../common/phase'
 
 
 const showInfoModal = ref(false)
@@ -56,6 +57,7 @@ const showDebateCreateModal = ref(false)
 const props = defineProps({
   headerBarTitle: String,
   leaveSession: Function,
+  nowPhase: Number,
 })
 
 const headerBarTitle = props.headerBarTitle
