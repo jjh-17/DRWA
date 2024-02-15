@@ -1,4 +1,3 @@
-
 <template>
   <q-dialog v-model="showModal" persistent @hide="resetForm">
     <q-card class="reportmodal">
@@ -49,10 +48,15 @@ import axios from 'axios';
 const showModal = ref(true);
 const selectedUser = ref(null);
 const userOptions = ref([]);
-
-const resetForm = () => {
+const reportReasons = ref([]);
+const details = ref('');
+  
+  const resetForm = () => {
   selectedUser.value = null;
-};
+  reportReasons.value = [];
+  details.value = '';
+  };
+
 
 const submitReport = async () => {
 try {
@@ -70,13 +74,23 @@ const closeModal = () => {
 };
 
 onMounted(async () => {
-try {
-  const response = await axios.get('참가자 정보 받아오는 api');
-  userOptions.value = response.data;
-} catch (error) {
-  console.error('사용자 목록을 불러오는 중 에러 발생:', error);
-}
-});
+  try {
+    const response = await axios.get('/api');
+    userOptions.value = response.data.map(user => ({
+      label: user.displayName,
+      value: user.userId 
+    }));
+    if (userOptions.value.length === 0) {
+      console.log('없어');
+      userOptions.value = [
+        { label: 'User 1', value: 'user1' }, 
+        { label: 'User 2', value: 'user2' }
+      ];
+    }
+  } catch (error) {
+    console.error('사용자 목록을 불러오는 중 에러 발생:', error);
+  }
+})
 </script>
 
 <style scoped>
