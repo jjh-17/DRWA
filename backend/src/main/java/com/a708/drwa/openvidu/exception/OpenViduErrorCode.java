@@ -8,6 +8,7 @@ public enum OpenViduErrorCode implements ErrorCode {
 
     OPENVIDU_CAN_NOT_CREATE_SESSION(400, "OPENVIDU_01", "세션을 생성할 수 없습니다."),
     OPENVIDU_NOT_FOUND_SESSION(404, "OPENVIDU_02", "존재하지 않는 방입니다."),
+    OPENVIDU_CAN_NOT_CREATE_CONNECTION(400, "OPENVIDU_03", "세션이 존재하지 않거나 잘못된 세션입니다."),
     ;
 
     private final int statusCode;

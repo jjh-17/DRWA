@@ -2,7 +2,6 @@ package com.a708.drwa.debate.service;
 
 import com.a708.drwa.debate.data.DebateMembers;
 import com.a708.drwa.debate.data.RoomInfo;
-import com.a708.drwa.debate.data.dto.request.DebateJoinRequestDto;
 import com.a708.drwa.debate.data.dto.request.DebateStartRequestDto;
 import com.a708.drwa.debate.data.dto.response.DebateInfoListResponse;
 import com.a708.drwa.debate.data.dto.response.DebateInfoResponse;
@@ -284,13 +283,6 @@ public class DebateService {
 
     private void qnaPhase(String debateKey) {
 
-    }
-
-    public Boolean isExistDebate(DebateJoinRequestDto debateJoinRequestDto) {
-        // 존재하지 않는 방일 경우
-        if(!debateRepository.existsById(debateJoinRequestDto.getDebateId()))
-            throw new DebateException(DebateErrorCode.NOT_EXIST_DEBATE_ROOM_ERROR);
-        return true;
     }
 
 //    @Autowired

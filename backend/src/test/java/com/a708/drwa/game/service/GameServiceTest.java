@@ -137,13 +137,13 @@ class GameServiceTest {
 
         // DebateMembers 생성
         DebateMember debateMember1 = DebateMember.builder()
-                .memberId(member1.getId()).nickName(profile1.getNickname()).role(Role.A_TEAM).build();
+                .memberId(member1.getId()).nickName(profile1.getNickname()).role(Role.LEFT).build();
         DebateMember debateMember2 = DebateMember.builder()
-                .memberId(member2.getId()).nickName(profile2.getNickname()).role(Role.A_TEAM).build();
+                .memberId(member2.getId()).nickName(profile2.getNickname()).role(Role.LEFT).build();
         DebateMember debateMember3 = DebateMember.builder()
-                .memberId(member3.getId()).nickName(profile3.getNickname()).role(Role.B_TEAM).build();
+                .memberId(member3.getId()).nickName(profile3.getNickname()).role(Role.RIGHT).build();
         DebateMember debateMember4 = DebateMember.builder()
-                .memberId(member4.getId()).nickName(profile4.getNickname()).role(Role.B_TEAM).build();
+                .memberId(member4.getId()).nickName(profile4.getNickname()).role(Role.RIGHT).build();
         DebateMember debateMember5 = DebateMember.builder()
                 .memberId(member5.getId()).nickName(profile5.getNickname()).role(Role.JUROR).build();
         DebateMember debateMember6 = DebateMember.builder()

@@ -9,8 +9,8 @@ import java.util.List;
 @Getter
 @Builder
 public class DebateMembers {
-    private List<DebateMember> leftMembers;
-    private List<DebateMember> rightMembers;
+    private List<DebateMember> teamAMembers;
+    private List<DebateMember> teamBMembers;
     private List<DebateMember> jurors;
     private List<DebateMember> watchers;
 }
