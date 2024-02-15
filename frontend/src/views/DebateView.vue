@@ -632,14 +632,14 @@ function speakingTime() {
     console.log('nextphase 시작이야')
     nextPhase()
     console.log('발언시간 끝.')
-  }, constInfo.roomInfo.speakingTime * 1000)
+  }, constInfo.roomInfo.speakingTime * 200)
 }
 function qnaTime() {
   setTimeout(() => {
     console.log('qnaTime 시작이야')
     nextPhase()
     console.log('질문시간 끝.')
-  }, constInfo.roomInfo.qnaTime * 1000)
+  }, constInfo.roomInfo.qnaTime * 200)
 }
 
 joinSession()
