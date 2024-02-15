@@ -21,6 +21,8 @@ const route = useRoute();
 // Debate 정보
 const debateStore = useDebateStore()
 const gameStore = useGameStore()
+const headerBarTitle = ref('[임시]제목입니다.')
+// headerBarTitle = debate.getTitle();
 
 // 세션 정보
 const sessionInfo = reactive({
@@ -41,18 +43,13 @@ const playerInfo = reactive({
   // index == 각 팀에서의 순서
   // 각 팀 플레이어의 {memberId, nickname } 저장
   playerLeftList: [],
-  playerRightList: [],
-  jurorList: [],
-  watcherList: [],
+  playerRightList: []
 })
 
 const constInfo = {
   team: gameStore.team,
   token: gameStore.token,
   roomInfo: gameStore.roomInfo,
-
-  memberId: authStore.memberId,
-  nickname: authStore.nickname,
 }
 
 // 화상 정보
@@ -119,13 +116,15 @@ function joinSession() {
       console.error(`잘못된 팀 - ${datas[2]} 입니다.`)
     }
 
-    console.log(`streamCreated ${datas[2]} :`, playerInfo)
+    console.log(`streamCreated!!, ${sessionInfo.teamLeftList.length}, ${sessionInfo.teamRightList.length}, 
+    ${playerInfo.playerLeftList.length}, ${playerInfo.playerRightList.length}`)
   });
 
   // 다른 사용자의 stream 종료 감지(juror, watcher는 해당 X)
   sessionInfo.session.on('streamDestroyed', ({ stream }) => {
     leaveTeam(stream.streamManager);
-    console.log(`streamDestroyed :`, playerInfo)
+    console.log(`streamDestroyed!!, ${sessionInfo.teamLeftList.length}, ${sessionInfo.teamRightList.length}, 
+    ${playerInfo.playerLeftList.length}, ${playerInfo.playerRightList.length}`)
   })
 
   // 채팅 이벤트 수신 처리(닉네임, 목표 팀, 메시지 내용) => targetTeam에 따라 메시지 저장 공간 변화
@@ -174,38 +173,6 @@ function joinSession() {
     }
   })
 
-  // 배심원, 관전자 참가, 나가기 시 시그널
-  sessionInfo.session.on('signal:jurorIn', (event) => {
-    const messageData = JSON.parse(event.data)
-    playerInfo.jurorList.push({
-      memberId: messageData.memberId,
-      nickname: messageData.nickname,
-    })
-  })
-  sessionInfo.session.on('signal:jurorOut', (event) => {
-    const messageData = JSON.parse(event.data)
-    for (let i = 0; i < playerInfo.jurorList.length; i++){
-      if (playerInfo.jurorList[i].memberId == messageData.memberId) {
-        playerInfo.jurorList.splice(i);
-      }
-    }
-  })
-  sessionInfo.session.on('signal:watcherIn', (event) => {
-    const messageData = JSON.parse(event.data)
-    playerInfo.watcherList.push({
-      memberId: messageData.memberId,
-      nickname: messageData.nickname,
-    })
-  })
-  sessionInfo.session.on('signal:watcherOut', (event) => {
-    const messageData = JSON.parse(event.data)
-    for (let i = 0; i < playerInfo.watcherList.length; i++){
-      if (playerInfo.watcherList[i].memberId == messageData.memberId) {
-        playerInfo.watcherList.splice(i);
-      }
-    }
-  })
-
   // 비동기 관련 오류 처리
   sessionInfo.session.on('exception', ({ exception }) => {
     console.warn(exception)
@@ -215,7 +182,7 @@ function joinSession() {
     .connect(
       constInfo.token,
       {
-        clientData: `${authStore.memberId},${authStore.nickname},${constInfo.team}`
+        clientData: `${authStore.memberId},${authStore.nickname},${gameStore.team}`
       })
     .then(() => {
       console.log('세션 연결', constInfo)
@@ -236,21 +203,7 @@ function joinSession() {
             memberId: authStore.memberId,
             nickname: authStore.nickname,
           })
-        } else if (constInfo.team == team[2].english) {
-          playerInfo.jurorList.push({
-            memberId: authStore.memberId,
-            nickname: authStore.nickname,
-          })
-        } else if (constInfo.team == team[3].english) {
-          playerInfo.watcherList.push({
-            memberId: authStore.memberId,
-            nickname: authStore.nickname,
-          })
         }
-      } else if (constInfo.team == team[2].english) {
-        sendJurorInMessage()
-      } else if (constInfo.team == team[3].english) {
-        sendWatcherInMessage();
       }
     })
     .catch((error) => {
@@ -266,47 +219,18 @@ function leaveTeam(streamManager) {
   let idx
 
   // 팀 A 내 제거 시도
-  if (playerInfo.team == team[0].english) {
-    idx = sessionInfo.teamLeftList.indexOf(streamManager, 0)
-    if (idx >= 0) {
-      console.log('Leave B :', playerInfo.playerLeftList[idx])
-      sessionInfo.teamLeftList.splice(idx, 1)
-      playerInfo.playerLeftList.splice(idx, 1)
-    }
+  idx = sessionInfo.teamLeftList.indexOf(streamManager, 0)
+  if (idx >= 0) {
+    sessionInfo.teamLeftList.splice(idx, 1)
+    playerInfo.playerLeftList.splice(idx, 1)
     return
   }
 
   // 팀 B 내 제거 시도
-  if (playerInfo.team == team[1].english) {
-    idx = sessionInfo.teamRightList.indexOf(streamManager, 0)
-    if (idx >= 0) {
-      console.log('Leave A :', playerInfo.playerRightList[idx])
-      sessionInfo.teamRightList.splice(idx, 1)
-      playerInfo.playerRightList.splice(idx, 1)
-    }
-    return
-  }
-
-  // juror 제거
-  if (playerInfo.team == team[2].english) {
-    for (let i = 0; i < playerInfo.jurorList.length; i++) {
-      if (playerInfo.jurorList[i].memberId == constInfo.memberId) {
-        console.log('Leave Juror :', playerInfo.jurorList[i])
-        playerInfo.jurorList.splice(idx, 1);
-        return;
-      }
-    }
-  }
-
-  // watchers 제거
-  if (playerInfo.team == team[3].english) {
-    for (let i = 0; i < playerInfo.watcherList.length; i++) {
-      if (playerInfo.watcher[i].memberId == constInfo.memberId) {
-        console.log('Leave Juror :', playerInfo.watcherList[i])
-        playerInfo.watcherList.splice(idx, 1);
-        return;
-      }
-    }
+  idx = sessionInfo.teamRightList.indexOf(streamManager, 0)
+  if (idx >= 0) {
+    sessionInfo.teamRightList.splice(idx, 1)
+    playerInfo.playerRightList.splice(idx, 1)
   }
 }
 
@@ -345,9 +269,6 @@ function getDefaultPublisher() {
 
 // 세션 나가기 메서드
 function leaveSession() {
-  if (constInfo.team == team[2].english) sendJurorOutMessage()
-  else if (constInfo.team == team[3].english) sendWatcherOutMessage();
-
   // 세션 연결 종료
   if (sessionInfo.session) sessionInfo.session.disconnect()
 
@@ -397,7 +318,7 @@ const showModal = ref(false)
 const eventSource = ref(null)
 const listening = ref(false)
 
-// === 투표 메서드 ===
+// === 투표 ===
 // 팀 투표 메서드
 function sendVoteTeamMessage(event, team, beforeTeam, targetTeam) {
   event.preventDefault()
@@ -411,61 +332,6 @@ function sendVoteTeamMessage(event, team, beforeTeam, targetTeam) {
       team: team
     }),
     type: 'voteTeam' // 신호 타입을 'chat'으로 설정
-  })
-}
-
-// === 배심원, 관전자 ===
-// 배심원 합류 메시지 송신 메서드
-function sendJurorInMessage() {
-  console.log("call sendJurorInMessage!")
-
-  // event.preventDefault()
-  sessionInfo.session.signal({
-    data: JSON.stringify({
-      memberId: constInfo.memberId,
-      nickname: constInfo.nickname,
-    }),
-    type: 'jurorIn'
-  })
-}
-
-// 관전자 합류 메시지 송신 메서드
-function sendWatcherInMessage() {
-  console.log("call sendWatcherInMessage!")
-
-  // event.preventDefault()
-  sessionInfo.session.signal({
-    data: JSON.stringify({
-      memberId: constInfo.memberId,
-      nickname: constInfo.nickname,
-    }),
-    type: 'watcherIn'
-  })
-}
-
-// 배심원 나감 메시지 송신 메서드
-function sendJurorOutMessage() {
-  console.log("call sendJurorOutMessage!")
-
-  // event.preventDefault()
-  sessionInfo.session.signal({
-    data: JSON.stringify({
-      memberId: constInfo.memberId,
-    }),
-    type: 'jurorOut'
-  })
-}
-
-// 관전자 나감 메시지 송신 메서드
-function sendWatcherOutMessage() {
-  console.log("call sendWatcherOutMessage!")
-
-  // event.preventDefault()
-  sessionInfo.session.signal({
-    data: JSON.stringify({
-      memberId: constInfo.memberId,
-    }),
-    type: 'watcherOut'
   })
 }
 
@@ -520,7 +386,6 @@ function sendGameStartMessage() {
 }
 
 const isHost = computed(() => constInfo.roomInfo.hostName === authStore.nickname);
-console.log('방장이니?' + isHost.value)
 
 joinSession()
 </script>
@@ -544,13 +409,13 @@ joinSession()
             <div class="player">+</div>
           </div>
         </div>
-      </div>  
+      </div>
 
       <div class="share-container">
         <div class="play-button" v-if="isHost">시작하기</div>
         <div class="waiting-button" v-else>대기중...</div>
-        <div class="juror-button">배심원 : ({{ playerInfo.jurorList.length }} / {{ constInfo.roomInfo.jurorNum }})</div>
-        <div class="viewer-button">관전자 : {{ playerInfo.watcherList.length }}</div>
+        <div class="juror-button">배심원으로 입장 ( / )</div>
+        <div class="viewer-button">관전자로 입장 ( / )</div>
       </div>
 
       <div class="teamB-container">
@@ -672,7 +537,6 @@ joinSession()
   box-shadow: -4px 0 5px -2px rgba(0, 0, 0, 0.2);
   /* 왼쪽 그림자 설정 */
   flex-direction: column;
-  width:600px;
 }
 
 .chatting-tabs {

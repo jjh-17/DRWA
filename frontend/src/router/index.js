@@ -43,7 +43,7 @@ const router = createRouter({
       component: ThumbnailImg
     },
     {
-      path: '/debate/:debateId',
+      path: '/debate/:sessionId',
       name: 'DebateView',
       component: DebateView
     },
@@ -56,37 +56,37 @@ const router = createRouter({
       path: '/ranking',
       name: 'RankingView',
       component: RankingView
+    },
+    {
+      path: '/modal1',
+      name: 'VotingResult',
+      component: VotingResult
+    },
+    {
+      path: '/modal2',
+      name: 'EncourageModal',
+      component: EncourageModal
+    },
+    {
+      path: '/modal3',
+      name: 'ExitModal',
+      component: ExitModal
+    },
+    {
+      path: '/modal4',
+      name: 'ReportModal',
+      component: ReportModal
+    },
+    {
+      path: '/modal5',
+      name: 'GameStartModal',
+      component: GameStartModal
+    },
+    {
+      path: '/modal6',
+      name: 'PasswordModal',
+      component: PasswordModal
     }
-    // {
-    //   path: '/modal1',
-    //   name: 'VotingResult',
-    //   component: VotingResult
-    // },
-    // {
-    //   path: '/modal2',
-    //   name: 'EncourageModal',
-    //   component: EncourageModal
-    // },
-    // {
-    //   path: '/modal3',
-    //   name: 'ExitModal',
-    //   component: ExitModal
-    // },
-    // {
-    //   path: '/modal4',
-    //   name: 'ReportModal',
-    //   component: ReportModal
-    // },
-    // {
-    //   path: '/modal5',
-    //   name: 'GameStartModal',
-    //   component: GameStartModal
-    // },
-    // {
-    //   path: '/modal6',
-    //   name: 'PasswordModal',
-    //   component: PasswordModal
-    // },
   ]
 })
 

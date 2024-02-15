@@ -1,53 +1,76 @@
 package com.a708.drwa.room.domain;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.a708.drwa.debate.data.dto.response.DebateInfoResponse;
+import com.a708.drwa.debate.enums.DebateCategory;
+import lombok.*;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.Mapping;
+import org.springframework.data.elasticsearch.annotations.Setting;
 
-@Setter
-@Getter
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Setting(settingPath = "/elasticsearch/settings.json")
+@Mapping(mappingPath = "/elasticsearch/mappings.json")
 @Document(indexName = "room_index")
 public class Room { // Elasticsearch에 저장되는 방 정보
     @Id
     private String sessionId;
 
-    @Field(type = FieldType.Text, analyzer = "korean")
-    private String title;
-
-    @Field(type = FieldType.Text, analyzer = "korean")
-    private String leftKeyword;
-
-    @Field(type = FieldType.Text, analyzer = "korean")
-    private String rightKeyword;
+    private DebateCategory debateCategory;
 
     private String hostName;
 
-    private String thumbnail1;
+    private String title;
 
-    private String thumbnail2;
+    private String leftKeyword;
+    private String rightKeyword;
 
-    private String debateCategory;
-
-    private Integer playerNum;
-
-    private Integer jurorNum;
+    private int playerNum;
+    private int jurorNum;
 
     private Boolean isPrivate;
-
     private String password;
 
-    private Integer speakingTime;
+    private int speakingTime;
+    private int readyTime;
+    private int qnaTime;
 
-    private Integer readyTime;
+    private String thumbnail1;
+    private String thumbnail2;
 
-    private Integer qnaTime;;
+    private int totalCnt;
 
-    private Integer totalCnt;
+    public DebateInfoResponse toDto() {
+        return DebateInfoResponse.builder()
+                .sessionId(this.sessionId)
+                .debateCategory(this.debateCategory)
+                .hostName(this.hostName)
+                .title(this.title)
+                .leftKeyword(this.leftKeyword)
+                .rightKeyword(this.rightKeyword)
+                .playerNum(this.playerNum)
+                .jurorNum(this.jurorNum)
+                .isPrivate(this.isPrivate)
+                .password(this.password)
+                .speakingTime(this.speakingTime)
+                .readyTime(this.readyTime)
+                .qnaTime(this.qnaTime)
+                .thumbnail1(this.thumbnail1)
+                .thumbnail2(this.thumbnail2)
+                .totalCnt(this.totalCnt)
+                .build();
+    }
+
+    public void join() {
+        this.totalCnt++;
+    }
+
+    public void exit() {
+        this.totalCnt--;
+    }
 
     @Getter
     @Setter
@@ -64,5 +87,4 @@ public class Room { // Elasticsearch에 저장되는 방 정보
             this.thumbnail2 = thumbnailUpdateInfo.getThumbnailUrl();
         }
     }
-
 }

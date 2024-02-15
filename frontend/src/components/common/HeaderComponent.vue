@@ -59,12 +59,12 @@ async function searchRooms() {
         console.warn('검색어를 입력해주세요.');
         return;
     }
-    await roomStore.searchRooms(searchQuery.value, type.value);
     if (!type.value) {
         alert('검색 유형을 선택해주세요.');
         return;
     }
-
+    
+    await roomStore.searchRooms(searchQuery.value, type.value);
     // `type`과 `query`를 URL의 동적 세그먼트로 전달
     router.push({ name: 'SearchResults', params: { type: type.value, query: searchQuery.value } });
 }
@@ -147,9 +147,12 @@ function onLogoClick() {
 
                 <q-card-section class="q-pt-none flex flex-center column">
                     <div class="text-h6 text-center q-mb-md">소셜 로그인</div>
-                    <img class="login-btn" src="@\assets\img\google_login_btn.png" @click="fetchSocialLoginUrl('google')">
-                    <img class="login-btn" src="@\assets\img\naver_login_btn.png" @click="fetchSocialLoginUrl('naver')">
-                    <img class="login-btn" src="@\assets\img\kakao_login_btn.png" @click="fetchSocialLoginUrl('kakao')">
+                    <img class="login-btn cursor-pointer" src="@\assets\img\google_login_btn.png"
+                        @click="fetchSocialLoginUrl('google')">
+                    <img class="login-btn cursor-pointer" src="@\assets\img\naver_login_btn.png"
+                        @click="fetchSocialLoginUrl('naver')">
+                    <img class="login-btn cursor-pointer" src="@\assets\img\kakao_login_btn.png"
+                        @click="fetchSocialLoginUrl('kakao')">
                 </q-card-section>
             </q-card>
         </q-dialog>

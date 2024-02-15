@@ -3,6 +3,7 @@ package com.a708.drwa.openvidu.data.dto.request;
 
 import com.a708.drwa.debate.enums.DebateCategory;
 import com.a708.drwa.debate.domain.DebateRoomInfo;
+import com.a708.drwa.room.domain.Room;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,7 +40,7 @@ public class CreateRoomRequestDto {
     private String thumbnail1;
     private String thumbnail2;
 
-    public DebateRoomInfo toEntity(String sessionId, String hostName) {
+    public DebateRoomInfo toDebateRoomInfo(String sessionId, String hostName) {
         return DebateRoomInfo.builder()
                 .sessionId(sessionId)
                 .debateCategory(this.debateCategory)
@@ -56,7 +57,28 @@ public class CreateRoomRequestDto {
                 .qnaTime(this.qnaTime)
                 .thumbnail1(this.thumbnail1)
                 .thumbnail2(this.thumbnail2)
-                .totalCnt(1)
+                .totalCnt(0)
+                .build();
+    }
+
+    public Room toRoom(String sessionId, String hostName) {
+        return Room.builder()
+                .sessionId(sessionId)
+                .debateCategory(this.debateCategory)
+                .hostName(hostName)
+                .title(this.title)
+                .leftKeyword(this.leftKeyword)
+                .rightKeyword(this.rightKeyword)
+                .playerNum(this.playerNum)
+                .jurorNum(this.jurorNum)
+                .isPrivate(this.isPrivate)
+                .password(this.password)
+                .speakingTime(this.speakingTime)
+                .readyTime(this.readyTime)
+                .qnaTime(this.qnaTime)
+                .thumbnail1(this.thumbnail1)
+                .thumbnail2(this.thumbnail2)
+                .totalCnt(0)
                 .build();
     }
 }

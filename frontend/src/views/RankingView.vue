@@ -65,7 +65,6 @@ const searchUserRank = (nickname) => {
 </script>
 
 <style scoped>
-
 .categories {
 padding: 20px 50px 50px 50px;
 }
@@ -82,11 +81,12 @@ height: 40px;
     display: flex;
     justify-content: space-between;
     height: 80px;
+    margin: 0;
 }
 .top20{
     font-size: 1.5rem;
     font-weight: 800;
-    padding: 10px 20px 45px 20px;
+    padding: 10px 20px 45px 0;
     margin: 10px 0 50px 0;
     border-radius: 4px;
     background-color: #34227c;
