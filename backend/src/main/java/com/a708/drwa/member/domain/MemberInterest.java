@@ -1,6 +1,7 @@
 package com.a708.drwa.member.domain;
 
 import com.a708.drwa.debate.enums.DebateCategory;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +19,7 @@ public class MemberInterest {
     // 지연로딩 : 관심사를 조회할 때 회원 정보는 조회하지 않는다.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
+    @JsonBackReference
     private Member member;
 
     @Enumerated(EnumType.STRING)
