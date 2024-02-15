@@ -5,41 +5,20 @@ import ChattingBar from '@/components/debate/ChattingBar.vue'
 import DebateBottomBar from '@/components/debate/DebateBottomBar.vue'
 import GameStartModal from '@/components/modal/GameStartModal.vue'
 import { ref, reactive, toRefs, computed, defineProps } from 'vue'
+import {useRoute} from 'vue-router'
 import { onMounted, onUnmounted } from 'vue'
 import { useDebateStore } from '@/stores/useDebateStore'
 import { useAuthStore } from '@/stores/useAuthStore'
-import { useRoute } from 'vue-router'
 import { OpenVidu } from 'openvidu-browser'
 import UserVideo from '@/components/debate/UserVideo.vue'
 import { team } from '@/components/common/Team.js'
-import { storeToRefs } from 'pinia'
-import { useRoomInfo } from '@/stores/useRoomInfo'
 import { useGameStore } from '@/stores/useGameStore'
 import { httpService } from "@/api/axios"
 
-const { getRoomInfo } = useRoomInfo()
+const route = useRoute();
 
 // === 변수 ===
-// const roomInfo = roomInfos[connectionId]
-const roomInfo = reactive({
-  category: 'category', // 토론 카테고리
-  hostId: 1, // 방장 Id
-  title: 'title', // 제목
-  keywordLeft: 'keywordA', // 제시어 A
-  keywordRight: 'keywordB', // 제시어 B
-  playerNum: 2, // 플레이어 수 제한
-  jurorNum: 10, // 배심원 수 제한
-  isPrivate: false, // 사설방 여부
-  password: 'password', // 비밀번호
-  readyTime: 1, // 준비 시간
-  speakingTime: 5, // 발언 시간
-  qnaTime: 4, // qna 시간
-  thumbnailA: '', // 썸네일 A
-  thumbnailB: '' // 썸네일 B
-})
-
 // Debate 정보
-const route = useRoute()
 const debateStore = useDebateStore()
 const gameStore = useGameStore()
 const headerBarTitle = ref('[임시]제목입니다.')
@@ -66,8 +45,10 @@ const playerInfo = reactive({
   playerRightList: []
 })
 
-const playerInfoConst = {
-  team: '',
+const constInfo = {
+  team: gameStore.team,
+  token: gameStore.token,
+  roomInfo: gameStore.roomInfo,
 }
 
 // 화상 정보
@@ -109,40 +90,6 @@ function joinSession() {
 
   // 다른 사용자의 stream(publisher) 생성 감지 이벤트
   // 토큰이 유효하면 세션 연결
-  getToken().then((token) => {
-    sessionInfo.session
-      .connect(
-        token,
-        {
-          clientData: `${authStore.memberId},${authStore.nickname},${gameStore.team}`
-        })
-      .then(() => {
-        playerInfoConst.team = gameStore.team
-        console.log(`세션 연결!, ${playerInfoConst.team}`)
-        if (playerInfoConst.team == team[0].english || playerInfoConst.team == team[1].english) {
-          initCommunication(playerInfoConst.team)
-          sessionInfo.publisher = getDefaultPublisher()
-          sessionInfo.session.publish(sessionInfo.publisher)
-
-          if (playerInfoConst.team == team[0].english) {
-            sessionInfo.teamLeftList.push(sessionInfo.publisher);
-            playerInfo.playerLeftList.push({
-              memberId: authStore.memberId,
-              nickname: authStore.nickname,
-            })
-          } else if (playerInfoConst.team == team[1].english) {
-            sessionInfo.teamRightList.push(sessionInfo.publisher);
-            playerInfo.playerRightList.push({
-              memberId: authStore.memberId,
-              nickname: authStore.nickname,
-            })
-          }
-        }
-      })
-      .catch((error) => {
-        console.error(`세션 연결 실패 : ${error}`)
-      })
-  })
   sessionInfo.session.on('streamCreated', ({ stream }) => {
     // 새로운 stream의 클라이언트 정보(memberId, nickname, team)를 받아옴
     const clientDatas = stream.connection.data.split('"');
@@ -230,19 +177,40 @@ function joinSession() {
     console.warn(exception)
   })
 
+  sessionInfo.session
+    .connect(
+      constInfo.token,
+      {
+        clientData: `${authStore.memberId},${authStore.nickname},${gameStore.team}`
+      })
+    .then(() => {
+      console.log('세션 연결', constInfo)
+      if (constInfo.team == team[0].english || constInfo.team == team[1].english) {
+        initCommunication(constInfo.team)
+        sessionInfo.publisher = getDefaultPublisher()
+        sessionInfo.session.publish(sessionInfo.publisher)
 
+        if (constInfo.team == team[0].english) {
+          sessionInfo.teamLeftList.push(sessionInfo.publisher);
+          playerInfo.playerLeftList.push({
+            memberId: authStore.memberId,
+            nickname: authStore.nickname,
+          })
+        } else if (constInfo.team == team[1].english) {
+          sessionInfo.teamRightList.push(sessionInfo.publisher);
+          playerInfo.playerRightList.push({
+            memberId: authStore.memberId,
+            nickname: authStore.nickname,
+          })
+        }
+      }
+    })
+    .catch((error) => {
+      console.error(`세션 연결 실패 : ${error}`)
+    })
 
-  // 윈도우 종료 시 세션 나가기 이벤트 등록
-  window.addEventListener('beforeunload', leaveSession)
-}
-
-async function getToken() {
-  const response = await debateStore.joinDebate({
-    sessionId: route.params.sessionId,
-    nickname: authStore.nickname,
-    role: gameStore.team,
-  })
-  return response.data.connection.token
+    // 윈도우 종료 시 세션 나가기 이벤트 등록
+    window.addEventListener('beforeunload', leaveSession)
 }
 
 // 팀A, 팀B 리스트 내 데이터 제거
@@ -411,23 +379,31 @@ function handleShareByUser() {
   console.log('handleShareByUser')
 }
 
+// 게임 시작
+function sendGameStartMessage() {
+  
+}
+
+
 joinSession()
 </script>
 
 <template>
   <div class="app-container">
     <header>
-      <DebateHeaderBar :headerBarTitle="headerBarTitle" :leave-session="leaveSession" />
+      <DebateHeaderBar :headerBarTitle="constInfo.roomInfo.title" :leave-session="leaveSession" />
     </header>
 
     <div class="main-container">
       <!--  -->
       <div class="teamA-container">
-        <div class="team-title">TeamA</div>
+        <div class="team-title">{{ constInfo.roomInfo.leftKeyword }}</div>
         <div class="players">
-          <UserVideo v-for="sub in sessionInfo.teamLeftList" :key="sub.stream.connection.connectionId"
-            :stream-manager="sub" />
-          <div v-for="num in (roomInfo.playerNum - sessionInfo.teamLeftList.length)" :key="num">
+          <UserVideo
+            v-for="sub in sessionInfo.teamLeftList"
+            :key="sub.stream.connection.connectionId"
+            :stream-manager="sub"/>
+          <div v-for="num in (constInfo.roomInfo.playerNum - sessionInfo.teamLeftList.length)" :key="num">
             <div class="player">+</div>
           </div>
         </div>
@@ -440,27 +416,32 @@ joinSession()
       </div>
 
       <div class="teamB-container">
-        <div class="team-title">TeamB</div>
+        <div class="team-title">{{ constInfo.roomInfo.rightKeyword }}</div>
         <div class="players">
-          <UserVideo v-for="sub in sessionInfo.teamRightList" :key="sub.stream.connection.connectionId"
-            :stream-manager="sub" />
-          <div v-for="num in (roomInfo.playerNum - sessionInfo.teamRightList.length)" :key="num">
+          <UserVideo
+            v-for="sub in sessionInfo.teamRightList"
+            :key="sub.stream.connection.connectionId"
+            :stream-manager="sub"/>
+          <div v-for="num in (constInfo.roomInfo.playerNum - sessionInfo.teamRightList.length)" :key="num">
             <div class="player">+</div>
           </div>
         </div>
       </div>
 
       <!-- 채팅방 -->
-      <ChattingBar :nickname="playerInfo.nickname" :role="playerInfoConst.team" :messages-left="chatting.messagesLeft"
-        :messages-right="chatting.messagesRight" :messages-all="chatting.messagesAll" @send-message="sendMessage">
-      </ChattingBar>
+      <ChattingBar
+        :nickname="playerInfo.nickname" :role="constInfo.team"
+        :messages-left="chatting.messagesLeft" :messages-right="chatting.messagesRight" :messages-all="chatting.messagesAll"
+        @send-message="sendMessage"></ChattingBar>      
 
     </div>
 
-    <GameStartModal v-if="showModal" :roomInfo="roomInfo" />
+    <GameStartModal v-if="showModal" :roomInfo="constInfo.roomInfo" />
 
     <footer>
-      <DebateBottomBar :team="playerInfoConst.team" :is-mic-handle-available="communication.isMicHandleAvailable"
+      <DebateBottomBar
+        :team="constInfo.team"
+        :is-mic-handle-available="communication.isMicHandleAvailable"
         :is-camera-handle-available="communication.isCameraHandleAvailable"
         :is-share-handle-available="communication.isShareHandleAvailable" :is-mic-on="communication.isMicOn"
         :is-camera-on="communication.isCameraOn" :is-share-on="communication.isShareOn"
