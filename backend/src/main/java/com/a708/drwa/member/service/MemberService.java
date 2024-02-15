@@ -94,7 +94,8 @@ public class MemberService {
         Member member = memberRepository.findByUserId(socialUserInfoResponse.getId())
                 // 기존 사용자가 없으면 새로운 사용자 등록
                 .orElseGet(() -> registerNewUser(socialUserInfoResponse));
-
+        if(member.getReportedCnt() > 20)
+            throw new MemberException(MemberErrorCode.YOU_ARE_BANNED);
         JWTMemberInfo jwtMemberInfo = JWTMemberInfo.builder()
                 .memberId(member.getId())
                 .userId(member.getUserId())
@@ -205,13 +206,9 @@ public class MemberService {
 
     @Transactional
     public void reportUser(String userId) {
-        Member member = memberRepository.findByUserId(userId)
-                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
-
-        int reportedCnt = member.getReportedCnt();
-        member.setReportedCnt(reportedCnt + 1);
-
-        memberRepository.save(member);
+        memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND))
+                .report();
     }
 
 
