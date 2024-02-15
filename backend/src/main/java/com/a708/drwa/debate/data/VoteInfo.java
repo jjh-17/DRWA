@@ -9,5 +9,4 @@ import lombok.*;
 public class VoteInfo {
     private int leftVote;
     private int rightVote;
-
 }
