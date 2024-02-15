@@ -1,6 +1,5 @@
 package com.a708.drwa.member.service;
 
-import com.a708.drwa.debate.domain.Debate;
 import com.a708.drwa.debate.enums.DebateCategory;
 import com.a708.drwa.member.data.JWTMemberInfo;
 import com.a708.drwa.member.data.dto.request.UpdateInterestRequestDto;
@@ -17,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,14 +30,7 @@ public class MemberInterestService {
     private final MemberInterestRepository memberInterestRepository;
     private final MemberRepository memberRepository;
     private final JWTUtil jwtUtil;
-
-
-    /**
-     * 회원 토론 카테고리 관심사 업데이트
-     *
-     * @param memberId 회원 ID
-     * @param categories 관심 카테고리 목록 (최대 3개까지 선택 가능)
-     */
+    
     /**
      * 회원 토론 카테고리 관심사 업데이트
      * @param token JWT Token
@@ -77,7 +68,7 @@ public class MemberInterestService {
      * 멤버 ID로 관심카테고리 조회
      *
      * @param token accessToken
-     * @return
+     * @return 멤버 관심사 목록
      */
     public MemberInterestCategoriesResponse findInterestsByMemberId(String token) {
         List<MemberInterest> interests = memberRepository
