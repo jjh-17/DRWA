@@ -1,12 +1,10 @@
 package com.a708.drwa.member.data;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString
 public class JWTMemberInfo {
     private int memberId;
     private String userId;

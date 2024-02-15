@@ -520,6 +520,7 @@ function sendGameStartMessage() {
 }
 
 const isHost = computed(() => constInfo.roomInfo.hostName === authStore.nickname);
+console.log('방장이니?' + isHost.value)
 
 joinSession()
 </script>
@@ -671,6 +672,7 @@ joinSession()
   box-shadow: -4px 0 5px -2px rgba(0, 0, 0, 0.2);
   /* 왼쪽 그림자 설정 */
   flex-direction: column;
+  width:600px;
 }
 
 .chatting-tabs {
