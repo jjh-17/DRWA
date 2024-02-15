@@ -40,6 +40,11 @@ public class MemberInterestService {
      * @param memberId 회원 ID
      * @param categories 관심 카테고리 목록 (최대 3개까지 선택 가능)
      */
+    /**
+     * 회원 토론 카테고리 관심사 업데이트
+     * @param token JWT Token
+     * @param updateInterestRequestDto 새로운 관심 카테고리 목록
+     */
     @Transactional
     public void updateMemberInterests(String token, UpdateInterestRequestDto updateInterestRequestDto) {
         // 최대 3개까지 선택 가능

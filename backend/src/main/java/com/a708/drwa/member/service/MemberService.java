@@ -111,9 +111,8 @@ public class MemberService {
                 .build());
 
         // 사용자 ID로 관심사 조회
-        List<MemberInterest> memberInterests = memberRepository.findById(jwtMemberInfo.getMemberId())
-                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND))
-                .getMemberInterestList();
+        List<MemberInterest> memberInterests = member.getMemberInterestList();
+
         // 프로필 조회
         ProfileResponse profile = profileService.findProfileByMemberId(jwtMemberInfo.getMemberId());
 

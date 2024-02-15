@@ -34,7 +34,7 @@ public class DebateScheduler {
         ZSetOperations<String, DebateInfoResponse> zset = redisTemplate.opsForZSet();
         zset.removeRange(RoomsKey.ROOM_POPULAR_KEY, 0, -1);
         // debateInfo zset에 넣기
-        Iterable<DebateRoomInfo> debateRoomInfos = debateRoomRepository.findTop5ByOrderByTotalCnt();
+        Iterable<DebateRoomInfo> debateRoomInfos = debateRoomRepository.findTop5ByOrderByTotalCntDesc();
         for (DebateRoomInfo debateRoomInfo : debateRoomInfos) {
             log.info("found debateInfo ! : {}", debateRoomInfo.getSessionId());
             zset.add(RoomsKey.ROOM_POPULAR_KEY,
