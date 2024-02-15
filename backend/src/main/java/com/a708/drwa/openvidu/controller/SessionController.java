@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/openvidu")
 public class SessionController {
     private final OpenViduService openViduService;
-    private final JWTUtil jwtUtil;
 
     @PostMapping("/session/create")
     public ResponseEntity<CreateRoomResponseDto> createSession(@RequestBody CreateRoomRequestDto roomDto, HttpServletRequest request) throws OpenViduJavaClientException, OpenViduHttpException {
@@ -42,6 +41,7 @@ public class SessionController {
 
     @PostMapping("/session/leave")
     public ResponseEntity<Void> disconnect(@RequestBody LeaveRoomRequestDto leaveRoomRequestDto, HttpServletRequest request) {
+        log.info("OpenViduController:disconnect >> leaveRoomRequestDto : {}", leaveRoomRequestDto.toString());
         openViduService.disconnect(leaveRoomRequestDto, request.getHeader("Authorization"));
         return ResponseEntity.ok().build();
     }
