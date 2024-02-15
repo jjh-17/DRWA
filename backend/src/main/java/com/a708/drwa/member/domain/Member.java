@@ -66,7 +66,7 @@ public class Member {
         memberInterestList.clear();
     }
 
-    public void setReportedCnt(int reportedCnt) {
-        this.reportedCnt = reportedCnt;
+    public void report() {
+        this.reportedCnt++;
     }
 }

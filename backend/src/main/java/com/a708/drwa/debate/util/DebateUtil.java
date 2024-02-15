@@ -13,6 +13,8 @@ import com.a708.drwa.openvidu.data.dto.response.GetConnectionResponseDto;
 import com.a708.drwa.openvidu.exception.OpenViduErrorCode;
 import com.a708.drwa.openvidu.exception.OpenViduException;
 import com.a708.drwa.redis.util.RedisKeyUtil;
+import com.a708.drwa.room.domain.Room;
+import com.a708.drwa.room.repository.RoomRepository;
 import io.openvidu.java.client.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,11 +33,15 @@ public class DebateUtil {
     private final RedisTemplate<String, DebateMember> redisTemplate;
     private final RedisKeyUtil redisKeyUtil;
     private final DebateRoomRepository debateRoomRepository;
+    private final RoomRepository roomRepository;
 
     public GetConnectionResponseDto join(String sessionId, Role role, DebateMember debateMember) {
         // 방 정보 조회
         DebateRoomInfo debateRoomInfo = debateRoomRepository.findById(sessionId)
                 .orElseThrow(() -> new DebateException(DebateErrorCode.NOT_EXIST_DEBATE_ROOM_ERROR));
+        Room room = roomRepository.findById(sessionId)
+                        .orElseThrow();
+        log.info("debateUtil:join >> room find ! {}", debateRoomInfo);
 
         // 키 생성
         String key = redisKeyUtil.getKeyByRoomIdWithKeyword(sessionId, role.name());
@@ -44,55 +50,107 @@ public class DebateUtil {
         Session session = openVidu.getActiveSession(sessionId);
         if(session == null)
             throw new OpenViduException(OpenViduErrorCode.OPENVIDU_NOT_FOUND_SESSION);
+        log.info("debateUtil:join >> session is Active !\n");
 
         // 입장 및 연결
         ConnectionProperties properties;
         Connection connection;
-            switch (role.ordinal()) {
-                case 0:
-                case 1:
-                    properties = new ConnectionProperties.Builder()
-                            .role(OpenViduRole.PUBLISHER)
-                            .build();
-                    joinAsDebator(key, debateRoomInfo.getPlayerNum(), debateMember);
-                    break;
-                case 2:
-                    properties = new ConnectionProperties.Builder()
-                            .role(OpenViduRole.PUBLISHER)
-                            .build();
-                    joinAsDebator(key, debateRoomInfo.getJurorNum(), debateMember);
-                    break;
-                case 3:
-                    properties = new ConnectionProperties.Builder()
-                            .role(OpenViduRole.PUBLISHER)
-                            .build();
-                    joinAsWatcher(key, debateMember);
-                    break;
-                default:
-                    throw new DebateException(DebateErrorCode.INVALID_ROLE);
-            }
+        switch (role.ordinal()) {
+            case 0:
+            case 1:
+                properties = new ConnectionProperties.Builder()
+                        .role(OpenViduRole.PUBLISHER)
+                        .build();
+                joinAsDebator(key, debateRoomInfo.getPlayerNum(), debateMember);
+                break;
+            case 2:
+                properties = new ConnectionProperties.Builder()
+                        .role(OpenViduRole.SUBSCRIBER)
+                        .build();
+                joinAsDebator(key, debateRoomInfo.getJurorNum(), debateMember);
+                break;
+            case 3:
+                properties = new ConnectionProperties.Builder()
+                        .role(OpenViduRole.SUBSCRIBER)
+                        .build();
+                joinAsWatcher(key, debateMember);
+                break;
+            default:
+                throw new DebateException(DebateErrorCode.INVALID_ROLE);
+        }
+        log.info("debateUtil:join >> save info success !\n");
+
         try {
             connection = session.createConnection(properties);
         } catch (OpenViduJavaClientException | OpenViduHttpException e) {
             throw new OpenViduException(OpenViduErrorCode.OPENVIDU_CAN_NOT_CREATE_CONNECTION);
         }
+        log.info("debateUtil:join >> connect successfully ! connectionId : {}", connection.getConnectionId());
 
         // 인원 증가
         debateRoomInfo.join();
+        room.join();
+        debateRoomRepository.save(debateRoomInfo);
+        roomRepository.save(room);
+        log.info("debateUtil:join >> current user cnt : {}", debateRoomInfo.getTotalCnt());
 
         // response 만들어주자
         DebateInfoResponse debateInfoResponse = debateRoomInfo.toResponse();
-        debateInfoResponse.setLists(DebateMembers.builder()
-                .teamAMembers(getTeamAMembers(sessionId))
-                .teamBMembers(getTeamBMembers(sessionId))
-                .jurors(getJurors(sessionId))
-                .watchers(getWatchers(sessionId))
-                .build());
+        debateInfoResponse.setLists(getList(sessionId));
 
         return GetConnectionResponseDto.builder()
                 .connection(connection)
                 .debateInfoResponse(debateInfoResponse)
                 .build();
+    }
+
+    public DebateMembers getList(String sessionId) {
+        return DebateMembers.builder()
+                .teamAMembers(getTeamAMembers(sessionId))
+                .teamBMembers(getTeamBMembers(sessionId))
+                .jurors(getJurors(sessionId))
+                .watchers(getWatchers(sessionId))
+                .build();
+    }
+
+    public void leave(String sessionId, Role role, DebateMember debateMember) {
+        // 방 정보 조회
+        DebateRoomInfo debateRoomInfo = debateRoomRepository.findById(sessionId)
+                .orElseThrow(() -> new DebateException(DebateErrorCode.NOT_EXIST_DEBATE_ROOM_ERROR));
+        Room room = roomRepository.findById(sessionId)
+                        .orElseThrow();
+        log.info("debateUtil:leave >> room find ! {}", debateRoomInfo);
+
+        // 키 생성
+        String key = redisKeyUtil.getKeyByRoomIdWithKeyword(sessionId, role.name());
+
+        // redis list에서 해당 참여자 제거
+        Long prevCnt = redisTemplate.opsForList().size(key);
+        log.info("debateUtil:leave >> current member role : {}, current member cnt : {}", role.name(), prevCnt);
+
+        // 삭제 실패 시 에러
+        if(redisTemplate.opsForList().remove(key, 1, debateMember) == 0)
+            throw new DebateException(DebateErrorCode.LEAVE_FAIL);
+
+        Long postCnt = redisTemplate.opsForList().size(key);
+        log.info("debateUtil:leave >> after leave member cnt : {}", postCnt);
+
+        // roomInfo 갱신
+        debateRoomInfo.exit();
+        room.exit();
+        debateRoomRepository.save(debateRoomInfo);
+        roomRepository.save(room);
+
+        // 아무도 없거나 방장이 나가면 방 닫기
+        if(debateRoomInfo.getTotalCnt() == 0 || sessionId.startsWith(String.valueOf(debateMember.getMemberId()))) {
+            debateRoomRepository.delete(debateRoomInfo);
+            roomRepository.delete(room);
+            try {
+                openVidu.getActiveSession(sessionId).close();
+            } catch (OpenViduJavaClientException | OpenViduHttpException e) {
+                throw new OpenViduException(OpenViduErrorCode.OPENVIDU_NOT_FOUND_SESSION);
+            }
+        }
     }
 
     /**

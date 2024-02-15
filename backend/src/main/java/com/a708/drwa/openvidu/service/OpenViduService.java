@@ -8,6 +8,7 @@ import com.a708.drwa.global.exception.GlobalException;
 import com.a708.drwa.member.data.JWTMemberInfo;
 import com.a708.drwa.openvidu.data.dto.request.CreateRoomRequestDto;
 import com.a708.drwa.openvidu.data.dto.request.JoinRoomRequestDto;
+import com.a708.drwa.openvidu.data.dto.request.LeaveRoomRequestDto;
 import com.a708.drwa.openvidu.data.dto.response.CreateRoomResponseDto;
 import com.a708.drwa.openvidu.data.dto.response.GetConnectionResponseDto;
 import com.a708.drwa.openvidu.exception.OpenViduErrorCode;
@@ -15,6 +16,7 @@ import com.a708.drwa.openvidu.exception.OpenViduException;
 import com.a708.drwa.debate.repository.DebateRoomRepository;
 import com.a708.drwa.profile.exception.ProfileErrorCode;
 import com.a708.drwa.profile.repository.ProfileRepository;
+import com.a708.drwa.room.repository.RoomRepository;
 import com.a708.drwa.utils.JWTUtil;
 import io.openvidu.java.client.*;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,7 @@ import java.util.UUID;
 public class OpenViduService {
     private final DebateRoomRepository debateRoomRepository;
     private final ProfileRepository profileRepository;
+    private final RoomRepository roomRepository;
     private final OpenVidu openVidu;
     private final JWTUtil jwtUtil;
     private final DebateUtil debateUtil;
@@ -58,7 +61,8 @@ public class OpenViduService {
         }
 
         // save room info
-        debateRoomRepository.save(createRoomDto.toEntity(sessionId, nickName));
+        debateRoomRepository.save(createRoomDto.toDebateRoomInfo(sessionId, nickName));
+        roomRepository.save(createRoomDto.toRoom(sessionId, nickName));
 
         // return sessionId;
         return CreateRoomResponseDto.builder()
@@ -79,5 +83,18 @@ public class OpenViduService {
                         .nickName(joinRoomRequestDto.getNickName())
                         .role(joinRoomRequestDto.getRole())
                         .build());
+    }
+
+    public void disconnect(LeaveRoomRequestDto leaveRoomRequestDto, String jwt) {
+        int memberId = jwtUtil.getMember(jwt).getMemberId();
+        debateUtil.leave(
+                leaveRoomRequestDto.getSessionId(),
+                leaveRoomRequestDto.getRole(),
+                DebateMember.builder()
+                        .memberId(memberId)
+                        .nickName(leaveRoomRequestDto.getNickName())
+                        .role(leaveRoomRequestDto.getRole())
+                        .build()
+        );
     }
 }
