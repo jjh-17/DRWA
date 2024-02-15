@@ -306,7 +306,7 @@ function leaveSession() {
   // server redis에서 참여자 정보 삭제
   useDebateStore.leaveDebate({
     sessionId: route.params.sessionId,
-    nickname: authStore.nickname,
+    nickName: authStore.nickname,
     role: gameStore.team,
   })
 

@@ -29,6 +29,7 @@ export const useDebateStore = defineStore('debate', {
       try {
         const response = await httpService.post('openvidu/session/leave', debateRoom)
         console.log('성공 ! ', response.status)
+        return response
       } catch (error) {
         console.error('방 나가기 실패...', error)
       }
