@@ -1,6 +1,7 @@
 package com.a708.drwa.member.domain;
 
 import com.a708.drwa.member.type.SocialType;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
@@ -42,6 +43,7 @@ public class Member {
     private int reportedCnt;
 
     @OneToMany(mappedBy = "member", orphanRemoval = true)
+    @JsonManagedReference
     private List<MemberInterest> memberInterestList = new ArrayList<>();
 
     @Builder
