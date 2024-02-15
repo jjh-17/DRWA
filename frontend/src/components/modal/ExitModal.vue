@@ -15,7 +15,11 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { defineProps } from "vue";
 
+const props = defineProps({
+  leaveSession: Function
+})
 const showModal = ref(true);
 const router = useRouter();
 
@@ -23,6 +27,7 @@ const closeModal = () => {
   showModal.value = false;
 };
 const exitDebate = () => {
+  props.leaveSession();
   router.push('/');
 };
 </script>
