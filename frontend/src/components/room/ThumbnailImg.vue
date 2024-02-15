@@ -28,7 +28,7 @@ async function searchImages() {
     return;
   }
 
-  const accessKey = '2PzjHzjtz_UkTIsvnagcuoQrr18VYgsR4iGUtx_XpF4'; // Unsplash 접근 키
+  const accessKey = 'o5ngxaEmG67DuKXuVNpsMbMWymCp8ffupV2aoG42PaI'; // Unsplash 접근 키
   const url = `https://api.unsplash.com/search/photos?query=${props.searchQuery}&client_id=${accessKey}`;
 
   try {

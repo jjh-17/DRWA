@@ -1,5 +1,5 @@
 export const phase = [
-    { phaseNum: 0, korean: '없어도됨' },
+    { phaseNum: 0, korean: '' },
     { phaseNum: 1, korean: 'teamA 발언시간' },
     { phaseNum: 2, korean: '질문 시간' },
     { phaseNum: 3, korean: 'teamB 발언시간' },
