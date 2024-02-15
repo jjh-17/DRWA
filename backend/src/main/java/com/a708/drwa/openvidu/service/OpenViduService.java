@@ -8,6 +8,7 @@ import com.a708.drwa.global.exception.GlobalException;
 import com.a708.drwa.member.data.JWTMemberInfo;
 import com.a708.drwa.openvidu.data.dto.request.CreateRoomRequestDto;
 import com.a708.drwa.openvidu.data.dto.request.JoinRoomRequestDto;
+import com.a708.drwa.openvidu.data.dto.request.LeaveRoomRequestDto;
 import com.a708.drwa.openvidu.data.dto.response.CreateRoomResponseDto;
 import com.a708.drwa.openvidu.data.dto.response.GetConnectionResponseDto;
 import com.a708.drwa.openvidu.exception.OpenViduErrorCode;
@@ -79,5 +80,18 @@ public class OpenViduService {
                         .nickName(joinRoomRequestDto.getNickName())
                         .role(joinRoomRequestDto.getRole())
                         .build());
+    }
+
+    public void disconnect(LeaveRoomRequestDto leaveRoomRequestDto, String jwt) {
+        int memberId = jwtUtil.getMember(jwt).getMemberId();
+        debateUtil.leave(
+                leaveRoomRequestDto.getSessionId(),
+                leaveRoomRequestDto.getRole(),
+                DebateMember.builder()
+                        .memberId(memberId)
+                        .nickName(leaveRoomRequestDto.getNickName())
+                        .role(leaveRoomRequestDto.getRole())
+                        .build()
+        );
     }
 }
