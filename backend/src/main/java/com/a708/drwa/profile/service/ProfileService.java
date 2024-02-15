@@ -98,17 +98,18 @@ public class ProfileService {
         if(winCount + loseCount != 0)
             winRate = (int) ((double) winCount / (winCount + loseCount + tieCount) * 100.0);
 
-        RankingMember memberRankInfo = members
-                .stream()
-                .filter(rankMember -> rankMember.getMemberId().equals(memberId))
-                .findAny()
-                .orElseThrow(() -> new GlobalException(MemberErrorCode.MEMBER_NOT_FOUND));
+//        RankingMember memberRankInfo = members
+//                .stream()
+//                .filter(rankMember -> rankMember.getMemberId().equals(memberId))
+//                .findAny()
+//                .orElseThrow(() -> new GlobalException(MemberErrorCode.MEMBER_NOT_FOUND));
 
         return ProfileResponse.builder()
                 .profileId(profile.getId())
                 .memberId(memberId)
                 .nickname(profile.getNickname())
-                .point(memberRankInfo.getPoint())
+//                .point(memberRankInfo.getPoint())
+                .point(1000)
                 .rankName(profile.getRank().getRankName())
                 .winCount(winCount)
                 .loseCount(loseCount)
