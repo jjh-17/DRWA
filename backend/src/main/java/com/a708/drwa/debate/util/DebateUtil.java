@@ -123,6 +123,16 @@ public class DebateUtil {
 
         // roomInfo 갱신
         debateRoomInfo.exit();
+
+        // 아무도 없거나 방장이 나가면 방 닫기
+        if(debateRoomInfo.getTotalCnt() == 0 || sessionId.startsWith(String.valueOf(debateMember.getMemberId()))) {
+            debateRoomRepository.delete(debateRoomInfo);
+            try {
+                openVidu.getActiveSession(sessionId).close();
+            } catch (OpenViduJavaClientException | OpenViduHttpException e) {
+                throw new OpenViduException(OpenViduErrorCode.OPENVIDU_NOT_FOUND_SESSION);
+            }
+        }
     }
 
     /**
