@@ -1,10 +1,12 @@
 package com.a708.drwa.member.service;
 
+import com.a708.drwa.annotation.AuthRequired;
 import com.a708.drwa.auth.domain.RefreshToken;
 import com.a708.drwa.auth.exception.AuthErrorCode;
 import com.a708.drwa.auth.exception.AuthException;
 import com.a708.drwa.auth.repository.AuthRepository;
 import com.a708.drwa.member.data.JWTMemberInfo;
+import com.a708.drwa.member.data.dto.InterestDto;
 import com.a708.drwa.member.data.dto.response.SocialAuthURLResponse;
 import com.a708.drwa.member.data.dto.response.SocialLoginResponse;
 import com.a708.drwa.member.data.dto.response.SocialUserInfoResponse;
@@ -25,10 +27,15 @@ import com.a708.drwa.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -87,7 +94,8 @@ public class MemberService {
         Member member = memberRepository.findByUserId(socialUserInfoResponse.getId())
                 // 기존 사용자가 없으면 새로운 사용자 등록
                 .orElseGet(() -> registerNewUser(socialUserInfoResponse));
-
+        if(member.getReportedCnt() > 20)
+            throw new MemberException(MemberErrorCode.YOU_ARE_BANNED);
         JWTMemberInfo jwtMemberInfo = JWTMemberInfo.builder()
                 .memberId(member.getId())
                 .userId(member.getUserId())
@@ -117,7 +125,7 @@ public class MemberService {
                 .memberId(jwtMemberInfo.getMemberId())
                 .userId(jwtMemberInfo.getUserId())
                 .accessToken(jwtAccessToken)
-                .interests(memberInterests)
+                .interests(convertToInterestDtoList(memberInterests))
                 .profile(profile)
                 .profileImageUrl(profileImageUrl)
                 .build();
@@ -184,4 +192,24 @@ public class MemberService {
             throw new AuthException(AuthErrorCode.TOKEN_NOT_EXIST_ERROR);
         authRepository.deleteById(userId);
     }
+
+    /**
+     * 사용자의 관심사 목록 엔티티를 InterestDto 목록으로 변환한다.
+     * @param memberInterests : 사용자의 관심사 목록 엔티티
+     * @return : 사용자의 관심사 목록 DTO
+     */
+    private List<InterestDto> convertToInterestDtoList(List<MemberInterest> memberInterests) {
+        return memberInterests.stream()
+                .map(interest -> new InterestDto(interest.getDebateCategory()))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void reportUser(String userId) {
+        memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND))
+                .report();
+    }
+
+
 }

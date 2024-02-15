@@ -14,46 +14,54 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 @Document(indexName = "room_index")
 public class Room { // Elasticsearch에 저장되는 방 정보
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String debateId;
+    private String sessionId;
 
     @Field(type = FieldType.Text, analyzer = "korean")
     private String title;
 
     @Field(type = FieldType.Text, analyzer = "korean")
-    private String keywordA;
+    private String leftKeyword;
 
     @Field(type = FieldType.Text, analyzer = "korean")
-    private String keywordB;
+    private String rightKeyword;
 
-    private String host;
+    private String hostName;
 
-    private String totalNum;
+    private String thumbnail1;
 
-    private String thumbnailAUrl;
+    private String thumbnail2;
 
-    private String thumbnailBUrl;
+    private String debateCategory;
 
-    private String thumbnailAId;
+    private Integer playerNum;
 
-    private String thumbnailBId;
+    private Integer jurorNum;
+
+    private Boolean isPrivate;
+
+    private String password;
+
+    private Integer speakingTime;
+
+    private Integer readyTime;
+
+    private Integer qnaTime;;
+
+    private Integer totalCnt;
 
     @Getter
     @Setter
     public static class ThumbnailUpdateInfo {
-        private String roomId;
-        private String thumbnailId; // 썸네일A 또는 썸네일B의 ID
+        private String sessionId;
         private String thumbnailUrl; // 새로운 썸네일 URL
-        private String thumbnailType; // 'A' 또는 'B'
+        private String thumbnailType; // '1' 또는 '2'
     }
 
     public void updateThumbnail(ThumbnailUpdateInfo thumbnailUpdateInfo) {
-        if ("A".equals(thumbnailUpdateInfo.getThumbnailType())) {
-            this.thumbnailAId = thumbnailUpdateInfo.getThumbnailId();
-            this.thumbnailAUrl = thumbnailUpdateInfo.getThumbnailUrl();
-        } else if ("B".equals(thumbnailUpdateInfo.getThumbnailType())) {
-            this.thumbnailBId = thumbnailUpdateInfo.getThumbnailId();
-            this.thumbnailBUrl = thumbnailUpdateInfo.getThumbnailUrl();
+        if ("1".equals(thumbnailUpdateInfo.getThumbnailType())) {
+            this.thumbnail1 = thumbnailUpdateInfo.getThumbnailUrl();
+        } else if ("2".equals(thumbnailUpdateInfo.getThumbnailType())) {
+            this.thumbnail2 = thumbnailUpdateInfo.getThumbnailUrl();
         }
     }
 

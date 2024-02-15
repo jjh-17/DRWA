@@ -100,6 +100,9 @@ public class JWTUtil {
     public void validCheck(String token) {
         // 해당 토큰을 확인하면서 예외가 발생하는 경우
         // 만료가 되거나, 잘못된 토큰이다.
+        if(token == null || !token.startsWith("Bearer"))
+            throw new AuthException(AuthErrorCode.INVALID_TOKEN_ERROR);
+        token = token.replace("Bearer ", "").trim();
         try {
             Jwts.parser()
                     .setSigningKey(jwtKey.getBytes(StandardCharsets.UTF_8))
