@@ -26,12 +26,12 @@
     </q-avatar>
     <InfoModal v-if="showInfoModal" @close="showInfoModal = false" />
     <ReportModal v-if="showReportModal" @close="showReportModal = false" />
-    <ExitModal v-if="showExitModal" @close="showExitModal = false" />
+    <ExitModal v-if="showExitModal" @close="showExitModal = false" :leaveSession="props.leaveSession" />
     <DebateCreateModal
-  v-if="showDebateCreateModal"
-  :isVisible="showDebateCreateModal"
-  :disableOptions="true"
-  @update:isVisible="showDebateCreateModal = $event"
+      v-if="showDebateCreateModal"
+      :isVisible="showDebateCreateModal"
+      :disableOptions="true"
+      @update:isVisible="showDebateCreateModal = $event"
 />
 
 
@@ -54,7 +54,8 @@ const showExitModal = ref(false)
 const showDebateCreateModal = ref(false)
 
 const props = defineProps({
-  headerBarTitle: String
+  headerBarTitle: String,
+  leaveSession: Function,
 })
 
 const headerBarTitle = props.headerBarTitle

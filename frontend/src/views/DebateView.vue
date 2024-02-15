@@ -75,7 +75,7 @@ const communication = reactive({
   isMicOn: false,
   isCameraOn: false,
   isShareOn: false,
-
+  
   isMicHandleAvailable: false,
   isCameraHandleAvailable: false,
   isShareHandleAvailable: false
@@ -103,23 +103,60 @@ function joinSession() {
   sessionInfo.session = sessionInfo.OV.initSession()
 
   // 다른 사용자의 stream(publisher) 생성 감지 이벤트
-  sessionInfo.session.on('streamCreated', ({ stream }) => {
+  // 토큰이 유효하면 세션 연결
+  getToken().then((token) => {
+    sessionInfo.session
+      .connect(
+        token,
+        {
+          clientData: `${authStore.memberId},${authStore.nickname},${gameStore.team}`
+        })
+      .then(() => {
+        console.log(`세션 연결!, ${gameStore.team}`)
+        playerInfo.team = gameStore.team
+        if (gameStore.team == team[0].english || gameStore.team == team[1].english) {
+          initCommunication(gameStore.team)
+          sessionInfo.publisher = getDefaultPublisher()
+          sessionInfo.session.publish(sessionInfo.publisher)
+  
+          if (gameStore.team == team[0].english) {
+            sessionInfo.teamLeftList.push(sessionInfo.publisher);
+            playerInfo.playerLeftList.push({
+              memberId: gameStore.memberId,
+              nickname: gameStore.nickname,
+            })
+          } else if (gameStore.team == team[1].english) {
+            sessionInfo.teamRightList.push(sessionInfo.publisher);
+            playerInfo.playerRightList.push({
+              memberId: gameStore.memberId,
+              nickname: gameStore.nickname,
+            })
+          }
+        }
+      })
+      .catch((error) => {
+        console.error(`세션 연결 실패 : ${error}`)
+      })
+  })
+  sessionInfo.session.on('streamCreated', ({ stream, undefined }) => {
     // 새로운 stream의 클라이언트 정보(memberId, nickname, team)를 받아옴
     const clientDatas = stream.connection.data.split('"');
     const datas = clientDatas[3].split(',');
-  
+    
     // 새로운 subscriber
     const subscriber = sessionInfo.session.subscribe(stream)
-
+    
     // data에 따라 팀A, 팀B에 데이터 저장
     if (datas[2] == team[0].english) {
       sessionInfo.teamLeftList.push(subscriber)
+      // sessionInfo.teamLeftList.push(stream)
       playerInfo.playerLeftList.push({
         memberId: datas[0],
         nickname: datas[1],
       });
     } else if (datas[2] == team[1].english) {
       sessionInfo.teamRightList.push(subscriber)
+      // sessionInfo.teamRightList.push(stream)
       playerInfo.playerRightList.push({
         memberId: datas[0],
         nickname: datas[1],
@@ -190,41 +227,6 @@ function joinSession() {
     console.warn(exception)
   })
 
-  // 토큰이 유효하면 세션 연결
-  getToken().then((token) => {
-    sessionInfo.session
-      .connect(
-        token,
-        {
-          clientData: `${authStore.memberId},${authStore.nickname},${gameStore.team}`
-        })
-      .then(() => {
-        console.log(`세션 연결!, ${gameStore.team}`)
-        playerInfo.team = gameStore.team
-        if (gameStore.team == team[0].english || gameStore.team == team[1].english) {
-          initCommunication(gameStore.team)
-          sessionInfo.publisher = getDefaultPublisher()
-          sessionInfo.session.publish(sessionInfo.publisher)
-
-          if (gameStore.team == team[0].english) {
-            sessionInfo.teamLeftList.push(sessionInfo.publisher);
-            playerInfo.playerLeftList.push({
-              memberId: gameStore.memberId,
-              nickname: gameStore.nickname,
-            })
-          } else if (gameStore.team == team[1].english) {
-            sessionInfo.teamRightList.push(sessionInfo.publisher);
-            playerInfo.playerRightList.push({
-              memberId: gameStore.memberId,
-              nickname: gameStore.nickname,
-            })
-          }
-        }
-      })
-      .catch((error) => {
-        console.error(`세션 연결 실패 : ${error}`)
-      })
-  })
   
 
   // 윈도우 종료 시 세션 나가기 이벤트 등록
@@ -320,9 +322,9 @@ function leaveSession() {
 
   // 메시지 정보 초기화
   // chatting.targetTeam= team[4].english
-  // chatting.messagesLeft= []
-  // chatting.messagesRight= []
-  // chatting.messagesAll= []
+  chatting.messagesLeft= []
+  chatting.messagesRight= []
+  chatting.messagesAll= []
 
   // 윈도우 종료 시 세션 나가기 이벤트 삭제
   window.removeEventListener('beforeunload', leaveSession)
@@ -559,7 +561,7 @@ joinSession()
 <template>
   <div class="app-container">
     <header>
-      <DebateHeaderBar :headerBarTitle="headerBarTitle" />
+      <DebateHeaderBar :headerBarTitle="headerBarTitle" :leave-session="leaveSession" />
     </header>
 
     <div class="main-container">
@@ -598,7 +600,7 @@ joinSession()
             <div class="player">+</div>
           </div> -->
 
-          <div v-for="num in (roomInfo.playerNum - playerInfo.playerLeftList.length)" :key="num">
+          <div v-for="num in (roomInfo.playerNum - playerInfo.playerRightList.length)" :key="num">
             <div class="player">+</div>
           </div>
         </div>
