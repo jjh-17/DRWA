@@ -43,7 +43,7 @@ const router = createRouter({
       component: ThumbnailImg
     },
     {
-      path: '/debate/:debateId',
+      path: '/debate/:sessionId',
       name: 'DebateView',
       component: DebateView
     },
