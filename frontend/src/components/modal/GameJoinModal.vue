@@ -86,6 +86,8 @@ const closeModal = async (action) => {
         gameStore.roomInfo = debateInfoResponse;
         console.error(`GameJoinModal : ${response.data}`)
         router.push(`/debate/${sessionId}`)
+      } else {
+        console.error(`인원수 제한 걸림 : ${selectedRole.value}`)
       }
     } catch (error) {
       console.error('연결 정보 가져오기 에러:', error)
