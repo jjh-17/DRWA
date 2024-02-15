@@ -30,15 +30,9 @@ const selectedFile = ref(null);
 // 컴포넌트 마운트 시 관심 카테고리를 확인하여 선택 상태 업데이트
 onMounted(() => {
     categories.value.forEach(category => {
-        // if (authStore.interests.includes(category.english)) {
-        //     category.selected = true;
-        // }
-        
-        // authStore.interests 배열 내에서 현재 카테고리와 일치하는 debateCategory 값을 가진 객체가 있는지 확인합니다.
-        const isInterested = authStore.interests.some(interest => interest.debateCategory === category.english.toUpperCase());
-
-        // 일치하는 객체가 있으면 해당 카테고리의 selected 상태를 true로 설정합니다.
-        category.selected = isInterested;
+        if (authStore.interests.includes(category.english)) {
+            category.selected = true;
+        }
     });
 });
 
