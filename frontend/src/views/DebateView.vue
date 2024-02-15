@@ -314,7 +314,7 @@ function handleMedia() {
         handleMediaBySystem(false);
       } else if (constInfo.team == team[0].english) { // teamA 중 현재 순서만 권한 부여, 나머지 teamB와 동일
         idx = Math.floor(sessionInfo.phase / 4) % playerInfo.playerLeftList.length;
-        if (constInfo.memberId == playerInfo.playerRightList[idx].memberId) {
+        if (constInfo.memberId == playerInfo.playerLeftList[idx].memberId) {
           console.log(`미디어 제어 : ${constInfo.team}, true`)
           handleMediaBySystem(true);
         } else {
