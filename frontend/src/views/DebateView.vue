@@ -212,47 +212,12 @@ function joinSession() {
   })
   sessionInfo.session.on('signal:startGame', () => {
     sessionInfo.phase += 1
-    switch (sessionInfo.phase % 4) {
-      case 1:   // 팀 A
-        if (constInfo.team == team[1].english) {        // teamB는 전부 음소거 및 권한 박탈
-          console.log(`미디어 제어 : ${constInfo.team}, false`)
-          handleMediaBySystem(false);
-        } else if (constInfo.team == team[0].english) { // teamA 중 현재 순서만 권한 부여, 나머지 teamB와 동일
-          let idx = Math.floor(sessionInfo.phase / 4) % playerInfo.teamLeftList.length;
-          if (constInfo.memberId == playerInfo.teamLeftList[idx].memberId) {
-            console.log(`미디어 제어 : ${constInfo.team}, true`)
-            handleMediaBySystem(true); 
-          } else {
-            console.log(`미디어 제어 : ${constInfo.team}, false`)
-            handleMediaBySystem(false);
-          }
-        }
-        break; 
-      case 2:   // QnA
-        // if()
-        break;
-      case 3:   // 팀 B
-        if (constInfo.team == team[0].english) {        // teamA는 전부 음소거 및 권한 박탈
-          console.log(`미디어 제어 : ${constInfo.team}, false`)
-          handleMediaBySystem(false);
-        } else if (constInfo.team == team[1].english) { // teamB 중 현재 순서만 권한 부여, 나머지 teamA와 동일
-          let idx = Math.floor(sessionInfo.phase / 4) % playerInfo.teamRightList.length;
-          if (constInfo.memberId == playerInfo.teamRightList[idx].memberId) {
-            console.log(`미디어 제어 : ${constInfo.team}, true`)
-            handleMediaBySystem(true);
-          } else {
-            console.log(`미디어 제어 : ${constInfo.team}, false`)
-            handleMediaBySystem(false);
-          }
-        }
-        break;
-      default:  // QnA2
-        
-    }
+    handleMedia();
     console.log('Game phase updated by startGame:', sessionInfo.phase)
   })
   sessionInfo.session.on('signal:nextPhase', () => {
     sessionInfo.phase += 1
+    handleMedia();
     console.log('Game phase updated by nextPhase:', sessionInfo.phase)
   })
   sessionInfo.session.on('signal:endGame', () => {
@@ -337,6 +302,63 @@ function joinSession() {
 
   // 윈도우 종료 시 세션 나가기 이벤트 등록
   window.addEventListener('beforeunload', leaveSession)
+}
+
+function handleMedia() {
+  let idx
+  switch (sessionInfo.phase % 4) {
+    case 1:   // 팀 A
+      if (constInfo.team == team[1].english) {        // teamB는 전부 음소거 및 권한 박탈
+        console.log(`미디어 제어 : ${constInfo.team}, false`)
+        handleMediaBySystem(false);
+      } else if (constInfo.team == team[0].english) { // teamA 중 현재 순서만 권한 부여, 나머지 teamB와 동일
+        idx = Math.floor(sessionInfo.phase / 4) % playerInfo.teamLeftList.length;
+        if (constInfo.memberId == playerInfo.teamLeftList[idx].memberId) {
+          console.log(`미디어 제어 : ${constInfo.team}, true`)
+          handleMediaBySystem(true);
+        } else {
+          console.log(`미디어 제어 : ${constInfo.team}, false`)
+          handleMediaBySystem(false);
+        }
+      }
+      break;
+    case 2:   // QnA
+      if (constInfo.team == team[0].english) {
+        idx = Math.floor(sessionInfo.phase / 4) % playerInfo.teamLeftList.length;
+        if (constInfo.memberId == playerInfo.teamLeftList[idx].memberId) { handleMediaBySystem(true); }
+        else { handleMediaBySystem(false) }
+      } else if (constInfo.team == team[1].english) {
+        idx = Math.floor(sessionInfo.phase / 4) % playerInfo.teamRightList.length;
+        if (constInfo.memberId == playerInfo.teamRightList[idx].memberId) { handleMediaBySystem(true); }
+        else { handleMediaBySystem(false) }
+      }
+      break;
+    case 3:   // 팀 B
+      if (constInfo.team == team[0].english) {        // teamA는 전부 음소거 및 권한 박탈
+        console.log(`미디어 제어 : ${constInfo.team}, false`)
+        handleMediaBySystem(false);
+      } else if (constInfo.team == team[1].english) { // teamB 중 현재 순서만 권한 부여, 나머지 teamA와 동일
+        idx = Math.floor(sessionInfo.phase / 4) % playerInfo.teamRightList.length;
+        if (constInfo.memberId == playerInfo.teamRightList[idx].memberId) {
+          console.log(`미디어 제어 : ${constInfo.team}, true`)
+          handleMediaBySystem(true);
+        } else {
+          console.log(`미디어 제어 : ${constInfo.team}, false`)
+          handleMediaBySystem(false);
+        }
+      }
+      break;
+    default:  // QnA2
+      if (constInfo.team == team[0].english) {
+        idx = Math.floor(sessionInfo.phase / 4) % playerInfo.teamLeftList.length;
+        if (constInfo.memberId == playerInfo.teamLeftList[idx].memberId) { handleMediaBySystem(true); }
+        else { handleMediaBySystem(false) }
+      } else if (constInfo.team == team[1].english) {
+        idx = Math.floor((sessionInfo.phase / 4 - 1)) % playerInfo.teamRightList.length;
+        if (constInfo.memberId == playerInfo.teamRightList[idx].memberId) { handleMediaBySystem(true); }
+        else { handleMediaBySystem(false) }
+      }
+  }
 }
 
 // 팀A, 팀B 리스트 내 데이터 제거
