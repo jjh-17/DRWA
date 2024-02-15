@@ -62,7 +62,7 @@ const inputMessage = ref('');
     
     <!-- 채팅 보내기 -->
     <div class="send-message">
-      <input type="text" placeholder="메시지 보내기" class="styled-input" v-model="inputMessage"/>
+      <input type="text" placeholder="메시지 보내기" class="styled-input" v-model="inputMessage"  @keyup.enter="(event) => sendMessage(event)"/>
       <img src="@/assets/img/send.png" @click="(event) => sendMessage(event)"/>
     </div>
   </div>
