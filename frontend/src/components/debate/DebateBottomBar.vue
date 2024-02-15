@@ -15,7 +15,6 @@
       <img
         v-else
         src="@/assets/img/micoff.png"
-        :aria-disabled="!props.handleMicByUser"
         style="height: 100%"
         class="avatar-img"
         @click="props.handleMicByUser"
@@ -32,7 +31,6 @@
       <img
         v-else
         src="@/assets/img/cameraoff.png"
-        v-bind:aria-disabled="!props.isCameraHandleAvailable"
         style="height: 100%"
         class="avatar-img"
         @click="props.handleCameraByUser"
@@ -49,7 +47,6 @@
       <img
         v-else
         src="@/assets/img/shareoff.png"
-        v-bind:aria-disabled="!props.isShareHandleAvailable"
         style="height: 100%"
         class="avatar-img"
         @click="props.handleShareByUser"
@@ -98,9 +95,6 @@ import { ref, defineProps, defineEmits, computed } from 'vue'
 
 // 전달 받을 정보
 const props = defineProps({
-  isMicHandleAvailable: Boolean,
-  isCameraHandleAvailable: Boolean,
-  isShareHandleAvailable: Boolean,
   isMicOn: Boolean,
   isCameraOn: Boolean,
   isShareOn: Boolean,

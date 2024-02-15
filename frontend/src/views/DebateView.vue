@@ -35,18 +35,7 @@ const sessionInfo = reactive({
   teamRightList: [] // 팀 B 리스트(자기 자신 포함 가능)
 })
 
-// 참가자 정보
-const authStore = useAuthStore()
-const playerInfo = reactive({
-  // team: '',
-  // index == 각 팀에서의 순서
-  // 각 팀 플레이어의 {memberId, nickname } 저장
-  playerLeftList: [],
-  playerRightList: [],
-  jurorList: [],
-  watcherList: []
-})
-
+// 불변 정보
 const constInfo = {
   team: gameStore.team,
   token: gameStore.token,
@@ -55,6 +44,18 @@ const constInfo = {
   memberId: authStore.memberId,
   nickname: authStore.nickname
 }
+
+// 참가자 정보
+const authStore = useAuthStore()
+const playerInfo = reactive({
+  // team: '',
+  // index == 각 팀에서의 순서
+  // 각 팀 플레이어의 {memberId, nickname } 저장
+  playerLeftList: [],
+  playerRightList: [],
+  jurorList: constInfo.roomInfo.jurors==null ? [] : constInfo.roomInfo.jurors,
+  watcherList: []
+})
 
 // 화상 정보
 const communication = reactive({
@@ -208,6 +209,43 @@ function joinSession() {
   })
   sessionInfo.session.on('signal:startGame', () => {
     sessionInfo.phase += 1
+    switch (sessionInfo.phase % 4) {
+      case 1:   // 팀 A
+        if (constInfo.team == team[1].english) {        // teamB는 전부 음소거 및 권한 박탈
+          console.log(`미디어 제어 : ${constInfo.team}, false`)
+          handleMediaBySystem(false);
+        } else if (constInfo.team == team[0].english) { // teamA 중 현재 순서만 권한 부여, 나머지 teamB와 동일
+          let idx = Math.floor(sessionInfo.phase / 4) % playerInfo.teamLeftList.length;
+          if (constInfo.memberId == playerInfo.teamLeftList[idx].memberId) {
+            console.log(`미디어 제어 : ${constInfo.team}, true`)
+            handleMediaBySystem(true); 
+          } else {
+            console.log(`미디어 제어 : ${constInfo.team}, false`)
+            handleMediaBySystem(false);
+          }
+        }
+        break; 
+      case 2:   // QnA
+        // if()
+        break;
+      case 3:   // 팀 B
+        if (constInfo.team == team[0].english) {        // teamA는 전부 음소거 및 권한 박탈
+          console.log(`미디어 제어 : ${constInfo.team}, false`)
+          handleMediaBySystem(false);
+        } else if (constInfo.team == team[1].english) { // teamB 중 현재 순서만 권한 부여, 나머지 teamA와 동일
+          let idx = Math.floor(sessionInfo.phase / 4) % playerInfo.teamRightList.length;
+          if (constInfo.memberId == playerInfo.teamRightList[idx].memberId) {
+            console.log(`미디어 제어 : ${constInfo.team}, true`)
+            handleMediaBySystem(true);
+          } else {
+            console.log(`미디어 제어 : ${constInfo.team}, false`)
+            handleMediaBySystem(false);
+          }
+        }
+        break;
+      default:  // QnA2
+        
+    }
     console.log('Game phase updated by startGame:', sessionInfo.phase)
   })
   sessionInfo.session.on('signal:nextPhase', () => {
@@ -374,8 +412,10 @@ function leaveSession() {
   else if (constInfo.team == team[3].english) sendWatcherOutMessage()
 
   // 세션 연결 종료
-  if (sessionInfo.session) sessionInfo.session.disconnect()
-
+  if (sessionInfo.session) {
+    sessionInfo.session.unpublish(sessionInfo.publisher);
+    sessionInfo.session.disconnect()
+  }
   // server redis에서 참여자 정보 삭제
   debateStore.leaveDebate({
     sessionId: route.params.sessionId,
@@ -515,7 +555,7 @@ function sendMessage(event, inputMessage, targetTeam) {
 // 사용자가 카메라 제어
 function handleCameraByUser() {
   // 세션에 참가하지 않았으면 무시
-  if (!sessionInfo.publisher) return
+  if (!sessionInfo.publisher || !communication.isCameraHandleAvailable) return
 
   // 비디오 상태 변경
   communication.isCameraOn = !communication.isCameraOn
@@ -525,7 +565,7 @@ function handleCameraByUser() {
 // 사용자가 마이크 제어
 function handleMicByUser() {
   // 세션에 참가하지 않은 경우 무시
-  if (!sessionInfo.publisher) return
+  if (!sessionInfo.publisher || !communication.isMicHandleAvailable) return
 
   // 마이크 상태 변경
   communication.isMicOn = !communication.isMicOn
@@ -537,6 +577,26 @@ function handleShareByUser() {
   if (!sessionInfo.publisher) return
 
   console.log('handleShareByUser')
+}
+
+function handleMediaBySystem(isSpeaker) {
+  // 발언자인 경우 => 오디오, 화면 공유 권한 부여
+  if (isSpeaker) {
+    console.log('마이크 킴')
+    communication.isMicOn = true;
+    communication.isMicHandleAvailable = true;
+    communication.isShareHandleAvailable = true;
+    sessionInfo.publisher.publishAudio(true);
+  }
+
+  // 발언자가 아닌 경우 => 마이크/화면 제어 권한 박탈 및 마이크 종료
+  else {
+    console.log('마이크 끔')
+    communication.isMicOn = false;
+    communication.isMicHandleAvailable = false;
+    communication.isShareHandleAvailable = false;
+    sessionInfo.publisher.publishAudio(false);
+  }
 }
 
 // 게임 시작
