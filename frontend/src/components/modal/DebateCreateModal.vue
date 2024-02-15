@@ -151,11 +151,13 @@ import { useAuthStore } from '@/stores/useAuthStore.js'
 import {useRouter} from 'vue-router'
 import { useDebateStore } from "@/stores/useDebateStore"
 import { useGameStore } from "@/stores/useGameStore"
+import { team } from "../common/Team"
 
 const router = useRouter();
 const debateStore = useDebateStore();
 const authStore = useAuthStore()
 const gameStore = useGameStore();
+
 const memberId = authStore.memberId
 
 
@@ -243,6 +245,11 @@ const submitForm = async () => {
     const response = await debateStore.createRoom(roomDto);
     console.log('방 생성 응답:', response.data)
     sessionId.value = response.data.sessionId
+
+    // 방 연결 설정
+    gameStore.sessionId = sessionId.value;
+    gameStore.team = team[0].english
+
     // await makeDebateRoom()
 
     router.push(`/debate/${sessionId.value}`);
@@ -260,6 +267,7 @@ const makeDebateRoom = async () => {
     console.log('연결 정보 응답:', response.data);
     gameStore.sessionId = sessionId.value;
     gameStore.token = response.data.connection.token;
+    gameStore.team = team[0].eng
     router.push(`/debate/${sessionId.value}`);
 
     // const response = await debateStore.joinDebate(sessionId.useDalue)

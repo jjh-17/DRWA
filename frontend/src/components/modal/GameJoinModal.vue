@@ -39,6 +39,7 @@ import { useRouter } from 'vue-router';
 import { httpService } from '@/api/axios'
 import { useRoomInfo } from '@/stores/useRoomInfo'
 import { useDebateStore } from "@/stores/useDebateStore";
+import { useGameStore } from "@/stores/useGameStore";
 
 const props = defineProps({
   room: Object
@@ -49,6 +50,7 @@ const router = useRouter()
 const showModal = ref(true)
 const selectedRole = ref('')
 const debateStore = useDebateStore();
+const gameStore = useGameStore();
 
 const closeModal = async (action) => {
   if (action === 'confirm' && !selectedRole.value) {
@@ -64,7 +66,7 @@ const closeModal = async (action) => {
 
       // connectionId를 키로, debateInfoResponse를 값으로 사용하여 스토어 업데이트
       setRoomInfo(response.data.connection.connectionId, response.data.debateInfoResponse)
-
+      gameStore.team = selectedRole.value
       router.push(`/debate/${sessionId}`)
     } catch (error) {
       console.error('연결 정보 가져오기 에러:', error)

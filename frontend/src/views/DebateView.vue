@@ -58,9 +58,7 @@ const sessionInfo = reactive({
 // 참가자 정보
 const authStore = useAuthStore()
 const playerInfo = reactive({
-  // 전체 참가자의 {memberId, nckname, team} 저장
-  players: [],
-
+  team: '',
   // index == 각 팀에서의 순서
   // 각 팀 플레이어의 {memberId, nickname } 저장
   playerLeftList: [],
@@ -103,7 +101,6 @@ function joinSession() {
   // 팀 세션 생성
   sessionInfo.OV = new OpenVidu()
   sessionInfo.session = sessionInfo.OV.initSession()
-  // gameStore.team = team[0].english;
 
   // 다른 사용자의 stream(publisher) 생성 감지 이벤트
   sessionInfo.session.on('streamCreated', ({ stream }) => {
@@ -115,13 +112,13 @@ function joinSession() {
     const subscriber = sessionInfo.session.subscribe(stream)
 
     // data에 따라 팀A, 팀B에 데이터 저장
-    if (gameStore.team == team[0].english) {
+    if (datas[2] == team[0].english) {
       sessionInfo.teamLeftList.push(subscriber)
       playerInfo.playerLeftList.push({
         memberId: datas[0],
         nickname: datas[1],
       });
-    } else if (gameStore.team == team[1].english) {
+    } else if (datas[2] == team[1].english) {
       sessionInfo.teamRightList.push(subscriber)
       playerInfo.playerRightList.push({
         memberId: datas[0],
@@ -199,10 +196,11 @@ function joinSession() {
       .connect(
         token,
         {
-          clientData: `${authStore.memberId},${authStore.nickname}`
+          clientData: `${authStore.memberId},${authStore.nickname},${gameStore.team}`
         })
       .then(() => {
         console.log(`세션 연결!, ${gameStore.team}`)
+        playerInfo.team = gameStore.team
         if (gameStore.team == team[0].english || gameStore.team == team[1].english) {
           initCommunication(gameStore.team)
           sessionInfo.publisher = getDefaultPublisher()
@@ -608,7 +606,7 @@ joinSession()
 
       <!-- 채팅방 -->
       <ChattingBar
-        :nickname="playerInfo.nickname" :role="gameStore.team"
+        :nickname="playerInfo.nickname" :role="playerInfo.team"
         :messages-left="chatting.messagesLeft" :messages-right="chatting.messagesRight" :messages-all="chatting.messagesAll"
         @send-message="sendMessage"></ChattingBar>      
 
@@ -618,7 +616,7 @@ joinSession()
 
     <footer>
       <DebateBottomBar
-        :team="gameStore.team"
+        :team="playerInfo.team"
         :is-mic-handle-available="communication.isMicHandleAvailable"
         :is-camera-handle-available="communication.isCameraHandleAvailable"
         :is-share-handle-available="communication.isShareHandleAvailable"
