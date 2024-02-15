@@ -242,46 +242,53 @@ const submitForm = async () => {
   }
   try {
     // const response = await httpService.post('/openvidu/session', roomDto)
-    const response = await debateStore.createRoom(roomDto);
-    console.log('방 생성 응답:', response.data)
-    sessionId.value = response.data.sessionId
+    const createResponse = await debateStore.createRoom(roomDto);
+    console.log('방 생성 응답:', createResponse.data)
 
-    // 방 연결 설정
-    gameStore.sessionId = sessionId.value;
+    // 세션 정보
+    sessionId.value = createResponse.data.sessionId
+
+    // 방 설정
+    const connectResponse = await debateStore.joinDebate({
+        sessionId: sessionId.value,
+        nickname: authStore.nickname,
+        role: team[0].english,
+      })
+    const connection = connectResponse.data.connection
+    const debateInfoResponse = connectResponse.data.debateInfoResponse
+    gameStore.token = connection.token
     gameStore.team = team[0].english
-
-    // await makeDebateRoom()
-
+    gameStore.roomInfo = debateInfoResponse;
+    console.error(authStore.nickname, connection, debateInfoResponse)
     router.push(`/debate/${sessionId.value}`);
-
     closeModal()
   } catch (error) {
     console.error('방 생성 에러:', error)
   }
 }
 
-const makeDebateRoom = async () => {
-  try {
-    // const response = await httpService.get(`/openvidu/session/${sessionId.value}`);
-    const response = await debateStore.joinDebate({
-      sessionId: sessionId.value,
-      nickname: authStore.nickname,
-      role: team[0].english,
-    });
-    console.log('연결 정보 응답:', response.data);
-    gameStore.sessionId = sessionId.value;
-    gameStore.token = response.data.connection.token;
-    gameStore.team = team[0].eng
-    router.push(`/debate/${sessionId.value}`);
+// const makeDebateRoom = async () => {
+//   try {
+//     // const response = await httpService.get(`/openvidu/session/${sessionId.value}`);
+//     const response = await debateStore.joinDebate({
+//       sessionId: sessionId.value,
+//       nickname: authStore.nickname,
+//       role: team[0].english,
+//     });
+//     console.log('연결 정보 응답:', response.data);
+//     gameStore.sessionId = sessionId.value;
+//     gameStore.token = response.data.connection.token;
+//     gameStore.team = team[0].eng
+//     router.push(`/debate/${sessionId.value}`);
 
-    // const response = await debateStore.joinDebate(sessionId.useDalue)
-    // const data = response.data
-    // console.log(`연결 정보 응답: ${data.}`);
-    // router.push(`/debate/${sessionId.value}`);
-  } catch (error) {
-    console.error('연결 정보 가져오기 에러:', error);
-  }
-};
+//     // const response = await debateStore.joinDebate(sessionId.useDalue)
+//     // const data = response.data
+//     // console.log(`연결 정보 응답: ${data.}`);
+//     // router.push(`/debate/${sessionId.value}`);
+//   } catch (error) {
+//     console.error('연결 정보 가져오기 에러:', error);
+//   }
+// };
 </script>
 
 <style scoped>

@@ -7,13 +7,13 @@ export const useRoomInfo = defineStore('roomInfo', {
   }),
   actions: {
     // connectionId와 debateInfoResponse를 인자로 받는 액션
-    setRoomInfo(connectionId, debateInfoResponse) {
+    setRoomInfo(sessionId, debateInfoResponse) {
       // roomInfo 상태 업데이트
-      this.roomInfos[connectionId] = debateInfoResponse;
+      this.roomInfos[sessionId] = debateInfoResponse;
     },
 
-    getRoomInfo(connectionId) {
-      return this.roomInfos[connectionId];
+    getRoomInfo(sessionId) {
+      return this.roomInfos[sessionId];
     },
   },
 });

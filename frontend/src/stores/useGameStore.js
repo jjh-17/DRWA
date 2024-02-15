@@ -7,7 +7,10 @@ export const useGameStore = defineStore('game', {
     sessionId: '',
     token: '',
     team: team[0].english,
-    connectionId : '',
+    connectionId: '',
+
+    // joinDebate 응답 결과
+    roomInfo: Object,
   }),
   actions: {
 

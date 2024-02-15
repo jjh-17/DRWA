@@ -41,6 +41,7 @@ import { useRoomInfo } from '@/stores/useRoomInfo'
 import { useDebateStore } from "@/stores/useDebateStore";
 import { useGameStore } from "@/stores/useGameStore";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { team } from "../common/Team";
 
 const props = defineProps({
   room: Object
@@ -61,9 +62,7 @@ const closeModal = async (action) => {
   }
   if (action === 'confirm') {
     try {
-      // const response = await httpService.get(`/openvidu/session/${sessionId}`)
       const sessionId = props.room.sessionId;
-      console.log(`Enter Room : ${sessionId.value}, ${authStore.nickname}, ${selectedRole.value}`)
       const response = await debateStore.joinDebate({
         sessionId: sessionId,
         nickname: authStore.nickname,
@@ -72,10 +71,22 @@ const closeModal = async (action) => {
 
       console.log('연결 정보 응답:', response.data)
 
-      // sessionId 키로, debateInfoResponse를 값으로 사용하여 스토어 업데이트
-      useRoomInfo.setRoomInfo(response.data.debateInfoResponse.sessionId, response.data.debateInfoResponse)
-      gameStore.team = selectedRole.value
-      router.push(`/debate/${sessionId}`)
+      // // sessionId 키로, debateInfoResponse를 값으로 사용하여 스토어 업데이트
+      // useRoomInfo.setRoomInfo(response.data.debateInfoResponse.sessionId, response.data.debateInfoResponse)
+      // gameStore.team = selectedRole.value
+      // router.push(`/debate/${sessionId}`)
+
+      const connection = response.data.connection
+      const debateInfoResponse = response.data.debateInfoResponse
+      if ((selectedRole.value == team[0].english && debateInfoResponse.teamAMembers.length < debateInfoResponse.playerNum)
+        || (selectedRole.value == team[1].english && debateInfoResponse.teamBMembers.length < debateInfoResponse.playerNum)
+        || (selectedRole.value == team[2].english && debateInfoResponse.jurors.length < debateInfoResponse.jurorNum)) {
+        gameStore.token = connection.token
+        gameStore.team = selectedRole.value
+        gameStore.roomInfo = debateInfoResponse;
+        console.error(`GameJoinModal : ${response.data}`)
+        router.push(`/debate/${sessionId}`)
+      }
     } catch (error) {
       console.error('연결 정보 가져오기 에러:', error)
     }
