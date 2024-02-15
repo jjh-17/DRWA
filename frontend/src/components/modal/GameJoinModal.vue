@@ -85,7 +85,7 @@ const closeModal = async (action) => {
         gameStore.token = connection.token
         gameStore.team = selectedRole.value
         gameStore.roomInfo = debateInfoResponse;
-        console.error(`GameJoinModal : ${response.data}`)
+        console.log(`GameJoinModal : ${response.data}`)
         router.push(`/debate/${sessionId}`)
       } else {
         console.error(`인원수 제한 걸림 : ${selectedRole.value}`)

@@ -259,36 +259,13 @@ const submitForm = async () => {
     gameStore.token = connection.token
     gameStore.team = team[0].english
     gameStore.roomInfo = debateInfoResponse;
-    console.error(authStore.nickname, connection, debateInfoResponse)
+    console.log(authStore.nickname, connection, debateInfoResponse)
     router.push(`/debate/${sessionId.value}`);
     closeModal()
   } catch (error) {
     console.error('방 생성 에러:', error)
   }
 }
-
-// const makeDebateRoom = async () => {
-//   try {
-//     // const response = await httpService.get(`/openvidu/session/${sessionId.value}`);
-//     const response = await debateStore.joinDebate({
-//       sessionId: sessionId.value,
-//       nickname: authStore.nickname,
-//       role: team[0].english,
-//     });
-//     console.log('연결 정보 응답:', response.data);
-//     gameStore.sessionId = sessionId.value;
-//     gameStore.token = response.data.connection.token;
-//     gameStore.team = team[0].eng
-//     router.push(`/debate/${sessionId.value}`);
-
-//     // const response = await debateStore.joinDebate(sessionId.useDalue)
-//     // const data = response.data
-//     // console.log(`연결 정보 응답: ${data.}`);
-//     // router.push(`/debate/${sessionId.value}`);
-//   } catch (error) {
-//     console.error('연결 정보 가져오기 에러:', error);
-//   }
-// };
 </script>
 
 <style scoped>

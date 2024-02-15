@@ -288,24 +288,24 @@ function joinSession() {
       console.log('세션 연결', constInfo)
 
       // 기존 배심원
-      if (constInfo.roomInfo.jurors != null) {
-        constInfo.roomInfo.jurors.forEach((juror) => {
-          playerInfo.jurorList.push({
-            memberId: juror.memberId,
-            nickname: juror.nickName,
-          })
-        })
-      }
+      // if (constInfo.roomInfo.jurors != null) {
+      //   constInfo.roomInfo.jurors.forEach((juror) => {
+      //     playerInfo.jurorList.push({
+      //       memberId: juror.memberId,
+      //       nickname: juror.nickName,
+      //     })
+      //   })
+      // }
 
-      // 기존 시청자
-      if (constInfo.roomInfo.watchers != null) {
-        constInfo.roomInfo.watchers.forEach((watcher) => {
-          playerInfo.watcherList.push({
-            memberId: watcher.memberId,
-            nickname: watcher.nickName,
-          })
-        })
-      }
+      // // 기존 시청자
+      // if (constInfo.roomInfo.watchers != null) {
+      //   constInfo.roomInfo.watchers.forEach((watcher) => {
+      //     playerInfo.watcherList.push({
+      //       memberId: watcher.memberId,
+      //       nickname: watcher.nickName,
+      //     })
+      //   })
+      // }
 
       
       if (constInfo.team == team[0].english || constInfo.team == team[1].english) {
