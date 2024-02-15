@@ -16,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/member")
@@ -111,5 +113,13 @@ public class MemberController {
     public ResponseEntity<MemberInterestCategoriesResponse> updateInterests(HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(memberInterestService.findInterestsByMemberId(request.getHeader("Authorization")));
+    }
+
+    @AuthRequired
+    @PostMapping("/reportUser")
+    public ResponseEntity<?> reportUser(@RequestBody Map<String, String> request) {
+        String userId = request.get("userId");
+        memberService.reportUser(userId);
+        return ResponseEntity.ok().build();
     }
 }

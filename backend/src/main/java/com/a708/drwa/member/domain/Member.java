@@ -38,6 +38,9 @@ public class Member {
     @Size(max = 10)
     private String authority;
 
+    @Column
+    private int reportedCnt;
+
     @OneToMany(mappedBy = "member", orphanRemoval = true)
     private List<MemberInterest> memberInterestList = new ArrayList<>();
 
@@ -59,5 +62,9 @@ public class Member {
     public void removeAllInterest() {
         memberInterestList.forEach(MemberInterest::removeAssociations);
         memberInterestList.clear();
+    }
+
+    public void setReportedCnt(int reportedCnt) {
+        this.reportedCnt = reportedCnt;
     }
 }
