@@ -84,6 +84,7 @@ public class DebateUtil {
 
         // 인원 증가
         debateRoomInfo.join();
+        debateRoomRepository.save(debateRoomInfo);
         log.info("debateUtil:join >> current user cnt : {}", debateRoomInfo.getTotalCnt());
 
         // response 만들어주자

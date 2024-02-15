@@ -56,7 +56,7 @@ public class CreateRoomRequestDto {
                 .qnaTime(this.qnaTime)
                 .thumbnail1(this.thumbnail1)
                 .thumbnail2(this.thumbnail2)
-                .totalCnt(1)
+                .totalCnt(0)
                 .build();
     }
 }
