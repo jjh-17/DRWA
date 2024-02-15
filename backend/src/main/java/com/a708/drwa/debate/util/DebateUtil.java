@@ -58,13 +58,13 @@ public class DebateUtil {
                     break;
                 case 2:
                     properties = new ConnectionProperties.Builder()
-                            .role(OpenViduRole.PUBLISHER)
+                            .role(OpenViduRole.SUBSCRIBER)
                             .build();
                     joinAsDebator(key, debateRoomInfo.getJurorNum(), debateMember);
                     break;
                 case 3:
                     properties = new ConnectionProperties.Builder()
-                            .role(OpenViduRole.PUBLISHER)
+                            .role(OpenViduRole.SUBSCRIBER)
                             .build();
                     joinAsWatcher(key, debateMember);
                     break;
