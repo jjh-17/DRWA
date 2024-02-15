@@ -1,0 +1,19 @@
+{
+  "properties": {
+    "title": {
+      "type": "text",
+      "analyzer": "my_nori_analyzer",
+      "search_analyzer": "my_nori_analyzer"
+    },
+    "leftKeyword": {
+      "type": "text",
+      "analyzer": "my_nori_analyzer",
+      "search_analyzer": "my_nori_analyzer"
+    },
+    "rightKeyword": {
+      "type": "text",
+      "analyzer": "my_nori_analyzer",
+      "search_analyzer": "my_nori_analyzer"
+    }
+  }
+}

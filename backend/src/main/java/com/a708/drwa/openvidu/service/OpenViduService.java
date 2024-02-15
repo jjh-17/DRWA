@@ -16,6 +16,7 @@ import com.a708.drwa.openvidu.exception.OpenViduException;
 import com.a708.drwa.debate.repository.DebateRoomRepository;
 import com.a708.drwa.profile.exception.ProfileErrorCode;
 import com.a708.drwa.profile.repository.ProfileRepository;
+import com.a708.drwa.room.repository.RoomRepository;
 import com.a708.drwa.utils.JWTUtil;
 import io.openvidu.java.client.*;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ import java.util.UUID;
 public class OpenViduService {
     private final DebateRoomRepository debateRoomRepository;
     private final ProfileRepository profileRepository;
+    private final RoomRepository roomRepository;
     private final OpenVidu openVidu;
     private final JWTUtil jwtUtil;
     private final DebateUtil debateUtil;
@@ -59,7 +61,8 @@ public class OpenViduService {
         }
 
         // save room info
-        debateRoomRepository.save(createRoomDto.toEntity(sessionId, nickName));
+        debateRoomRepository.save(createRoomDto.toDebateRoomInfo(sessionId, nickName));
+        roomRepository.save(createRoomDto.toRoom(sessionId, nickName));
 
         // return sessionId;
         return CreateRoomResponseDto.builder()

@@ -13,6 +13,8 @@ import com.a708.drwa.openvidu.data.dto.response.GetConnectionResponseDto;
 import com.a708.drwa.openvidu.exception.OpenViduErrorCode;
 import com.a708.drwa.openvidu.exception.OpenViduException;
 import com.a708.drwa.redis.util.RedisKeyUtil;
+import com.a708.drwa.room.domain.Room;
+import com.a708.drwa.room.repository.RoomRepository;
 import io.openvidu.java.client.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,11 +33,14 @@ public class DebateUtil {
     private final RedisTemplate<String, DebateMember> redisTemplate;
     private final RedisKeyUtil redisKeyUtil;
     private final DebateRoomRepository debateRoomRepository;
+    private final RoomRepository roomRepository;
 
     public GetConnectionResponseDto join(String sessionId, Role role, DebateMember debateMember) {
         // 방 정보 조회
         DebateRoomInfo debateRoomInfo = debateRoomRepository.findById(sessionId)
                 .orElseThrow(() -> new DebateException(DebateErrorCode.NOT_EXIST_DEBATE_ROOM_ERROR));
+        Room room = roomRepository.findById(sessionId)
+                        .orElseThrow();
         log.info("debateUtil:join >> room find ! {}", debateRoomInfo);
 
         // 키 생성
@@ -84,17 +89,14 @@ public class DebateUtil {
 
         // 인원 증가
         debateRoomInfo.join();
+        room.join();
         debateRoomRepository.save(debateRoomInfo);
+        roomRepository.save(room);
         log.info("debateUtil:join >> current user cnt : {}", debateRoomInfo.getTotalCnt());
 
         // response 만들어주자
         DebateInfoResponse debateInfoResponse = debateRoomInfo.toResponse();
-        debateInfoResponse.setLists(DebateMembers.builder()
-                .teamAMembers(getTeamAMembers(sessionId))
-                .teamBMembers(getTeamBMembers(sessionId))
-                .jurors(getJurors(sessionId))
-                .watchers(getWatchers(sessionId))
-                .build());
+        debateInfoResponse.setLists(getList(sessionId));
 
         return GetConnectionResponseDto.builder()
                 .connection(connection)
@@ -102,10 +104,21 @@ public class DebateUtil {
                 .build();
     }
 
+    public DebateMembers getList(String sessionId) {
+        return DebateMembers.builder()
+                .teamAMembers(getTeamAMembers(sessionId))
+                .teamBMembers(getTeamBMembers(sessionId))
+                .jurors(getJurors(sessionId))
+                .watchers(getWatchers(sessionId))
+                .build();
+    }
+
     public void leave(String sessionId, Role role, DebateMember debateMember) {
         // 방 정보 조회
         DebateRoomInfo debateRoomInfo = debateRoomRepository.findById(sessionId)
                 .orElseThrow(() -> new DebateException(DebateErrorCode.NOT_EXIST_DEBATE_ROOM_ERROR));
+        Room room = roomRepository.findById(sessionId)
+                        .orElseThrow();
         log.info("debateUtil:leave >> room find ! {}", debateRoomInfo);
 
         // 키 생성
@@ -124,10 +137,14 @@ public class DebateUtil {
 
         // roomInfo 갱신
         debateRoomInfo.exit();
+        room.exit();
+        debateRoomRepository.save(debateRoomInfo);
+        roomRepository.save(room);
 
         // 아무도 없거나 방장이 나가면 방 닫기
         if(debateRoomInfo.getTotalCnt() == 0 || sessionId.startsWith(String.valueOf(debateMember.getMemberId()))) {
             debateRoomRepository.delete(debateRoomInfo);
+            roomRepository.delete(room);
             try {
                 openVidu.getActiveSession(sessionId).close();
             } catch (OpenViduJavaClientException | OpenViduHttpException e) {

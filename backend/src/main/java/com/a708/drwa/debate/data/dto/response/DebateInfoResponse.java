@@ -3,7 +3,6 @@ package com.a708.drwa.debate.data.dto.response;
 import com.a708.drwa.debate.data.DebateMember;
 import com.a708.drwa.debate.data.DebateMembers;
 import com.a708.drwa.debate.enums.DebateCategory;
-import com.a708.drwa.debate.domain.DebateRoomInfo;
 import lombok.*;
 
 import java.util.List;
