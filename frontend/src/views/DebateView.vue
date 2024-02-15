@@ -13,15 +13,15 @@ import { OpenVidu } from 'openvidu-browser'
 import UserVideo from '@/components/debate/UserVideo.vue'
 import { team } from '@/components/common/Team.js'
 import { useGameStore } from '@/stores/useGameStore'
-import { httpService } from '@/api/axios'
 import VotingResult from '@/components/modal/VotingResult.vue'
 
 const route = useRoute()
 
 // === 변수 ===
-// Debate 정보
+// store 정보
 const debateStore = useDebateStore()
 const gameStore = useGameStore()
+const authStore = useAuthStore()
 
 // 세션 정보
 const sessionInfo = reactive({
@@ -46,7 +46,6 @@ const constInfo = {
 }
 
 // 참가자 정보
-const authStore = useAuthStore()
 const playerInfo = reactive({
   // team: '',
   // index == 각 팀에서의 순서
@@ -288,24 +287,24 @@ function joinSession() {
       console.log('세션 연결', constInfo)
 
       // 기존 배심원
-      // if (constInfo.roomInfo.jurors != null) {
-      //   constInfo.roomInfo.jurors.forEach((juror) => {
-      //     playerInfo.jurorList.push({
-      //       memberId: juror.memberId,
-      //       nickname: juror.nickName,
-      //     })
-      //   })
-      // }
+      if (constInfo.roomInfo.jurors != null) {
+        constInfo.roomInfo.jurors.forEach((juror) => {
+          playerInfo.jurorList.push({
+            memberId: juror.memberId,
+            nickname: juror.nickName,
+          })
+        })
+      }
 
-      // // 기존 시청자
-      // if (constInfo.roomInfo.watchers != null) {
-      //   constInfo.roomInfo.watchers.forEach((watcher) => {
-      //     playerInfo.watcherList.push({
-      //       memberId: watcher.memberId,
-      //       nickname: watcher.nickName,
-      //     })
-      //   })
-      // }
+      // 기존 시청자
+      if (constInfo.roomInfo.watchers != null) {
+        constInfo.roomInfo.watchers.forEach((watcher) => {
+          playerInfo.watcherList.push({
+            memberId: watcher.memberId,
+            nickname: watcher.nickName,
+          })
+        })
+      }
 
       
       if (constInfo.team == team[0].english || constInfo.team == team[1].english) {
