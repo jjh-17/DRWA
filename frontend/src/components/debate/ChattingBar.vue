@@ -115,10 +115,10 @@ const inputMessage = ref('');
 .styled-input {
   font-size: 16px;
   padding: 10px 20px;
-  border: 2px solid #34227C; /* Adjust the color to match the image */
-  border-radius: 25px; /* This gives the rounded corners */
-  outline: none; /* Removes the default focus outline */
-  width: 230px; /* Adjust the width as needed */
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow */
+  border: 2px solid #34227C; 
+  border-radius: 25px; 
+  outline: none; 
+  width: 230px; 
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 </style>

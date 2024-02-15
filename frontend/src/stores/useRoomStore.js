@@ -1,9 +1,6 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
 import { httpService } from '@/api/axios'
 
-
-const REST_ROOM_API = `http://i10a708.p.ssafy.io/room`
 export const useRoomStore = defineStore('room', {
   state: () => ({   
     roomsPopular: [],
@@ -48,17 +45,17 @@ export const useRoomStore = defineStore('room', {
     },
     async searchRooms(query, type) {
       try {
-        const response = await axios.get(`${REST_ROOM_API}/search/${type}`, {
+        const response = await httpService.get(`room/search/${type}`, {
           params: { query }
         });
-        this.$state.rooms = response.data;
+        this.roomsAll = response.data;
       } catch (error) {
         console.error('Error searching rooms:', error);
       }
-    },    
+    },
     async updateRoomThumbnail(thumbnailUpdateInfo) {
       try {
-        await axios.post(`${REST_ROOM_API}/rooms/thumbnail`, thumbnailUpdateInfo);
+        await httpService.post(`room/rooms/thumbnail`, thumbnailUpdateInfo);
       } catch (error) {
         console.error('Error updating room thumbnail:', error);
       }
