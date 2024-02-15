@@ -105,6 +105,7 @@ public class MemberService {
                 .expiredTime(refreshTokenExpireTime)
                 .build());
 
+        log.info("jwtMemberInfo: {}", jwtMemberInfo);
         // 사용자 ID로 관심사 조회
         List<MemberInterest> memberInterests = member.getMemberInterestList();
 
