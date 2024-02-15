@@ -109,6 +109,7 @@ public class MemberService {
                 .expiredTime(refreshTokenExpireTime)
                 .build());
 
+        log.info("jwtMemberInfo: {}", jwtMemberInfo);
         // 사용자 ID로 관심사 조회
         List<MemberInterest> memberInterests = memberRepository.findById(jwtMemberInfo.getMemberId())
                 .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND))
