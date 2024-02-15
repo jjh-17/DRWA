@@ -13,6 +13,7 @@ import { OpenVidu } from 'openvidu-browser'
 import UserVideo from '@/components/debate/UserVideo.vue'
 import { team } from '@/components/common/Team.js'
 import { useGameStore } from '@/stores/useGameStore'
+import { httpService } from "@/api/axios"
 
 const route = useRoute();
 
@@ -60,7 +61,7 @@ const communication = reactive({
   isMicOn: false,
   isCameraOn: false,
   isShareOn: false,
-  
+
   isMicHandleAvailable: false,
   isCameraHandleAvailable: false,
   isShareHandleAvailable: false
@@ -176,42 +177,6 @@ function joinSession() {
     console.warn(exception)
   })
 
-  // 원본
-  // getToken().then((token) => {
-  //   sessionInfo.session
-  //     .connect(
-  //       token,
-  //       {
-  //         clientData: `${authStore.memberId},${authStore.nickname},${gameStore.team}`
-  //       })
-  //     .then(() => {
-  //       playerInfoConst.team = gameStore.team
-  //       console.log(`세션 연결!, ${playerInfoConst.team}`)
-  //       if (playerInfoConst.team == team[0].english || playerInfoConst.team == team[1].english) {
-  //         initCommunication(playerInfoConst.team)
-  //         sessionInfo.publisher = getDefaultPublisher()
-  //         sessionInfo.session.publish(sessionInfo.publisher)
-
-  //         if (playerInfoConst.team == team[0].english) {
-  //           sessionInfo.teamLeftList.push(sessionInfo.publisher);
-  //           playerInfo.playerLeftList.push({
-  //             memberId: authStore.memberId,
-  //             nickname: authStore.nickname,
-  //           })
-  //         } else if (playerInfoConst.team == team[1].english) {
-  //           sessionInfo.teamRightList.push(sessionInfo.publisher);
-  //           playerInfo.playerRightList.push({
-  //             memberId: authStore.memberId,
-  //             nickname: authStore.nickname,
-  //           })
-  //         }
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       console.error(`세션 연결 실패 : ${error}`)
-  //     })
-  // })
-
   sessionInfo.session
     .connect(
       constInfo.token,
@@ -246,15 +211,6 @@ function joinSession() {
 
     // 윈도우 종료 시 세션 나가기 이벤트 등록
     window.addEventListener('beforeunload', leaveSession)
-}
-
-async function getToken() {
-  const response = await debateStore.joinDebate({
-    sessionId: route.params.sessionId,
-    nickname: authStore.nickname,
-    role: gameStore.team,
-  })
-  return response.data.connection.token
 }
 
 // 팀A, 팀B 리스트 내 데이터 제거
@@ -315,6 +271,13 @@ function leaveSession() {
   // 세션 연결 종료
   if (sessionInfo.session) sessionInfo.session.disconnect()
 
+  // server redis에서 참여자 정보 삭제
+  debateStore.leaveDebate({
+    sessionId: route.params.sessionId,
+    nickName: authStore.nickname,
+    role: gameStore.team,
+  })
+
   // 세션 정보 초기화
   sessionInfo.session = undefined
   sessionInfo.OV = undefined
@@ -341,9 +304,9 @@ function leaveSession() {
 
   // 메시지 정보 초기화
   // chatting.targetTeam= team[4].english
-  chatting.messagesLeft= []
-  chatting.messagesRight= []
-  chatting.messagesAll= []
+  chatting.messagesLeft = []
+  chatting.messagesRight = []
+  chatting.messagesAll = []
 
   // 윈도우 종료 시 세션 나가기 이벤트 삭제
   window.removeEventListener('beforeunload', leaveSession)
@@ -480,18 +443,11 @@ joinSession()
         :team="constInfo.team"
         :is-mic-handle-available="communication.isMicHandleAvailable"
         :is-camera-handle-available="communication.isCameraHandleAvailable"
-        :is-share-handle-available="communication.isShareHandleAvailable"
-        :is-mic-on="communication.isMicOn"
-        :is-camera-on="communication.isCameraOn"
-        :is-share-on="communication.isShareOn"
-        :handle-mic-by-user="handleMicByUser"
-        :handle-camera-by-user="handleCameraByUser"
-        :vote-left-num="vote.voteLeftNum"
-        :vote-right-num="vote.voteRightNum"
-        :juror-vote-left-num="vote.jurorVoteLeftNum"
-        :juror-vote-right-num="vote.jurorVoteRightNum"
-        @send-vote-team-message="sendVoteTeamMessage"
-      />
+        :is-share-handle-available="communication.isShareHandleAvailable" :is-mic-on="communication.isMicOn"
+        :is-camera-on="communication.isCameraOn" :is-share-on="communication.isShareOn"
+        :handle-mic-by-user="handleMicByUser" :handle-camera-by-user="handleCameraByUser"
+        :vote-left-num="vote.voteLeftNum" :vote-right-num="vote.voteRightNum" :juror-vote-left-num="vote.jurorVoteLeftNum"
+        :juror-vote-right-num="vote.jurorVoteRightNum" @send-vote-team-message="sendVoteTeamMessage" />
     </footer>
   </div>
 </template>
@@ -500,13 +456,17 @@ joinSession()
 .app-container {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* 전체 화면 높이를 차지하도록 설정 */
-  margin: 0; /* 기본 마진 제거 */
+  height: 100vh;
+  /* 전체 화면 높이를 차지하도록 설정 */
+  margin: 0;
+  /* 기본 마진 제거 */
 }
 
 .main-container {
-  flex-grow: 1; /* header와 footer를 제외한 모든 공간을 차지 */
-  display: flex; /* Flexbox 레이아웃 사용 */
+  flex-grow: 1;
+  /* header와 footer를 제외한 모든 공간을 차지 */
+  display: flex;
+  /* Flexbox 레이아웃 사용 */
   margin-bottom: 70px;
 }
 
@@ -516,15 +476,19 @@ joinSession()
 .chatting-container {
   height: 100%;
 }
+
 .share-container {
   position: relative;
   flex: 4.5;
 }
+
 .play-button {
-  position: absolute; /* 절대 위치 지정 */
+  position: absolute;
+  /* 절대 위치 지정 */
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%); /* 중앙 정렬 */
+  transform: translate(-50%, -50%);
+  /* 중앙 정렬 */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -537,6 +501,7 @@ joinSession()
   font-size: 30px;
   font-weight: bold;
 }
+
 .juror-button,
 .viewer-button {
   display: flex;
@@ -544,7 +509,8 @@ joinSession()
   align-items: center;
   border-radius: 8px;
   position: absolute;
-  transform: translate(-50%, -50%); /* 중앙 정렬 */
+  transform: translate(-50%, -50%);
+  /* 중앙 정렬 */
   left: 50%;
   width: 300px;
   height: 40px;
@@ -552,25 +518,31 @@ joinSession()
   font-size: 20px;
   font-weight: bold;
 }
+
 .juror-button {
   top: 70%;
 }
+
 .viewer-button {
   top: 80%;
 }
+
 .chatting-container {
   display: flex;
   flex: 1.5;
   border-left: 1px solid #ccc;
-  box-shadow: -4px 0 5px -2px rgba(0, 0, 0, 0.2); /* 왼쪽 그림자 설정 */
+  box-shadow: -4px 0 5px -2px rgba(0, 0, 0, 0.2);
+  /* 왼쪽 그림자 설정 */
   flex-direction: column;
 }
+
 .chatting-tabs {
   height: 10%;
   display: flex;
   justify-content: space-around;
   padding: 10px;
 }
+
 .chatting-team-tab,
 .chatting-all-tab {
   display: flex;
@@ -585,9 +557,11 @@ joinSession()
   width: 42%;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
+
 .chattings {
   flex: 8;
 }
+
 .send-message {
   flex: 1;
   height: 10%;
@@ -596,6 +570,7 @@ joinSession()
   align-items: center;
   padding: 5px;
 }
+
 .send-message img {
   height: 50%;
   object-fit: contain;
@@ -604,11 +579,16 @@ joinSession()
 .styled-input {
   font-size: 16px;
   padding: 10px 20px;
-  border: 2px solid #34227c; /* Adjust the color to match the image */
-  border-radius: 25px; /* This gives the rounded corners */
-  outline: none; /* Removes the default focus outline */
-  width: 230px; /* Adjust the width as needed */
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow */
+  border: 2px solid #34227c;
+  /* Adjust the color to match the image */
+  border-radius: 25px;
+  /* This gives the rounded corners */
+  outline: none;
+  /* Removes the default focus outline */
+  width: 230px;
+  /* Adjust the width as needed */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  /* Adds a subtle shadow */
 }
 
 .teamA-container,
@@ -617,6 +597,7 @@ joinSession()
   display: flex;
   flex-direction: column;
 }
+
 .team-title {
   height: 10%;
   text-align: center;
@@ -626,11 +607,13 @@ joinSession()
   font-size: 20px;
   font-weight: bold;
 }
+
 .players {
   height: 90%;
   display: flex;
   flex-direction: column;
 }
+
 .player {
   flex: 1;
   border: 1px solid #34227c;
@@ -642,12 +625,14 @@ joinSession()
   font-size: 30px;
   cursor: pointer;
 }
+
 footer {
   position: fixed;
   left: 0;
   bottom: 0;
   width: 100%;
 }
+
 .form-group {
   margin-bottom: 1rem;
 }
