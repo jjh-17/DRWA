@@ -178,13 +178,11 @@ function joinSession() {
   // 배심원, 관전자 참가, 나가기 시 시그널
   sessionInfo.session.on('signal:jurorIn', (event) => {
     const messageData = JSON.parse(event.data)
-    if (constInfo.memberId != messageData.memberId) {
-      playerInfo.jurorList.push({
-        memberId: messageData.memberId,
-        nickname: messageData.nickname
-      })
-    }
-  })
+    playerInfo.jurorList.push({
+      memberId: messageData.memberId,
+      nickname: messageData.nickname
+    })
+  });
   sessionInfo.session.on('signal:jurorOut', (event) => {
     const messageData = JSON.parse(event.data)
     for (let i = 0; i < playerInfo.jurorList.length; i++) {
@@ -195,13 +193,11 @@ function joinSession() {
   })
   sessionInfo.session.on('signal:watcherIn', (event) => {
     const messageData = JSON.parse(event.data)
-    if (constInfo.memberId != messageData.memberId) {
-      playerInfo.watcherList.push({
-        memberId: messageData.memberId,
-        nickname: messageData.nickname
-      })
-    }
-  })
+    playerInfo.watcherList.push({
+      memberId: messageData.memberId,
+      nickname: messageData.nickname
+    })
+  });
   sessionInfo.session.on('signal:watcherOut', (event) => {
     const messageData = JSON.parse(event.data)
     for (let i = 0; i < playerInfo.watcherList.length; i++) {
@@ -254,20 +250,24 @@ function joinSession() {
       // 기존 배심원
       if (constInfo.roomInfo.jurors != null) {
         constInfo.roomInfo.jurors.forEach((juror) => {
-          playerInfo.jurorList.push({
-            memberId: juror.memberId,
-            nickname: juror.nickName,
-          })
+          if (constInfo.memberId != juror.memberId) {
+            playerInfo.jurorList.push({
+              memberId: juror.memberId,
+              nickname: juror.nickName,
+            })
+          }
         })
       }
 
       // 기존 시청자
       if (constInfo.roomInfo.watchers != null) {
         constInfo.roomInfo.watchers.forEach((watcher) => {
-          playerInfo.watcherList.push({
-            memberId: watcher.memberId,
-            nickname: watcher.nickName,
-          })
+          if (constInfo.memberId != watcher.memberId) {
+            playerInfo.watcherList.push({
+              memberId: watcher.memberId,
+              nickname: watcher.nickName,
+            })
+          }
         })
       }
 
@@ -308,12 +308,13 @@ function handleMedia() {
   let idx
   switch (sessionInfo.phase % 4) {
     case 1:   // 팀 A
+      console.log(playerInfo)
       if (constInfo.team == team[1].english) {        // teamB는 전부 음소거 및 권한 박탈
         console.log(`미디어 제어 : ${constInfo.team}, false`)
         handleMediaBySystem(false);
       } else if (constInfo.team == team[0].english) { // teamA 중 현재 순서만 권한 부여, 나머지 teamB와 동일
-        idx = Math.floor(sessionInfo.phase / 4) % playerInfo.teamLeftList.length;
-        if (constInfo.memberId == playerInfo.teamLeftList[idx].memberId) {
+        idx = Math.floor(sessionInfo.phase / 4) % playerInfo.playerLeftList.length;
+        if (constInfo.memberId == playerInfo.playerRightList[idx].memberId) {
           console.log(`미디어 제어 : ${constInfo.team}, true`)
           handleMediaBySystem(true);
         } else {
@@ -323,23 +324,25 @@ function handleMedia() {
       }
       break;
     case 2:   // QnA
+      console.log(playerInfo)
       if (constInfo.team == team[0].english) {
-        idx = Math.floor(sessionInfo.phase / 4) % playerInfo.teamLeftList.length;
-        if (constInfo.memberId == playerInfo.teamLeftList[idx].memberId) { handleMediaBySystem(true); }
+        idx = Math.floor(sessionInfo.phase / 4) % playerInfo.playerLeftList.length;
+        if (constInfo.memberId == playerInfo.playerLeftList[idx].memberId) { handleMediaBySystem(true); }
         else { handleMediaBySystem(false) }
       } else if (constInfo.team == team[1].english) {
-        idx = Math.floor(sessionInfo.phase / 4) % playerInfo.teamRightList.length;
-        if (constInfo.memberId == playerInfo.teamRightList[idx].memberId) { handleMediaBySystem(true); }
+        idx = Math.floor(sessionInfo.phase / 4) % playerInfo.playerRightList.length;
+        if (constInfo.memberId == playerInfo.playerRightList[idx].memberId) { handleMediaBySystem(true); }
         else { handleMediaBySystem(false) }
       }
       break;
     case 3:   // 팀 B
+      console.log(playerInfo)
       if (constInfo.team == team[0].english) {        // teamA는 전부 음소거 및 권한 박탈
         console.log(`미디어 제어 : ${constInfo.team}, false`)
         handleMediaBySystem(false);
       } else if (constInfo.team == team[1].english) { // teamB 중 현재 순서만 권한 부여, 나머지 teamA와 동일
-        idx = Math.floor(sessionInfo.phase / 4) % playerInfo.teamRightList.length;
-        if (constInfo.memberId == playerInfo.teamRightList[idx].memberId) {
+        idx = Math.floor(sessionInfo.phase / 4) % playerInfo.playerRightList.length;
+        if (constInfo.memberId == playerInfo.playerRightList[idx].memberId) {
           console.log(`미디어 제어 : ${constInfo.team}, true`)
           handleMediaBySystem(true);
         } else {
@@ -349,13 +352,14 @@ function handleMedia() {
       }
       break;
     default:  // QnA2
+      console.log(playerInfo)
       if (constInfo.team == team[0].english) {
-        idx = Math.floor(sessionInfo.phase / 4) % playerInfo.teamLeftList.length;
-        if (constInfo.memberId == playerInfo.teamLeftList[idx].memberId) { handleMediaBySystem(true); }
+        idx = Math.floor(sessionInfo.phase / 4) % playerInfo.playerLeftList.length;
+        if (constInfo.memberId == playerInfo.playerLeftList[idx].memberId) { handleMediaBySystem(true); }
         else { handleMediaBySystem(false) }
       } else if (constInfo.team == team[1].english) {
-        idx = Math.floor((sessionInfo.phase / 4 - 1)) % playerInfo.teamRightList.length;
-        if (constInfo.memberId == playerInfo.teamRightList[idx].memberId) { handleMediaBySystem(true); }
+        idx = Math.floor((sessionInfo.phase / 4 - 1)) % playerInfo.playerRightList.length;
+        if (constInfo.memberId == playerInfo.playerRightList[idx].memberId) { handleMediaBySystem(true); }
         else { handleMediaBySystem(false) }
       }
   }
