@@ -1,11 +1,15 @@
 package com.a708.drwa.debate.domain;
 
+import com.a708.drwa.debate.data.DebateMember;
 import com.a708.drwa.debate.data.dto.response.DebateInfoResponse;
 import com.a708.drwa.debate.enums.DebateCategory;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Builder
@@ -68,5 +72,13 @@ public class DebateRoomInfo {
                 .thumbnail2(this.thumbnail2)
                 .totalCnt(this.totalCnt)
                 .build();
+    }
+
+    public void join() {
+        this.totalCnt++;
+    }
+
+    public void exit() {
+        this.totalCnt--;
     }
 }
