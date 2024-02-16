@@ -5,13 +5,19 @@
         <h4>토론 종료</h4>
       </div>
       <div class="team-info">
-        <div class="teamA">팀A <span class="result-win"></span></div>
-        <div class="teamB">팀B <span class="result-lose"></span></div>
+        <div class="teamA">팀A <span class="result" v-if="winner === 'A'">승리!</span></div>
+        <div class="teamB">팀B <span class="result" v-if="winner === 'B'">승리!</span></div>
       </div>
       <div class="progress-bars">
-          <div class="progress-bar">
-          <div class="progress" style="width: 70%; background-color: green;"></div>
-          <div class="progress" style="width: 30%; background-color: red; margin-left: 70%;"></div>
+        <div class="progress-bar">
+          <div
+            :style="{ width: getBarWidth(supportRateA), backgroundColor: 'green' }"
+            class="progress"
+          ></div>
+          <div
+            :style="{ width: getBarWidth(supportRateB), backgroundColor: 'red', marginLeft: '70%' }"
+            class="progress"
+          ></div>
         </div>
       </div>
       <div class="points">
@@ -26,19 +32,39 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, defineProps, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
-const showModal = ref(true);
-const router = useRouter();
+const props = defineProps({
+  jurorVoteLeftNum: Number,
+  jurorVoteRightNum: Number,
+  leaveSession: Function,
+})
+const supportRateA = computed(() => {
+  const totalVotes = props.jurorVoteLeftNum + props.jurorVoteRightNum
+  return totalVotes > 0 ? Math.round((props.jurorVoteLeftNum / totalVotes) * 100) : 50
+})
+
+const supportRateB = computed(() => {
+  const totalVotes = props.jurorVoteLeftNum + props.jurorVoteRightNum
+  return totalVotes > 0 ? Math.round((props.jurorVoteRightNum / totalVotes) * 100) : 50
+})
+
+function getBarWidth(rate) {
+  return `calc(${rate}% + 80px)` // 최소 80px + 지지율 비율
+}
+
+const showModal = ref(true)
+const router = useRouter()
 
 const stay = () => {
-  showModal.value = false;
-};
+  showModal.value = false
+}
 
 const leave = () => {
-  router.push('/');
-};
+  props.leaveSession()
+  router.push('/')
+}
 </script>
 
 <style scoped>
@@ -51,13 +77,13 @@ const leave = () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); 
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 .modal-content {
   background-color: white;
-  border-radius: 10px; 
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   padding: 20px;
   text-align: center;
   width: 500px;
@@ -84,33 +110,32 @@ const leave = () => {
 }
 .progress-bars {
   display: flex;
-  justify-content: center; 
+  justify-content: center;
 }
 
-  .progress-bar {
+.progress-bar {
   background-color: lightgray;
   border-radius: 5px;
   height: 20px;
   overflow: hidden;
-  width: 400px; 
-  }
+  width: 400px;
+}
 
-  .progress {
+.progress {
   height: 100%;
   text-align: center;
-  }
-
+}
 
 .modal-buttons {
   display: flex;
   justify-content: space-between;
-  margin-top:80px;
+  margin-top: 80px;
   margin-bottom: 50px;
 }
 
 .btnS {
-  background-color: #34227C;
-  color: #E8EBF9;
+  background-color: #34227c;
+  color: #e8ebf9;
   font-weight: bold;
   border: none;
   padding: 10px 20px;
@@ -119,16 +144,15 @@ const leave = () => {
   width: 150px;
   margin-left: 50px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-
 }
 
 .btnS:hover {
   background-color: #28054b;
 }
 .btnE {
-  background-color: #E8EBF9;
+  background-color: #e8ebf9;
   font-weight: bold;
-  color: #34227C;
+  color: #34227c;
   border: none;
   padding: 10px 20px;
   border-radius: 5px;
