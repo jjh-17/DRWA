@@ -1,5 +1,5 @@
 <template>
-  <div class="room-card" @click="openModal">
+  <div class="room-card" @click="handleClick">
     <div class="top-container"></div>
     <div class="thumbnail-part">
       <div class="image-container">
@@ -21,15 +21,22 @@
 <script setup>
 import { defineProps,ref } from 'vue'
 import GameJoinModal from '@/components/modal/GameJoinModal.vue';
+import { useAuthStore } from '@/stores/useAuthStore';
+
 
 const props = defineProps({
   room: Object,
 })
 const showModal = ref(false); 
 const selectedRoom = ref(null);
-const openModal = () => {
-  showModal.value = true;
-  selectedRoom.value = props.room; // 선택된 room 정보를 저장
+const authStore = useAuthStore();
+
+// 클릭 이벤트 핸들러
+const handleClick = () => {
+  if (authStore.nickName !== null) { // nickName이 null이 아니면 모달 열기
+    showModal.value = true;
+    selectedRoom.value = props.room; // props는 <script setup>에서 직접 사용 가능
+  }
 };
 </script>
 

@@ -69,13 +69,13 @@
   <div class="roomList" ref="roomList">
     <RoomsCategory v-if="activeCategory" :activeCategory="activeCategory" />
   </div>
-  <div class="room-create" v-if="authStore.isLoggedIn">
+  <div class="room-create">
     <button @click="openModal"><img src="@/assets/img/create.png" /></button>
     <DebateCreateModal
-      :isVisible="isModalVisible"
-      :disableOptions="false"
-      @update:isVisible="isModalVisible = $event"
-    />
+  :isVisible="isModalVisible"
+  :disableOptions="false"
+  @update:isVisible="isModalVisible = $event"
+/>
   </div>
   <div class="goto-top">
     <button @click="scrollToTop"><img src="@/assets/img/top.png" /></button>
@@ -93,8 +93,6 @@ import DebateCreateModal from '@/components/modal/DebateCreateModal.vue'
 import { useRoomStore } from '@/stores/useRoomStore.js'
 import RoomCard from '@/components/room/RoomCard.vue'
 import { useAuthStore } from '@/stores/useAuthStore.js'
-
-const authStore = useAuthStore();
 
 const activeCarousel = ref('pop') // 'pop' 또는 'categ'를 가지는 변수
 
@@ -283,7 +281,7 @@ const scrollToTop = () => {
   /* 상위 요소의 중앙에 위치 */
   transform: translateY(-50%);
   /* Y축 기준 중앙 정렬 */
-  z-index: 1;
+  z-index: 10;
   height: 60%;
   opacity: 1;
 }

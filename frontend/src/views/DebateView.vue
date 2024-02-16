@@ -733,14 +733,14 @@ function speakingTime() {
     console.log('nextphase 시작이야')
     nextPhase()
     console.log('발언시간 끝.')
-  }, constInfo.roomInfo.speakingTime * 200)
+  }, constInfo.roomInfo.speakingTime * 30)
 }
 function qnaTime() {
   setTimeout(() => {
     console.log('qnaTime 시작이야')
     nextPhase()
     console.log('질문시간 끝.')
-  }, constInfo.roomInfo.qnaTime * 200)
+  }, constInfo.roomInfo.qnaTime * 30)
 }
 
 joinSession()
@@ -776,10 +776,9 @@ joinSession()
       </div>
 
       <div class="share-container">
-        <!-- <div class="play-button1" v-if="isHost && canStart&& isPhaseZero" @click="startGame">시작하기</div>
-        <div class="play-button2" v-else-if="isHost&& isPhaseZero">시작하기</div> -->
-        <div class="play-button1" v-if="isHost && isPhaseZero" @click="startGame">시작하기</div>
-        <div class="waiting-button" v-else-if="isPhaseZero">대기중...</div>
+        <div class="play-button1" v-if="isHost && canStart&& !isPhaseZero" @click="startGame">시작하기</div>
+        <div class="play-button2" v-else-if="isHost&& !isPhaseZero">시작하기</div>
+        <div class="waiting-button" v-else-if="!isPhaseZero">대기중...</div>
         <div class="juror-button">
           배심원 : ({{ playerInfo.jurorList.length }} / {{ constInfo.roomInfo.jurorNum }})
         </div>
@@ -815,7 +814,7 @@ joinSession()
     </div>
 
     <GameStartModal v-if="showModal" :roomInfo="constInfo.roomInfo" />
-    <VotingResult v-if="isEnd" />
+    <VotingResult v-if="isEnd" :jurorVoteLeftNum="vote.jurorVoteLeftNum" :jurorVoteRightNum="vote.jurorVoteRightNum"/>
 
     <footer>
       <DebateBottomBar
