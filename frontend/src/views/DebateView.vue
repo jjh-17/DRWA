@@ -776,9 +776,9 @@ joinSession()
       </div>
 
       <div class="share-container">
-        <div class="play-button1" v-if="isHost && canStart&& !isPhaseZero" @click="startGame">시작하기</div>
-        <div class="play-button2" v-else-if="isHost&& !isPhaseZero">시작하기</div>
-        <div class="waiting-button" v-else-if="!isPhaseZero">대기중...</div>
+        <div class="play-button1" v-if="isHost && canStart&& isPhaseZero" @click="startGame">시작하기</div>
+        <div class="play-button2" v-else-if="isHost&& isPhaseZero">시작하기</div>
+        <div class="waiting-button" v-else-if="isPhaseZero">대기중...</div>
         <div class="juror-button">
           배심원 : ({{ playerInfo.jurorList.length }} / {{ constInfo.roomInfo.jurorNum }})
         </div>

@@ -15,23 +15,23 @@
       <h4>토론 흐름</h4>
     </div>
       <div class="progress-bars">
-          <div class="progress-bar1">
-              <div class="progress1" style="width: 25%; background-color: #e8ebf9;">팀 A  발언1</div>
-              <div class="progress2" style="width: 25%; background-color: #e8ebf9; ">질의응답 1-1</div>
-              <div class="progress3" style="width: 25%; background-color: #e8ebf9; ">팀 B  발언1</div>
-              <div class="progress4" style="width: 25%; background-color: #e8ebf9; ">질의응답 1-2</div>
+        <div class="progress-bar1">
+            <div class="progress1" v-show="nowPhase >= 1" style="background-color: #e8ebf9;">팀 A 발언</div>
+            <div class="progress2" v-show="nowPhase >= 2" style="background-color: #e8ebf9;">질의응답 1-1</div>
+            <div class="progress3" v-show="nowPhase >= 3" style="background-color: #e8ebf9;">팀 B 발언1</div>
+            <div class="progress4" v-show="nowPhase >= 4" style="background-color: #e8ebf9;">질의응답 1-2</div>
           </div>
           <div class="progress-bar2">
-              <div class="progress5" style="width: 25%; background-color: #e8ebf9;">팀 A  발언2</div>
-              <div class="progress6" style="width: 25%; background-color: #e8ebf9;">질의응답 2-1</div>
-              <div class="progress7" style="width: 25%; background-color: #e8ebf9;">팀 B  발언1</div>
-              <div class="progress8" style="width: 25%; background-color: #e8ebf9;">질의응답 2-2</div>
+              <div class="progress5" v-show="nowPhase >= 5" style="width: 25%; background-color: #e8ebf9;">팀 A  발언2</div>
+              <div class="progress6" v-show="nowPhase >= 6" style="width: 25%; background-color: #e8ebf9;">질의응답 2-1</div>
+              <div class="progress7" v-show="nowPhase >= 7" style="width: 25%; background-color: #e8ebf9;">팀 B  발언1</div>
+              <div class="progress8" v-show="nowPhase >= 8" style="width: 25%; background-color: #e8ebf9;">질의응답 2-2</div>
           </div>
           <div class="progress-bar3">
-              <div class="progress9" style="width: 25%; background-color: #e8ebf9;">팀 A  발언3</div>
-              <div class="progress10" style="width: 25%; background-color: #e8ebf9;">질의응답 3-1</div>
-              <div class="progress11" style="width: 25%; background-color: #e8ebf9;">팀 B  발언3</div>
-              <div class="progress12" style="width: 25%; background-color: #e8ebf9;">질의응답 3-2</div>
+              <div class="progress9" v-show="nowPhase >= 9" style="width: 25%; background-color: #e8ebf9;">팀 A  발언3</div>
+              <div class="progress10" v-show="nowPhase >= 10" style="width: 25%; background-color: #e8ebf9;">질의응답 3-1</div>
+              <div class="progress11" v-show="nowPhase >= 11" style="width: 25%; background-color: #e8ebf9;">팀 B  발언3</div>
+              <div class="progress12" v-show="nowPhase >= 12" style="width: 25%; background-color: #e8ebf9;">질의응답 3-2</div>
           </div>
       </div>
       <div class="modal-buttons">
@@ -42,11 +42,14 @@
 </template>
 
 <script setup>
-//현 phase 받아오기
 
 
 
-import { ref } from 'vue';
+import { ref, defineProps } from 'vue';
+
+const props = defineProps({
+  nowPhase: Number
+})
 
 const showModal = ref(true);
 
@@ -69,9 +72,8 @@ color: #34227C;
 left: 90px; 
 }
 .balloon2 {
-  bottom: 50px; 
+bottom: 50px; 
 left: 400px; 
-
 }
 .balloon3 {
 bottom: 50px; 
@@ -106,9 +108,6 @@ border-width: 10px 0 0 10px;
 border-style: solid;
 border-color: transparent transparent transparent #f0f0f0; 
 }
-
-
-
 
 .modal {
   display: flex;
